@@ -1,0 +1,3 @@
+[submodule "MetaphorResearch"]
+	path = MetaphorResearch
+	url = https://github.com/ilay32/MetaphorResearch.git
