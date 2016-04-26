@@ -137,3 +137,18 @@ class Lex(SingleWordData):
     def queryscheme(self,word):
         return "SELECT DISTINCT posType FROM Lexicon WHERE word='{0}' AND lemma = '{0}'".format(word)
 
+# general utility functions
+def printlist(l,k=5,silent=False):
+    i = 0
+    last = min(k,len(l))
+    ret = ""
+    while i < last:
+        ret += l[i]
+        if i < last - 1:
+            ret += ","
+        i += 1
+        if i == last and i < len(l):
+            ret += "...("+str(len(l))+")"
+    if not silent:
+        print(ret)
+    return ret

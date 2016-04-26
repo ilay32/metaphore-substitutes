@@ -1,17 +1,19 @@
 # main frame of the program #
-import math,pandas,sys
+import math,pandas,sys,pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
 from pairs import pairs
 from dbutils import *
-vecs = Vecs(DB('LSA-ENG'))
+#vecs = Vecs(DB('LSA-ENG'))
+vecs = pickle.load(open('vecs.pkl','rb'))
 Ngrams = DB('NgramsCOCAAS')
-abst = Abst(Ngrams)
+#abst = Abst(Ngrams)
+abst = pickle.load(open('abst.pkl','rb'))
 lex = Lex(DB('NgramsCOCAAS'))
 
 class MetaphorSubstitute:
     def __init__ (self,options):
-        print("initializing "+options['verb']+", "+options['obj'])
+        print("initializing "+options['verb']+"--"+options['obj'])
         for key in options.keys():
             self.__dict__[key] = options[key]
         self.instance_centroid = self.get_instance_centroid()
@@ -39,23 +41,28 @@ class MetaphorSubstitute:
         ))
         if not q:
             print("error fetching object cluster")
-            return
+            return None
         added = 0
         cur = 0
         try:
             rows = q.fetchall()
             while added < min(self.object_cluster_size,len(rows) - 1):
                 lem = rows[cur][10] # take the lemma in this case ?
-                if(vecs.has(lem)):
+                if vecs.has(lem) and abst.has(lem) and abst.get(lem) > self.abstract_thresh:
                     clust.append(lem)
                     added += 1
                 cur += 1
         except:
             print(verb+" can't find noun cluster. ignored")
+        if SingleWordData.empty(clust) and added == 0:
+            print(verb+" is probably too abstract")
         return clust
-
+        
     def cluster_centroid(self,cluster):
-        print("computing cluster centroid for ",cluster[:5],"...")
+        if SingleWordData.empty(cluster):
+            print("empty cluster")
+            return None
+        print("computing cluster centroid for ",printlist(cluster,7,True))
         added = 0
         acc = vecs.get(cluster[0])
         for word in cluster[1:]:
@@ -64,8 +71,11 @@ class MetaphorSubstitute:
                     print("nan in vector", word)
                 acc = Vecs.addition(acc,vecs.get(word))
                 added += 1
-        return Vecs.multiply(acc,1/added)
-    
+        if added > 0:
+            return Vecs.multiply(acc,1/added)
+        else:
+            return None
+
     def get_instance_centroid(self):
         print("computing instance centroid")
         raw_cluster = self.object_cluster(self.verb)
@@ -99,11 +109,15 @@ class MetaphorSubstitute:
         # loop again to collect lemmas
         for s in synsets:
             syn += [l.name() for l in s.lemmas() if l.name() != self.verb]
-        print("found",syn[:5],"...")
+        print("found",printlist(syn,5,True),"...")
         return list(set(syn[:min(self.number_of_synonyms,len(syn))]))
 
     def cluster_distance(self,objects_cluster):
-        return Vecs.distance(self.cluster_centroid(objects_cluster),self.instance_centroid)
+        cent = self.cluster_centroid(objects_cluster)
+        if cent:
+            return Vecs.distance(cent,self.instance_centroid)
+        else:
+            return 0
 
     def find_substitutes(self):
         syn = self.verb_synonyms()
@@ -126,9 +140,7 @@ class MetaphorSubstitute:
 if __name__ ==  '__main__':
     #v = input("verb:") 
     #o = input("object:")
-    limit = sys.argv[1]
-    if not limit:
-        limit = len(pairs)
+    limit = sys.argv[1] if len(sys.argv) > 1 else len(pairs)
     rundata = list()
     for i in range(int(limit)):
         o,v = pairs[i]
@@ -137,17 +149,16 @@ if __name__ ==  '__main__':
             "obj":  o,
             "object_cluster_size" : 10,
             "instance_object_weight": 5,
-            "synonym_draw" : 10,
             "synonyms_file" : 'synonyms.txt',
             "search_left" : 0,
             "search_right": 5,
-            "abstract_thresh" : 0.6,
+            "abstract_thresh" : 0.5,
             "min_MI" : 0.1,
             "number_of_synonyms" : 15
         })
         if ms.go:
             subs = ms.find_substitutes()
-            d = {"pair": v +"(v), "+o+ "(n)", "substitutes" : subs}
+            d = {"pair": v +" "+o, "substitutes" : subs}
             rundata.append(d)
         print(ms," done","\n====================\n")
     rundata = pandas.DataFrame(rundata)
