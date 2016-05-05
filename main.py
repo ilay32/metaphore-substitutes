@@ -1,16 +1,17 @@
 # main frame of the program #
-import math,pandas,sys,pickle
+import math,pandas,sys,pickle,yaml
 import numpy as np
 from nltk.corpus import wordnet as wn
 from pairs import pairs
 from dbutils import *
-#vecs = Vecs(DB('LSA-ENG'))
-vecs = pickle.load(open('vecs.pkl','rb'))
-Ngrams = DB('NgramsCOCAAS')
-#abst = Abst(Ngrams)
-abst = pickle.load(open('abst.pkl','rb'))
-lex = Lex(DB('NgramsCOCAAS'))
 
+conf = yaml.load(open('params.yml').read())
+vecs = Vecs(DB('LSA-ENG'))
+ngrams = DB('NgramsCOCAAS')
+abst = Abst(ngrams)
+lex = Lex(ngrams)
+clusters = VerbObjects(ngrams)
+candidates = ObjectVerbs(ngrams) 
 class MetaphorSubstitute:
     def __init__ (self,options):
         print("initializing "+options['verb']+"--"+options['obj'])
@@ -31,33 +32,30 @@ class MetaphorSubstitute:
     def object_cluster(self,verb):
         print("fetching objects set for "+verb)
         clust = list()
-        q =  Ngrams.query("GetNgrams '{0}',{1},{2},{3},{4},{5}".format(
-            verb,
-            2, # this is the POS type of verb
-            1, # POS of noun
-            self.search_left, # how many words to look behind
-            self.search_right, # how many words to look ahead
-            self.min_MI # minimal mutual information required for results
-        ))
-        if not q:
-            print("error fetching object cluster")
+        added = cur =  0
+        good = True
+        if not clusters.has(verb):
+            print("can't find object cluster for ",verb)
             return None
-        added = 0
-        cur = 0
-        try:
-            rows = q.fetchall()
-            while added < min(self.object_cluster_size,len(rows) - 1):
-                lem = rows[cur][10] # take the lemma in this case ?
-                if vecs.has(lem) and abst.has(lem) and abst.get(lem) > self.abstract_thresh:
-                    clust.append(lem)
-                    added += 1
-                cur += 1
-        except:
-            print(verb+" can't find noun cluster. ignored")
-        if SingleWordData.empty(clust) and added == 0:
-            print(verb+" is probably too abstract")
+        clust_max = clusters.get(verb)
+        while added < self.object_cluster_size and cur < len(clust_max):
+            lem = clust_max[cur] 
+            if not vecs.has(lem):
+                print(lem+" has no vector representation. ignored.")
+                good = False
+            if not abst.has(lem):
+                print(lem+" has no abstractness degree. ignored.")
+                good = False
+            if good:
+                clust.append(lem)
+                added += 1
+            cur += 1
+        if added == 0:
+            print("all ",len(clust_max)," found nouns are either not abstract enough or vectorless. ",verb," is ignored.")
+            return None
+        print("found: ",printlist(clust,self.object_cluster_size,True))
         return clust
-        
+    
     def cluster_centroid(self,cluster):
         if SingleWordData.empty(cluster):
             print("empty cluster")
@@ -86,18 +84,19 @@ class MetaphorSubstitute:
         return Vecs.multiply(Vecs.addition(cent,Vecs.multiply(vecs.get(self.obj),self.instance_object_weight)),1/2)
     
     # this is probably all wrong    
-    #def verb_synonyms(self):
-    #    identifier = self.obj+"_"+self.verb+"\t"
-    #    with open(self.synonyms_file) as s:
-    #        for line in s:
-    #            if identifier in line:
-    #                synraw = line.partition(identifier)[2].split(',')
-    #                print(synraw[:15])
-    #                synfiltered = [w for w in synraw if lex.has(w) and 2 in lex.get(w) and abst.has(w) and abst.get(w) > self.abstract_thresh]
-    #                print("syns:\n", )
-    #                return synfiltered[:min(self.number_of_synonyms,len(synfiltered))]
-    #    return None
-    def verb_synonyms(self):
+    def verb_synonyms_noam(self):
+        identifier = self.obj+"_"+self.verb+"\t"
+        with open(self.synonyms_file) as s:
+            for line in s:
+                if identifier in line:
+                    synraw = line.partition(identifier)[2].split(',')
+                    print(synraw[:15])
+                    synfiltered = [w for w in synraw if lex.has(w) and 2 in lex.get(w) and abst.has(w) and abst.get(w) > self.abstract_thresh]
+                    print("syns:\n", )
+                    return synfiltered[:min(self.number_of_synonyms,len(synfiltered))]
+        return None
+    
+    def verb_synonyms_wordnet(self):
         print("getting synonyms:")
         synsets = wn.synsets(self.verb)
         syn = list()
@@ -109,8 +108,34 @@ class MetaphorSubstitute:
         # loop again to collect lemmas
         for s in synsets:
             syn += [l.name() for l in s.lemmas() if l.name() != self.verb]
-        print("found",printlist(syn,5,True),"...")
-        return list(set(syn[:min(self.number_of_synonyms,len(syn))]))
+        print("found",printlist(syn,5,True))
+        return set(syn)
+
+    def get_candidates(self):
+        print("fetching candidate replacements for "+self.verb)
+        cands = set()
+        added = cur =  0
+        if not candidates.has(self.obj):
+            print("can't find typical verbs for ",self.obj)
+            return None
+        cands_max = candidates.get(self.obj)
+        added = cur = 0
+        while added < self.number_of_candidates and cur < len(cands_max):
+            candidate = cands_max[cur]
+            if not vecs.has(candidate):
+                print(candidate," has no vector representation. ignored.")
+            elif vecs.word_distance(candidate,self.verb) > self.candidate_sphere_radius:
+                print(candidate," is too far from ",self.verb,". ignored")
+            else:
+                cands.add(candidate)
+                added += 1
+            cur += 1
+        cands = list(cands.union(self.verb_synonyms_wordnet())) 
+        if SingleWordData.empty(cands):
+            print("all ",len(cands_max)," candidates are either vectorless or too far from ",self.verb)
+            return None
+        print("found:",printlist(cands,max(self.number_of_candidates,25),True))
+        return cands
 
     def cluster_distance(self,objects_cluster):
         cent = self.cluster_centroid(objects_cluster)
@@ -120,13 +145,13 @@ class MetaphorSubstitute:
             return 0
 
     def find_substitutes(self):
-        syn = self.verb_synonyms()
+        candidates = self.get_candidates()
         subs = list()
-        for verb in syn:
+        for verb in candidates:
             vc = self.object_cluster(verb)
             if not SingleWordData.empty(vc):
                 subs.append((verb,self.cluster_distance(vc)))
-            subs = sorted(subs)
+        subs = sorted(subs,key=lambda t: t[1],reverse=True)
         self.substitutes = subs
         return subs 
     
@@ -144,26 +169,21 @@ if __name__ ==  '__main__':
     rundata = list()
     for i in range(int(limit)):
         o,v = pairs[i]
-        ms = MetaphorSubstitute({
-            "verb": v,
-            "obj":  o,
-            "object_cluster_size" : 10,
-            "instance_object_weight": 5,
-            "synonyms_file" : 'synonyms.txt',
-            "search_left" : 0,
-            "search_right": 5,
-            "abstract_thresh" : 0.5,
-            "min_MI" : 0.1,
-            "number_of_synonyms" : 15
-        })
+        conf.update({'verb':v,'obj':o})
+        ms = MetaphorSubstitute(conf)
         if ms.go:
             subs = ms.find_substitutes()
             d = {"pair": v +" "+o, "substitutes" : subs}
             rundata.append(d)
         print(ms," done","\n====================\n")
     rundata = pandas.DataFrame(rundata)
+    print("wrapping up and saving stuff")
+    vecs.destroy()
+    ngrams.destroy()
+    abst.destroy()
+    lex.destroy()
+    clusters.destroy()
+    candidates.destroy()     
     print("\n\t\tHura!\n")
-
-
 
 
