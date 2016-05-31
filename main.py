@@ -1,9 +1,10 @@
 # main frame of the program #
-import math,pandas,sys,pickle,yaml
+import math,pandas,sys,pickle,yaml,io,time,random
 import numpy as np
 from nltk.corpus import wordnet as wn
 from pairs import pairs
 from dbutils import *
+from datetime import datetime
 
 conf = yaml.load(open('params.yml').read())
 vecs = Vecs(DB('LSA-ENG'))
@@ -160,15 +161,78 @@ class MetaphorSubstitute:
             self.find_substitutes()
         return self.substitutes[0]
 
+class RunData:
+    datadir = "rundata" 
+    def __enter__(self):
+        return self
+    def __exit__(self,typer, value, traceback):
+        print("done")    
+    def __init__(self,df):
+        self.data = df
+        self.params = open('params.yml').read()
+        self.timestamp = int(time.time())
+    
+    def __str__(self):
+        out = io.StringIO()
+        out.write(time.ctime(self.timestamp))
+        out.write("run parameters:\n==========="+self.params)
+        out.write(self.data)
+        return out.getvalue()
 
+    def save(self):
+        with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
+            pickle.dump(self,f)
+
+    def when(self):
+        print(time.ctime(self.timestamp))
+
+    def how(self):
+        print(self.params)
+
+    def show(self,verb=None,obj=None):
+        d = self.data
+        pairs = list()
+        if verb!=None and obj!=None:
+            pairs = d[d.pair == verb+" "+obj]
+        elif verb != None and obj == None:
+            pairs = d[verb in d.pair].substitutes
+        elif obj != None and verb == None:
+            pairs =  d[obj in d.pair]
+        else:
+            pairs = d
+        for l in range(len(pairs)):
+            printlist(pairs.loc[l].substitutes) 
+                
 
 if __name__ ==  '__main__':
-    #v = input("verb:") 
-    #o = input("object:")
-    limit = sys.argv[1] if len(sys.argv) > 1 else len(pairs)
+    print("pairs: (object,verb)")
+    for i,t in enumerate(pairs):
+        print(i,".",t[0],",",t[1])
+    print("modes:")
+    print("1. number (pick a pair of the above")
+    print("2. rnd n (randomly pick n of the list)")
+    print("3. all")
+    print("4. top n of the list")
+    
+    run = list()
+    mode = ""
+    while mode not in ["1","2","3","4"]:
+        mode = input("choose mode: ")
+    if mode == "1":
+        pair = int(input("pick a pair by it's number on the list: "))
+        run.append(pairs[pair])
+    if mode == "2":
+        random.shuffle(pairs)
+        num = int(input("how many: "))
+        run = pairs[:num]
+    if mode == "3":
+        run = pairs
+    if mode == "4":
+        num = int(input("how many: "))
+        run = pairs[:num]
+    
     rundata = list()
-    for i in range(int(limit)):
-        o,v = pairs[i]
+    for o,v in run:
         conf.update({'verb':v,'obj':o})
         ms = MetaphorSubstitute(conf)
         if ms.go:
@@ -176,8 +240,9 @@ if __name__ ==  '__main__':
             d = {"pair": v +" "+o, "substitutes" : subs}
             rundata.append(d)
         print(ms," done","\n====================\n")
-    rundata = pandas.DataFrame(rundata)
+    rundata = RunData(pandas.DataFrame(rundata))
     print("wrapping up and saving stuff")
+    rundata.save()
     vecs.destroy()
     ngrams.destroy()
     abst.destroy()

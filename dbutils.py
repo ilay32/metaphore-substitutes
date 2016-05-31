@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io
 import numpy as np
 from scipy.spatial.distance import cosine
 
@@ -241,14 +241,56 @@ class ObjectVerbs(Ngram):
 def printlist(l,k=5,silent=False):
     i = 0
     last = min(k,len(l))
-    ret = ""
+    out = io.StringIO()
     while i < last:
-        ret += l[i]
-        if i < last - 1:
-            ret += ","
-        i += 1
+        if isinstance(l[i],(numbers.Number,six.string_types,tuple)):
+            out.write(str(l[i]))
+        elif isinstance(l[i],list):
+            out.write(printlist(min(1,k-1),len(l[i]),True))
+        elif isinstance(l[i],dict):
+            out.write(printdict(l[i]))
         if i == last and i < len(l):
             ret += "...("+str(len(l))+")"
+        if i < last - 1:
+            out.write(",")
+        i += 1
+    ret = out.getvalue()
+    out.close()
     if not silent:
         print(ret)
     return ret
+
+def printdict(d,silent=False):
+    out = io.StringIO()
+    for i,v in d.items():
+        out.write(str(i))
+        out.write(":\t")
+        if isinstance(v,(numbers.Number,six.string_types,tuple)):
+            out.write(str(v))
+        elif isinstance(v,list):
+            out.write(printlist(v,len(v),True))
+        elif isinstance(v,dict):
+            out.write(printdict(v,True))
+        out.write("\n\n")
+    ret = out.getvalue()
+    out.close()
+    if not silent:
+        print(ret)
+    else:
+        return ret
+
+# explore the db cache
+def explore_cache():
+    dbcache = SingleWordData.dbcache
+    cached = os.listdir(dbcache)
+    for i,cache in enumerate(cached):
+        print(i,".\t",os.path.basename(cache))
+    cache = int(input("choose one of the above: "))
+    path = os.path.join(dbcache,cached[cache])
+    if os.path.isfile(path):
+        data = pandas.read_pickle(path)
+        ret = printdict(data)
+        return data
+    print("failed to load ",path)
+    return False
+    
