@@ -1,51 +1,58 @@
 # main frame of the program #
-import math,pandas,sys,pickle,yaml,io,time,random
+import math,pandas,sys,pickle,yaml,io,random
 import numpy as np
 from nltk.corpus import wordnet as wn
-from pairs import pairs
+from pairs import *
 from dbutils import *
-from datetime import datetime
 
 conf = yaml.load(open('params.yml').read())
 vecs = Vecs(DB('LSA-ENG'))
 ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
 lex = Lex(ngrams)
-clusters = VerbObjects(ngrams)
-candidates = ObjectVerbs(ngrams) 
+object_clusters = VerbObjects(ngrams)
+subject_clusters = VerbSubjects(ngrams)
+object_candidates = ObjectVerbs(ngrams) 
+subject_candidates = SubjectVerbs(ngrams) 
 class MetaphorSubstitute:
     def __init__ (self,options):
-        print("initializing "+options['verb']+"--"+options['obj'])
+        print("initializing "+options['verb']+"--"+options['noun'])
         for key in options.keys():
             self.__dict__[key] = options[key]
-        self.instance_centroid = self.get_instance_centroid()
         self.substitutes = list()
+        self.no_abst = list()
+        self.no_vector = list()
+        self.ignored_verbs = list()
         self.go = True
+        self.instance_centroid = self.get_instance_centroid()
         if SingleWordData.empty(self.instance_centroid):
             self.go = False
     
     def __str__(self):
-        return "verb:"+self.verb+", object:"+self.obj;
+        return "verb:"+self.verb+", "+self.rel+":"+self.noun;
     
     # get n nouns, up to k words to the right of the verb,
     # in this version,simple filtering by the instance abstractness
     # threshold
-    def object_cluster(self,verb):
-        print("fetching objects set for "+verb)
+    def noun_cluster(self,verb):
+        print("fetching "+self.rel+"s set for "+verb)
         clust = list()
         added = cur =  0
-        good = True
+        clusters = object_clusters if self.rel == 'object' else subject_clusters
         if not clusters.has(verb):
-            print("can't find object cluster for ",verb)
+            print("can't find noun cluster for ",verb)
             return None
         clust_max = clusters.get(verb)
-        while added < self.object_cluster_size and cur < len(clust_max):
+        while added < self.noun_cluster_size and cur < len(clust_max):
+            good = True
             lem = clust_max[cur] 
             if not vecs.has(lem):
                 print(lem+" has no vector representation. ignored.")
+                self.no_vector.append(lem)
                 good = False
             if not abst.has(lem):
                 print(lem+" has no abstractness degree. ignored.")
+                self.no_abst.append(lem)
                 good = False
             if good:
                 clust.append(lem)
@@ -53,8 +60,9 @@ class MetaphorSubstitute:
             cur += 1
         if added == 0:
             print("all ",len(clust_max)," found nouns are either not abstract enough or vectorless. ",verb," is ignored.")
+            self.ignored_verbs.append(verb)
             return None
-        print("found: ",printlist(clust,self.object_cluster_size,True))
+        print("found: ",printlist(clust,self.noun_cluster_size,True))
         return clust
     
     def cluster_centroid(self,cluster):
@@ -77,16 +85,16 @@ class MetaphorSubstitute:
 
     def get_instance_centroid(self):
         print("computing instance centroid")
-        raw_cluster = self.object_cluster(self.verb)
+        raw_cluster = self.noun_cluster(self.verb)
         if SingleWordData.empty(raw_cluster):
             print("this instance has no cluster. calling it quits")
             return None 
         cent = self.cluster_centroid(raw_cluster)
-        return Vecs.multiply(Vecs.addition(cent,Vecs.multiply(vecs.get(self.obj),self.instance_object_weight)),1/2)
+        return Vecs.multiply(Vecs.addition(cent,Vecs.multiply(vecs.get(self.noun),self.instance_noun_weight)),1/2)
     
     # this is probably all wrong    
     def verb_synonyms_noam(self):
-        identifier = self.obj+"_"+self.verb+"\t"
+        identifier = self.noun+"_"+self.verb+"\t"
         with open(self.synonyms_file) as s:
             for line in s:
                 if identifier in line:
@@ -116,10 +124,11 @@ class MetaphorSubstitute:
         print("fetching candidate replacements for "+self.verb)
         cands = set()
         added = cur =  0
-        if not candidates.has(self.obj):
-            print("can't find typical verbs for ",self.obj)
+        candidates = object_candidates if self.rel == 'object' else subject_candidates
+        if not candidates.has(self.noun):
+            print("can't find typical verbs for ",self.noun)
             return None
-        cands_max = candidates.get(self.obj)
+        cands_max = candidates.get(self.noun)
         added = cur = 0
         while added < self.number_of_candidates and cur < len(cands_max):
             candidate = cands_max[cur]
@@ -138,8 +147,8 @@ class MetaphorSubstitute:
         print("found:",printlist(cands,max(self.number_of_candidates,25),True))
         return cands
 
-    def cluster_distance(self,objects_cluster):
-        cent = self.cluster_centroid(objects_cluster)
+    def cluster_distance(self,cluster):
+        cent = self.cluster_centroid(cluster)
         if cent:
             return Vecs.distance(cent,self.instance_centroid)
         else:
@@ -148,11 +157,12 @@ class MetaphorSubstitute:
     def find_substitutes(self):
         candidates = self.get_candidates()
         subs = list()
-        for verb in candidates:
-            vc = self.object_cluster(verb)
-            if not SingleWordData.empty(vc):
-                subs.append((verb,self.cluster_distance(vc)))
-        subs = sorted(subs,key=lambda t: t[1],reverse=True)
+        if not SingleWordData.empty(candidates):
+            for verb in candidates:
+                vc = self.noun_cluster(verb)
+                if not SingleWordData.empty(vc):
+                    subs.append((verb,self.cluster_distance(vc)))
+            subs = sorted(subs,key=lambda t: t[1],reverse=True)
         self.substitutes = subs
         return subs 
     
@@ -161,94 +171,76 @@ class MetaphorSubstitute:
             self.find_substitutes()
         return self.substitutes[0]
 
-class RunData:
-    datadir = "rundata" 
-    def __enter__(self):
-        return self
-    def __exit__(self,typer, value, traceback):
-        print("done")    
-    def __init__(self,df):
-        self.data = df
-        self.params = open('params.yml').read()
-        self.timestamp = int(time.time())
-    
-    def __str__(self):
-        out = io.StringIO()
-        out.write(time.ctime(self.timestamp))
-        out.write("run parameters:\n==========="+self.params)
-        out.write(self.data)
-        return out.getvalue()
-
-    def save(self):
-        with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
-            pickle.dump(self,f)
-
-    def when(self):
-        print(time.ctime(self.timestamp))
-
-    def how(self):
-        print(self.params)
-
-    def show(self,verb=None,obj=None):
-        d = self.data
-        pairs = list()
-        if verb!=None and obj!=None:
-            pairs = d[d.pair == verb+" "+obj]
-        elif verb != None and obj == None:
-            pairs = d[verb in d.pair].substitutes
-        elif obj != None and verb == None:
-            pairs =  d[obj in d.pair]
-        else:
-            pairs = d
-        for l in range(len(pairs)):
-            printlist(pairs.loc[l].substitutes) 
-                
+               
 
 if __name__ ==  '__main__':
-    print("pairs: (object,verb)")
-    for i,t in enumerate(pairs):
-        print(i,".",t[0],",",t[1])
+    object_verb = [(n,v,'object') for n,v in object_verb]
+    subject_verb = [(n,v,'subject') for n,v in subject_verb]
+    print("(object,verb):")
+    for i,t in enumerate(object_verb):
+        print(i+1,".",t[0],",",t[1])
+    print("(subject,verb):")
+    for i,t in enumerate(subject_verb):
+        print(i+len(object_verb),".",t[0],",",t[1])
     print("modes:")
-    print("1. number (pick a pair of the above")
-    print("2. rnd n (randomly pick n of the list)")
+    print("1. number -- pick a pair of the above")
+    print("2. rnd n randomly pick n of the (object,verb) kind")
     print("3. all")
-    print("4. top n of the list")
+    print("4. only object,verb")
+    print("5. only subject,verb")
     
     run = list()
     mode = ""
-    while mode not in ["1","2","3","4"]:
+    while mode not in ["1","2","3","4","5"]:
         mode = input("choose mode: ")
     if mode == "1":
-        pair = int(input("pick a pair by it's number on the list: "))
-        run.append(pairs[pair])
+        pair = int(input("pick a pair by it's number on the list: ")) - 1
+        if pair < len(object_verb):
+            run.append(object_verb[pair])
+        else:
+            run.append(subject_verb[pair - len(object_verb)])
+    
     if mode == "2":
-        random.shuffle(pairs)
+        random.shuffle(object_verb)
         num = int(input("how many: "))
-        run = pairs[:num]
+        run = object_verb[:num]
+    
     if mode == "3":
-        run = pairs
+        run = object_verb + subject_verb
+    
     if mode == "4":
-        num = int(input("how many: "))
-        run = pairs[:num]
+        run = object_verb
+
+    if mode == "5":
+        run = subject_verb 
     
     rundata = list()
-    for o,v in run:
-        conf.update({'verb':v,'obj':o})
+    note = input("add a note about this run:")
+    for n,v,r in run:
+        conf.update({'verb':v,'noun':n,'rel': r})
         ms = MetaphorSubstitute(conf)
         if ms.go:
             subs = ms.find_substitutes()
-            d = {"pair": v +" "+o, "substitutes" : subs}
+            d = {
+                "pair": v +" "+n+" ("+r+")",
+                "substitutes" : subs, 
+                "no_vector" : ms.no_vector, 
+                "no_abst" : ms.no_abst,
+                "ignored" : ms.ignored_verbs
+            }
             rundata.append(d)
         print(ms," done","\n====================\n")
-    rundata = RunData(pandas.DataFrame(rundata))
+    rundata = RunData(pandas.DataFrame(rundata),note)
     print("wrapping up and saving stuff")
     rundata.save()
     vecs.destroy()
     ngrams.destroy()
     abst.destroy()
     lex.destroy()
-    clusters.destroy()
-    candidates.destroy()     
+    object_clusters.destroy()
+    subject_clusters.destroy()
+    object_candidates.destroy()     
+    subject_candidates.destroy()     
     print("\n\t\tHura!\n")
 
 

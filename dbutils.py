@@ -1,8 +1,9 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time
 import numpy as np
 from scipy.spatial.distance import cosine
-
+from datetime import datetime
 conf = yaml.load(open('params.yml').read())
+
 class DB:
     def __init__(self,catalog=None):
         specs = yaml.load(open('db.yml').read())
@@ -16,6 +17,7 @@ class DB:
     
     def query(self,q):
         c = self.conn.cursor()
+        c.setoutputsize(conf['cluster_maxrows'] + conf['candidates_maxrows'])
         try:
             c.execute(q)
         except pymssql.DatabaseError as e: 
@@ -40,6 +42,7 @@ class SingleWordData:
                 return w
 
     def has(self,word):
+        word = word.replace("'","")
         if word not in self.notfound:
             self.get(word)
             if word in self.table:
@@ -55,6 +58,7 @@ class SingleWordData:
         return len(obj) ==  0
 
     def get(self,word):
+        word = word.replace("'","")
         if word in self.notfound:
             print("this shouldn't be here")
         if word in self.table:
@@ -191,7 +195,7 @@ class Ngram(SingleWordData):
         ])
 
     def queryscheme(self,word):
-        return "GetNgrams '{0}',{1},{2},{3},{4},{5}".format(
+        query_base = "'{0}',{1},{2},{3},{4},{5}".format(
             word,
             self.key_pos, # this is the POS type of verb
             self.search_pos,
@@ -199,6 +203,10 @@ class Ngram(SingleWordData):
             self.right, # how many words to look ahead
             self.mi # minimal mutual information required for results
         )
+        if self.db.query("IsNgramsReady "+query_base+",1"): 
+            return "GetNgrams "+query_base    
+        return False
+
     def handlequery(self,q):
         try:
             ret = set()
@@ -218,25 +226,49 @@ class VerbObjects(Ngram):
         self.search_pos = 1
         self.left = str(conf['search_objects_left'])
         self.right = str(conf['search_objects_right'])
-        self.mi = str(conf['object_min_MI'])
+        self.mi = str(conf['noun_min_MI'])
         self.column = 10
         self.global_limit = conf['cluster_maxrows']
         self.name = 'object-clusters'
         super(Ngram,self).__init__(db)
 
+class VerbSubjects(Ngram):
+    def __init__(self,db):
+        self.key_pos = 2
+        self.search_pos = 1
+        self.left = str(conf['search_subjects_left'])
+        self.right = str(conf['search_subjects_right'])
+        self.mi = str(conf['noun_min_MI'])
+        self.column = 10
+        self.global_limit = conf['cluster_maxrows']
+        self.name = 'subject-clusters'
+        super(Ngram,self).__init__(db)
 
 class ObjectVerbs(Ngram):
     def __init__(self,db):
         self.key_pos = 1
         self.search_pos = 2
-        self.left = str(conf['search_verbs_left'])
-        self.right = str(conf['search_verbs_right'])
+        self.left = str(conf['search_object_verbs_left'])
+        self.right = str(conf['search_object_verbs_right'])
         self.mi = str(conf['verb_min_MI'])
         self.column = 10
         self.global_limit = conf['candidates_maxrows']
-        self.name = 'candidates'
+        self.name = 'object-candidates'
         super(Ngram,self).__init__(db)
 
+class SubjectVerbs(Ngram):
+    def __init__(self,db):
+        self.key_pos = 1
+        self.search_pos = 2
+        self.left = str(conf['search_subject_verbs_left'])
+        self.right = str(conf['search_subject_verbs_right'])
+        self.mi = str(conf['verb_min_MI'])
+        self.column = 10
+        self.global_limit = conf['candidates_maxrows']
+        self.name = 'subject-candidates'
+        super(Ngram,self).__init__(db)
+
+#
 # general utility functions
 def printlist(l,k=5,silent=False):
     i = 0
@@ -284,13 +316,59 @@ def explore_cache():
     dbcache = SingleWordData.dbcache
     cached = os.listdir(dbcache)
     for i,cache in enumerate(cached):
-        print(i,".\t",os.path.basename(cache))
+        print(i+1,".\t",os.path.basename(cache))
     cache = int(input("choose one of the above: "))
-    path = os.path.join(dbcache,cached[cache])
+    path = os.path.join(dbcache,cached[cache-1])
     if os.path.isfile(path):
         data = pandas.read_pickle(path)
-        ret = printdict(data)
+        #ret = printdict(data)
+        print("the "+cached[cache-1]+" basic dict is available as 'data'")
         return data
     print("failed to load ",path)
     return False
+
+class RunData:
+    datadir = "rundata" 
+    def __enter__(self):
+        return self
+    def __exit__(self,typer, value, traceback):
+        print("done")    
+    
+    def __init__(self,df,note):
+        self.data = df
+        self.params = yaml.load(open('params.yml').read())
+        self.timestamp = int(time.time())
+        self.note = note
+    
+    def __str__(self):
+        out = io.StringIO()
+        out.write(time.ctime(self.timestamp))
+        out.write("run parameters:\n==========="+self.params)
+        out.write(self.data)
+        return out.getvalue()
+
+    def save(self):
+        with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
+            pickle.dump(self,f)
+
+    def when(self):
+        print(time.ctime(self.timestamp))
+
+    def how(self):
+        printdict(self.params)
+        print("note: ",self.note)
+
+    def show(self,verb=None,noun=None):
+        d = self.data
+        pairs = list()
+        if verb!=None and noun!=None:
+            pairs = d[d.pair == verb+" "+noun]
+        elif verb != None and noun == None:
+            pairs = d[verb in d.pair].substitutes
+        elif noun != None and verb == None:
+            pairs =  d[noun in d.pair]
+        else:
+            pairs = d
+        for l in range(len(pairs)):
+            printlist(pairs.loc[l].substitutes,self.params['number_of_candidates']) 
     

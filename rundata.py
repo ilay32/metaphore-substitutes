@@ -1,5 +1,5 @@
 import os,pandas,time
-from main import RunData
+from dbutils import RunData
 def explore_rundata():
     files = os.listdir(RunData.datadir)
     paths = list()
