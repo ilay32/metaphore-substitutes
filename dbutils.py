@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading
 import numpy as np
 from scipy.spatial.distance import cosine
 from datetime import datetime
@@ -185,7 +185,7 @@ class Lex(SingleWordData):
         return 'lex'
 
 class Ngram(SingleWordData):
-
+    
     def search_table(self):
         return '-'.join([
             self.name,
@@ -193,8 +193,8 @@ class Ngram(SingleWordData):
             self.right,
             self.mi
         ])
-
-    def queryscheme(self,word):
+    
+    def ready(self,word):
         query_base = "'{0}',{1},{2},{3},{4},{5}".format(
             word,
             self.key_pos, # this is the POS type of verb
@@ -203,9 +203,14 @@ class Ngram(SingleWordData):
             self.right, # how many words to look ahead
             self.mi # minimal mutual information required for results
         )
-        if self.db.query("IsNgramsReady "+query_base+",1"): 
-            return "GetNgrams "+query_base    
-        return False
+        self.query_base = query_base
+        return bool(self.db.query("IsNgramsReady "+query_base+",1")) == True
+    
+    def queryscheme(self,word):
+        cv = threading.Condition
+        while not self.ready(word): 
+            cv.wait() 
+        return "GetNgrams "+self.query_base    
 
     def handlequery(self,q):
         try:
@@ -343,10 +348,24 @@ class RunData:
     def __str__(self):
         out = io.StringIO()
         out.write(time.ctime(self.timestamp))
-        out.write("run parameters:\n==========="+self.params)
-        out.write(self.data)
+        out.write(", run parameters:\n===========\n"+printdict(self.params,True))
         return out.getvalue()
-
+    
+    def tofile(self):
+        with open(os.path.join(RunData.datadir,str(self.timestamp)+".txt"),"w") as f:
+            d = self.data
+            f.write(self.__str__()+"\n")
+            for i in range(len(d)):
+                f.write(d.loc[i,'pair'])
+                if 'rel' in d.loc[i]:
+                    f.write(" ("+d.loc[i,'rel']+")")
+                f.write("\n=====================\n")
+                for sub in d.loc[i,'substitutes'][:self.params['number_of_candidates']]:
+                    f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
+                f.write("\n\n")
+            
+            
+    
     def save(self):
         with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
             pickle.dump(self,f)
