@@ -141,6 +141,7 @@ class MetaphorSubstitute:
                 added += 1
             cur += 1
         cands = list(cands.union(self.verb_synonyms_wordnet())) 
+        #cands = list(cands)
         if SingleWordData.empty(cands):
             print("all ",len(cands_max)," candidates are either vectorless or too far from ",self.verb)
             return None
@@ -222,7 +223,9 @@ if __name__ ==  '__main__':
         if ms.go:
             subs = ms.find_substitutes()
             d = {
-                "pair": v +" "+n+" ("+r+")",
+                "verb": v,
+                "noun" : n,
+                "rel" : r,
                 "substitutes" : subs, 
                 "no_vector" : ms.no_vector, 
                 "no_abst" : ms.no_abst,

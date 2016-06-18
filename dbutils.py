@@ -308,7 +308,7 @@ def printdict(d,silent=False):
             out.write(printlist(v,len(v),True))
         elif isinstance(v,dict):
             out.write(printdict(v,True))
-        out.write("\n\n")
+        out.write("\n")
     ret = out.getvalue()
     out.close()
     if not silent:
@@ -336,6 +336,7 @@ class RunData:
     datadir = "rundata" 
     def __enter__(self):
         return self
+    
     def __exit__(self,typer, value, traceback):
         print("done")    
     
@@ -343,24 +344,31 @@ class RunData:
         self.data = df
         self.params = yaml.load(open('params.yml').read())
         self.timestamp = int(time.time())
-        self.note = note
+        self.note = note.strip()
     
     def __str__(self):
         out = io.StringIO()
-        out.write(time.ctime(self.timestamp))
-        out.write(", run parameters:\n===========\n"+printdict(self.params,True))
+        out.write(time.ctime(self.timestamp)+"\n")
+        out.write(self.note+"\n")
+        out.write("parameters:\n"+printdict(self.params,True))
         return out.getvalue()
+
+    def __repr__(self):
+        return self.__str__()
     
-    def tofile(self):
-        with open(os.path.join(RunData.datadir,str(self.timestamp)+".txt"),"w") as f:
+    def tofile(self,location=None):
+        if location != None and not os.path.isdir(location):
+            print(location," is not a valid directory. aborting")
+            return
+        filename  = self.note.replace(' ','_')
+        path =  os.path.join(location,filename) if location != None else filename
+        with open(os.path.join(path+".txt"),"w") as f:
             d = self.data
-            f.write(self.__str__()+"\n")
-            for i in range(len(d)):
-                f.write(d.loc[i,'pair'])
-                if 'rel' in d.loc[i]:
-                    f.write(" ("+d.loc[i,'rel']+")")
+            f.write(str(self)+"\n")
+            for i,row in d.iterrows():
+                f.write(row.verb+" "+row.noun+" ("+row.rel+")")
                 f.write("\n=====================\n")
-                for sub in d.loc[i,'substitutes'][:self.params['number_of_candidates']]:
+                for sub in row['substitutes'][:self.params['number_of_candidates']]:
                     f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
                 f.write("\n\n")
             
@@ -379,15 +387,29 @@ class RunData:
 
     def show(self,verb=None,noun=None):
         d = self.data
+        if verb == 'pairs':
+            for i,row in d.iterrows():
+                print(str(i)+".",row.verb," ",row.noun," ",row.rel,"\n")
+            return
+
+        if verb in ['no_vector','no_abst','ignored']:
+            acc = set()
+            for l in range(len(d)):
+                acc = acc.union(set(d.loc[l,verb]))
+            ans = list(acc)
+            printlist(ans,len(ans))
+            return
+        
         pairs = list()
         if verb!=None and noun!=None:
-            pairs = d[d.pair == verb+" "+noun]
+            pairs = d[d.verb == verb & d.noun == noun]
         elif verb != None and noun == None:
-            pairs = d[verb in d.pair].substitutes
+            pairs = d[d.verb == verb]
         elif noun != None and verb == None:
-            pairs =  d[noun in d.pair]
+            pairs =  d[d.noun == noun]
+                    
         else:
             pairs = d
-        for l in range(len(pairs)):
-            printlist(pairs.loc[l].substitutes,self.params['number_of_candidates']) 
+        for i,row in pairs.iterrows():
+            printlist(row['substitutes'],self.params['number_of_candidates']) 
     
