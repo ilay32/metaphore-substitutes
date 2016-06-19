@@ -20,9 +20,9 @@ class MetaphorSubstitute:
         for key in options.keys():
             self.__dict__[key] = options[key]
         self.substitutes = list()
-        self.no_abst = list()
-        self.no_vector = list()
-        self.ignored_verbs = list()
+        self.no_abst = set()
+        self.no_vector = set()
+        self.ignored_verbs = set()
         self.go = True
         self.instance_centroid = self.get_instance_centroid()
         if SingleWordData.empty(self.instance_centroid):
@@ -48,11 +48,11 @@ class MetaphorSubstitute:
             lem = clust_max[cur] 
             if not vecs.has(lem):
                 print(lem+" has no vector representation. ignored.")
-                self.no_vector.append(lem)
+                self.no_vector.add(lem)
                 good = False
             if not abst.has(lem):
                 print(lem+" has no abstractness degree. ignored.")
-                self.no_abst.append(lem)
+                self.no_abst.add(lem)
                 good = False
             if good:
                 clust.append(lem)
@@ -60,7 +60,7 @@ class MetaphorSubstitute:
             cur += 1
         if added == 0:
             print("all ",len(clust_max)," found nouns are either not abstract enough or vectorless. ",verb," is ignored.")
-            self.ignored_verbs.append(verb)
+            self.ignored_verbs.add(verb)
             return None
         print("found: ",printlist(clust,self.noun_cluster_size,True))
         return clust
@@ -134,19 +134,25 @@ class MetaphorSubstitute:
             candidate = cands_max[cur]
             if not vecs.has(candidate):
                 print(candidate," has no vector representation. ignored.")
+                self.no_vector.add(candidate)
             elif vecs.word_distance(candidate,self.verb) > self.candidate_sphere_radius:
                 print(candidate," is too far from ",self.verb,". ignored")
-            else:
+                self.ignored_verbs.add(candidate)
+            elif not abst.has(candidate):
+                print(candidate," has no abstractness degree. ignored")
+                self.no_abst.add(candidate)
+            elif abst.get(candidate) > self.abstract_thresh:
                 cands.add(candidate)
                 added += 1
             cur += 1
-        cands = list(cands.union(self.verb_synonyms_wordnet())) 
-        #cands = list(cands)
-        if SingleWordData.empty(cands):
+        wn_syns = self.verb_synonyms_wordnet()
+        # put the synonyms first while eliminating duplicates
+        candlist = list(wn_syns) + [cand for cand in cands if cand not in wn_syns]
+        if SingleWordData.empty(candlist):
             print("all ",len(cands_max)," candidates are either vectorless or too far from ",self.verb)
             return None
-        print("found:",printlist(cands,max(self.number_of_candidates,25),True))
-        return cands
+        print("found:",printlist(candlist,self.number_of_candidates,True))
+        return candlist
 
     def cluster_distance(self,cluster):
         cent = self.cluster_centroid(cluster)

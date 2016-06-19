@@ -2,6 +2,7 @@ import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,thre
 import numpy as np
 from scipy.spatial.distance import cosine
 from datetime import datetime
+from difflib import SequenceMatcher
 conf = yaml.load(open('params.yml').read())
 
 class DB:
@@ -277,17 +278,19 @@ class SubjectVerbs(Ngram):
 # general utility functions
 def printlist(l,k=5,silent=False):
     i = 0
-    last = min(k,len(l))
+    last = min(k,len(l) - 1)
     out = io.StringIO()
-    while i < last:
+    if isinstance(l,set):
+        l = list(l)
+    while i <= last:
         if isinstance(l[i],(numbers.Number,six.string_types,tuple)):
             out.write(str(l[i]))
         elif isinstance(l[i],list):
             out.write(printlist(min(1,k-1),len(l[i]),True))
         elif isinstance(l[i],dict):
             out.write(printdict(l[i]))
-        if i == last and i < len(l):
-            ret += "...("+str(len(l))+")"
+        if i == last and i < len(l) - 1:
+            out.write("...("+str(len(l))+")")
         if i < last - 1:
             out.write(",")
         i += 1
@@ -394,10 +397,9 @@ class RunData:
 
         if verb in ['no_vector','no_abst','ignored']:
             acc = set()
-            for l in range(len(d)):
-                acc = acc.union(set(d.loc[l,verb]))
-            ans = list(acc)
-            printlist(ans,len(ans))
+            for i,row in d.iterrows():
+                acc = acc.union(row[verb])
+            printlist(acc,len(acc))
             return
         
         pairs = list()
