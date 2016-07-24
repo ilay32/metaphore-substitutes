@@ -2,7 +2,6 @@
 import math,pandas,sys,pickle,yaml,io,random
 import numpy as np
 from nltk.corpus import wordnet as wn
-from pairs import *
 from dbutils import *
 
 conf = yaml.load(open('params.yml').read())
@@ -14,6 +13,7 @@ object_clusters = VerbObjects(ngrams)
 subject_clusters = VerbSubjects(ngrams)
 object_candidates = ObjectVerbs(ngrams) 
 subject_candidates = SubjectVerbs(ngrams) 
+
 class MetaphorSubstitute:
     def __init__ (self,options):
         print("initializing "+options['verb']+"--"+options['noun'])
@@ -28,12 +28,29 @@ class MetaphorSubstitute:
         if SingleWordData.empty(self.instance_centroid):
             self.go = False
     
+    def evaluate(self):
+        if SingleWordData.empty(self.substitutes):
+            print("You have to run get_substitutes first")
+            return False
+        if SingleWordData.empty(self.gold):
+            return False
+        mrr = 0
+        tst = self.substitutes
+        gld = self.gold
+        l = min(len(tst),len(gld))
+        for t in tst[:l]:
+            if t in gld:
+                mrr += 1/gld.index(t)+1
+        return mrr/l
+            
+
     def __str__(self):
         return "verb:"+self.verb+", "+self.rel+":"+self.noun;
     
     # get n nouns, up to k words to the right of the verb,
     # in this version,simple filtering by the instance abstractness
     # threshold
+    @hereiam
     def noun_cluster(self,verb):
         print("fetching "+self.rel+"s set for "+verb)
         clust = list()
@@ -43,20 +60,22 @@ class MetaphorSubstitute:
             print("can't find noun cluster for ",verb)
             return None
         clust_max = clusters.get(verb)
+        print("looping nouns",self.noun_cluster_size,len(clust_max)) 
         while added < self.noun_cluster_size and cur < len(clust_max):
-            good = True
             lem = clust_max[cur] 
-            if not vecs.has(lem):
-                print(lem+" has no vector representation. ignored.")
-                self.no_vector.add(lem)
-                good = False
-            if not abst.has(lem):
-                print(lem+" has no abstractness degree. ignored.")
-                self.no_abst.add(lem)
-                good = False
-            if good:
-                clust.append(lem)
-                added += 1
+            if not SingleWordData.empty(lem):
+                good = True
+                if not vecs.has(lem):
+                    print(lem+" has no vector representation. ignored.")
+                    self.no_vector.add(lem)
+                    good = False
+                if not abst.has(lem) and good:
+                    print(lem+" has no abstractness degree. ignored.")
+                    self.no_abst.add(lem)
+                    good = False
+                if good:
+                    clust.append(lem)
+                    added += 1
             cur += 1
         if added == 0:
             print("all ",len(clust_max)," found nouns are either not abstract enough or vectorless. ",verb," is ignored.")
@@ -65,6 +84,7 @@ class MetaphorSubstitute:
         print("found: ",printlist(clust,self.noun_cluster_size,True))
         return clust
     
+    @hereiam
     def cluster_centroid(self,cluster):
         if SingleWordData.empty(cluster):
             print("empty cluster")
@@ -83,6 +103,7 @@ class MetaphorSubstitute:
         else:
             return None
 
+    @hereiam
     def get_instance_centroid(self):
         print("computing instance centroid")
         raw_cluster = self.noun_cluster(self.verb)
@@ -105,6 +126,7 @@ class MetaphorSubstitute:
                     return synfiltered[:min(self.number_of_synonyms,len(synfiltered))]
         return None
     
+    @hereiam
     def verb_synonyms_wordnet(self):
         print("getting synonyms:")
         synsets = wn.synsets(self.verb)
@@ -154,6 +176,7 @@ class MetaphorSubstitute:
         print("found:",printlist(candlist,self.number_of_candidates,True))
         return candlist
 
+    @hereiam
     def cluster_distance(self,cluster):
         cent = self.cluster_centroid(cluster)
         if cent:
@@ -161,6 +184,7 @@ class MetaphorSubstitute:
         else:
             return 0
 
+    @hereiam
     def find_substitutes(self):
         candidates = self.get_candidates()
         subs = list()
@@ -181,14 +205,15 @@ class MetaphorSubstitute:
                
 
 if __name__ ==  '__main__':
-    object_verb = [(n,v,'object') for n,v in object_verb]
-    subject_verb = [(n,v,'subject') for n,v in subject_verb]
-    print("(object,verb):")
-    for i,t in enumerate(object_verb):
-        print(i+1,".",t[0],",",t[1])
-    print("(subject,verb):")
-    for i,t in enumerate(subject_verb):
-        print(i+len(object_verb),".",t[0],",",t[1])
+    pairs = yaml.load(open('pairs.yml'))
+    verb_object = sorted(list(pairs['verb_object'].values()),key = lambda x: x['verb'])
+    verb_subject = sorted(list(pairs['verb_subject'].values()),key = lambda x: x['verb'])
+    print("verb - object pairs:")
+    for i,t in enumerate(verb_object):
+        print(str(i+1)+".",t['verb'],",",t['noun'])
+    print("verb - subject pairs:")
+    for i,t in enumerate(verb_subject):
+        print(str(i+len(verb_object)+1)+".",t['verb'],",",t['noun'])
     print("modes:")
     print("1. number -- pick a pair of the above")
     print("2. rnd n randomly pick n of the (object,verb) kind")
@@ -202,40 +227,41 @@ if __name__ ==  '__main__':
         mode = input("choose mode: ")
     if mode == "1":
         pair = int(input("pick a pair by it's number on the list: ")) - 1
-        if pair < len(object_verb):
-            run.append(object_verb[pair])
+        if pair < len(verb_object):
+            run.append(verb_object[pair])
         else:
-            run.append(subject_verb[pair - len(object_verb)])
+            run.append(verb_subject[pair - len(verb_object)])
     
     if mode == "2":
-        random.shuffle(object_verb)
+        random.shuffle(verb_object)
         num = int(input("how many: "))
-        run = object_verb[:num]
+        run = verb_object[:num]
     
     if mode == "3":
-        run = object_verb + subject_verb
+        run = verb_object + verb_subject
     
     if mode == "4":
-        run = object_verb
+        run = verb_object
 
     if mode == "5":
-        run = subject_verb 
+        run = verb_subject 
     
     rundata = list()
     note = input("add a note about this run:")
-    for n,v,r in run:
-        conf.update({'verb':v,'noun':n,'rel': r})
+    for p in run:
+        conf.update(p)
         ms = MetaphorSubstitute(conf)
         if ms.go:
             subs = ms.find_substitutes()
             d = {
-                "verb": v,
-                "noun" : n,
-                "rel" : r,
+                "verb": p['verb'],
+                "noun" : p['noun'],
+                "rel" : p['rel'],
                 "substitutes" : subs, 
                 "no_vector" : ms.no_vector, 
                 "no_abst" : ms.no_abst,
-                "ignored" : ms.ignored_verbs
+                "ignored" : ms.ignored_verbs,
+                "score" : ms.evaluate()
             }
             rundata.append(d)
         print(ms," done","\n====================\n")

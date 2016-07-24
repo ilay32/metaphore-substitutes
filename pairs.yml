@@ -1,0 +1,606 @@
+verb_subject:
+    slip_memory:
+        verb: slip_away
+        noun: memory
+        rel: subject
+        gold:
+            - disperse
+            - vanish
+    operate_change:
+        # [..] the context in which these social and economic changes operated [..]
+        verb: operate
+        noun: change
+        rel: subject
+        gold:
+            - work
+            - transpire
+            - affect
+            - happen
+            - proceed
+
+    surge_campaign:
+        # The Clinton campaign surged again and he easily won the Democratic nomination.
+        verb: surge
+        noun: campaign 
+        rel: subject
+        gold:
+            - intensify
+            - increase
+            - expand # more metaphoric than surge?
+            - extend # ditto
+            - strengthen # ditto?
+    
+    illustrate_example: 
+        # There are many well-chosen examples which clearly illustrate [..]
+        verb: illustrate # metaphoric?
+        noun: example
+        rel: subject
+        gold: 
+            - exemplify
+            - demonstrate
+            - explain
+            - prove
+            - elaborate
+    
+    focus_scientist:
+        # scientists focus on [..]
+        verb: focus
+        noun: scientist
+        rel: subject
+        gold:
+            - concentrate
+            - specialize
+    cut_voice:
+        # The man's voice cut in – 'Do you believe me now , Mr Abberley?'
+        verb: cut_in
+        noun: voice
+        rel: subject
+        gold:
+            - interrupt
+            - interject
+            - sound
+            - disrupt
+            - interfere
+    
+    shape_factor: 
+        verb: shape
+        noun: factor
+        rel: subject
+        gold:
+            - determine
+            - set
+            - dictate
+            - delineate
+            - designate
+    
+    speak_obituary:
+        verb: speak
+        noun: obituary
+        rel: subject
+        gold:
+            - convey
+            - relate
+            - express
+            - confer
+            - communicate
+    
+    regard_present:
+        # The present regards the past as a little more than the springboard from which we were launched on our way.
+        verb: regard # metaphoric?
+        noun: present
+        rel: subject
+        gold:
+            - consider
+            - contemplate
+            - think
+            - view
+            - conceive
+    
+    mount_tension:
+        # The tension mounted around what seemed such a small ring for two massive men.
+        verb: mount
+        noun: tension
+        rel: subject
+        gold:
+            - increase #less metaphoric than mount?
+            - intensify 
+            - strengthen # ditto
+            - accumulate # ditto
+            - highten
+    
+    reflect_view:
+        verb: reflect #is it really more metaphoric than represent?
+        noun: view
+        rel: subject
+        gold:
+            - represent
+            - indicate
+            - suggest
+            - exemplify
+            - demonstrate
+    
+verb_object:
+    #soviet socialism was held to have solved the national question
+    hold_socialism:
+        verb: hold
+        noun: socialism
+        rel: object
+        gold:
+            - consider
+            - think
+            - believe
+            - view
+            - regard
+    
+    stress_activity:
+        # [..] historians and sociologists stressing activities of men's lives [..]
+        verb: stress  #metaphoric?
+        noun: activity
+        rel: object
+        gold:
+            - emphasize
+            - enhance
+            - highlight
+            - note
+            - clarify
+    
+    break_agreement:
+        # Your husband broke our agreement, Mrs Abberley.
+        verb: break
+        noun: agreement
+        rel: object
+        gold:
+            - violate
+            - breach
+            - cancel
+            - void
+            - transgress
+    
+    reach_agreement:
+        # [..] he is never in doubt about agreements he reaches or deals he makes.
+        verb: reach #metaphoric?
+        noun: agreement
+        rel: object
+        gold:
+            - attain
+            - obtain
+            - make
+            - achieve
+            - secure 
+    
+    illustrate_aspect:
+        # This aspect of Petrey's thinking is also illustrated in his discussion [..]
+        verb: illustrate # metaphoric??
+        noun: aspect
+        rel: object
+        gold:
+            - describe
+            - exemplify
+            - elucidate
+            - elaborate
+            - explain
+    
+    base_career: 
+        # they were basing their careers on the industrial platform...
+        verb: base #metaphoric?
+        noun: career
+        rel: object
+        gold:
+            - establish
+            - found
+            - ground
+            - count
+            - rely
+    
+    accelerate_change:
+        # in the nineteenth century change was greatly accelerated
+        verb: accelerate #more metaphoric than speed or quicken?
+        noun: change
+        rel: object
+        gold:
+            - quicken
+            - expedite
+            - speed
+            - promote
+            - catalyze
+    
+    reflect_concern:
+        # The writer [..] reflected some of these concerns 
+        verb: reflect
+        noun: concern
+        rel: object
+        gold: &reflect_object
+            - demonstrate
+            - exhibit
+            - reveal
+            - manifest
+            - indicate
+    
+    catch_contagion:
+        # Impressionist painters caught the contagion
+        verb: catch
+        noun: contagion # here the *noun* is really metaphoric
+        rel: object
+        gold:
+            - contract
+            - get
+            - acquire
+            - suffer
+            - incur
+    
+    dismiss_contrast:
+        # [..] this contrast can not be dismissed
+        verb: dismiss
+        noun: contrast
+        rel: object
+        gold:
+            - disregard
+            - ignore
+            - omit
+            - discard
+            - neglect
+
+    impose_control:
+        # [..] imposing a fraction of her normal self-control
+        verb: impose # metaphoric ??
+        noun: self_control
+        rel: object
+        gold: 
+            - employ
+            - exert
+            - use
+            - enforce
+            - realize
+
+
+    impose_decision:
+        # Central decisions could be imposed by the government.
+        verb: impose
+        noun: decision
+        rel: object
+        gold: 
+            - enact
+            - enforce
+            - make
+            - order
+            - decree
+    cast_doubt: 
+        verb: cast #idiomatic
+        noun: doubt
+        rel: object
+        gold:
+            - express
+            - declare
+            - convey
+            - communicate
+            - elicit
+    
+    glimpse_duty:
+        # [..] these duties were obscurely glimpsed and seldom accomplished
+        verb: glimpse
+        noun: duty
+        rel: object
+        gold:
+            - explained
+            - clarified
+            - detailed
+            - described
+            - attested
+    skim_question:
+        # [he] skims discretely over the question of survival.
+        verb: skim_over
+        noun: question
+        rel: object
+        gold:
+            - avoid
+            - ignore
+            - omit
+            - escape
+            - evade
+    reflect_enthusiasm:
+        # Their views reflect enthusiasm among the British people
+        verb: reflect
+        noun: enthusiasm
+        rel: object
+        gold: *reflect_object
+    
+    stir_excitement: 
+        #all of this stirred an unfathomable excitement in her.
+        verb: stir
+        noun: excitement
+        rel: object
+        gold:
+            - provoke
+            - cause
+            - invoke
+            - generate
+            - arouse
+    
+    face_hour: 
+        # [..] how man and women in the nineteenth century faced the hour of death
+        verb: face
+        noun: hour
+        rel: object
+        gold:
+            - confront #see confront as metaphoric below!
+            - deal
+            - meet
+            - accost
+            - react
+    
+    mend_marriage: 
+        # [..] that Diana and Prince Charles had succeeded in mending their marriage.
+        verb: mend
+        noun: marriage
+        rel: object
+        gold:
+            - improve
+            - ameliorate
+            - better
+            - reinstate
+            - recover
+    
+    suppress_memory:
+        verb: suppress # metaphoric?
+        noun: memory
+        rel: object
+        gold:
+            - repress
+            - inhibit
+            - subdue
+            - quell
+            - forget
+   
+    
+    seize_moment:
+        # The photographers tried to seize the fleeting moment
+        verb: seize 
+        noun: moment
+        rel: object
+        gold:
+            - exploit
+            - fulfill
+            - exhaust
+            - enjoy
+            - record
+    
+    disown_past:
+        # they were prepared to disown the past in favour of the bright future
+        verb: disown
+        noun: past
+        rel: object
+        gold:
+            - disclaim
+            - renounce
+            - repudiate
+            - deny
+            - forget
+    
+    regard_past:
+        # The present regards the past as a little more than the springboard from which we were launched on our way.
+        # the problem is that 'the present' can't really do anything. any other verb is just as metaphoric.
+        verb: regard
+        noun: past
+        rel: object
+        gold:
+            - consider
+            - contemplate
+            - think
+            - remember
+            - ruminate
+
+    reinforce_perception:
+        # she had deliberately chosen the outfit likely to reinforce the general perception of her as...
+        verb: reinforce
+        noun: perception
+        rel: object
+        gold:
+            - confirm
+            - strengthen
+            - consolidate
+            - affirm
+            - validate
+
+    confront_problem:
+        # [..] irrelevant to the social and other problems that we confront.
+        verb: confront #metaphoric? if so what's good for "face"?
+        noun: problem
+        rel: object
+        gold:
+            - deal
+            - meet
+            - encounter
+            - take_on
+            - cope
+
+    follow_profession:
+        # aspired to follow their fathers' professions
+        verb: follow #not sure about the meaning here
+        noun: profession
+        rel: object
+        gold:
+            - pursue
+            - acquire
+            - practice
+            - adhere
+            - maintain
+    
+    frame_question:
+        # The only question she could frame was [..]
+        verb: frame
+        noun: question
+        rel: object
+        gold:
+            - formulate
+            - phrase
+            - pose
+            - outline
+            - ask
+     
+    tackle_question:
+        # [..] use it to tackle different questions
+        verb: tackle
+        noun: question
+        rel: object
+        gold:
+            - take_on
+            - handle
+            - respond
+            - reply
+            - answer
+    
+    spell_reason:
+        verb: spell_out
+        noun: reason
+        rel: object
+        gold:
+            - specify
+            - describe
+            - account
+            - detail
+            - present
+    
+    throw_remark:
+        # [she] marched out of the room throwing a partying remark
+        verb: throw
+        noun: remark
+        rel: object
+        gold:
+            - make
+            - say
+            - express
+            - communicate
+            - utter
+    
+    brush_accusation:
+        # Hillary brushed aside the accusations and [..]
+        verb: brush_aside
+        noun: accusation
+        rel: object
+        gold:
+            - reject
+            - dispell
+            - dismiss
+            - ignore
+            - deny
+    
+    leak_report: 
+        # The report was carefully leaked
+        verb: leak
+        noun: report
+        rel: object
+        gold:
+            - disclose
+            - divulge
+            - expose
+            - publish
+            - reveal
+    
+    shape_result:
+        # There are other factors which will have shaped this result
+        verb: shape
+        noun: result
+        rel: object
+        gold:
+            - influence
+            - determine
+            - dictate
+            - affect
+            - set
+    
+    limit_significance: 
+        # The lack of explicitness will surely limit the significance of the book.
+        verb: limit # metaphoric?
+        noun: significance
+        rel: object
+        gold:
+            - hinder
+            - impede
+            - reduce
+            - diminish
+            - restrict
+    block_thought:
+        # She gripped the steering-wheel tighter and managed to block out the thought
+        verb: block_out
+        noun: thought
+        rel: obj
+        gold:
+            - avoid
+            - refrain
+            - prevent
+            - resist
+            - reject
+    
+    inherit_state: 
+        # Gorbachev inherited a state, which.. 
+        # disambiguation for state/country needed
+        verb: inherit
+        noun: state
+        rel: object
+        gold:
+            - rule
+            - take_power
+            - take_control
+            - come_to_office
+            - succeed
+    
+    overlook_subject: 
+        # [sociologists] were inclined to overlook this subject.
+        verb: overlook #metaphoric??
+        noun: subject 
+        rel: object
+        gold:
+            - ignore
+            - disregard #hh..
+            - dismiss
+            - neglect
+            - avoid
+    
+    grasp_theory:
+        # This theory is not easy to grasp [..]
+        verb: grasp # metaphoric?
+        noun: term
+        rel: object
+        gold:
+            - understand
+            - comprehend
+            - realize
+            - conceptualize
+            - fathom
+    
+    develop_theory:
+        # ..the speech act theory developed by Austin [..]
+        verb: develop # metaphoric ???
+        noun: theory
+        rel: object
+        gold:
+            - invent
+            - think
+            - conjure
+            - create
+            - put_forth
+    
+    waste_time:
+        # The did not want to waste their time and [..]
+        verb: waste # metaphoric ? possible substitutes?
+        noun: time
+        rel: object
+        gold:
+            - spend
+            - expend
+            - squander
+            - misuse
+            - pass
+    fix_term:
+        # fixing these terms clearly in their minds.
+        verb: fix 
+        noun: term
+        rel: object
+        gold:
+            - instill
+            - inculcate
+            - set
+            - imprint
+            - impress
+
+ 

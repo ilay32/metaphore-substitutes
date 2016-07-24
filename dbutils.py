@@ -1,9 +1,17 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re
 import numpy as np
+import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
-from difflib import SequenceMatcher
 conf = yaml.load(open('params.yml').read())
+
+def hereiam(fn):
+    def inside(*args,**kwargs):
+        print("entering", fn.__name__)
+        ans = fn(*args,**kwargs)
+        print("exiting",fn.__name__)
+        return ans
+    return inside
 
 class DB:
     def __init__(self,catalog=None):
@@ -14,18 +22,42 @@ class DB:
         self.catalog = catalog
         self.abst = dict()
         self.vecs = dict()
-        self.conn = pymssql.connect(self.server_name, self.user, self.password,self.catalog)
+        self.conn = self.connect()
     
-    def query(self,q):
-        c = self.conn.cursor()
+    def connect(self):
+        return pymssql.connect(self.server_name, self.user, self.password,self.catalog)
+   
+    def query(self,q,tries=1):
+        if tries > 1:
+            conn = self.connect()
+        else:
+            conn = self.conn
+        c = conn.cursor()
         c.setoutputsize(conf['cluster_maxrows'] + conf['candidates_maxrows'])
-        try:
-            c.execute(q)
-        except pymssql.DatabaseError as e: 
-            print("trying to execute ",q," got ",e)
-            return None
-        return c 
-    
+        if tries < 6:
+            timer = threading.Timer(float(tries*3),self.query,[q,tries+1])
+            print(q,"try",tries,"of 5")
+            timer.start()
+            try:
+                #timer.join(float(tries*3 + 1))
+                c.execute(q)
+                if c.rownumber == 0:
+                    print("------------",c.rownumber, c.fetchall(),"--------------")
+                    timer.cancel()
+            except pymssql.DatabaseError as e: 
+                print("trying to execute ",q," got ",e)
+                timer.cancel()
+            finally:
+                timer.cancel()
+                if conn != self.conn:
+                    conn.close()
+        else:
+            print("tried",q,tries - 1,"times. giving up")
+            for t in threading.enumerate():
+                if t != threading.main_thread():
+                    print(t.get_ident())
+        return c  
+        
     def destroy(self):
         self.conn.close()
 
@@ -41,7 +73,6 @@ class SingleWordData:
         for w,v in self.table.items():
             if v == val:
                 return w
-
     def has(self,word):
         word = word.replace("'","")
         if word not in self.notfound:
@@ -56,20 +87,23 @@ class SingleWordData:
             return True
         if isinstance(obj,int) or  isinstance(obj,float):
             return obj == 0
+        if isinstance(obj,str):
+            return obj.isspace()
         return len(obj) ==  0
-
+    
     def get(self,word):
+        if SingleWordData.empty(word):
+            return None
         word = word.replace("'","")
         if word in self.notfound:
             print("this shouldn't be here")
         if word in self.table:
             return self.table[word]
         else:
-            q = self.db.query(self.queryscheme(word))
-            qr = self.handlequery(q)
+            cu  = self.db.query(self.queryscheme(word))
+            qr = self.handlequery(cu)
             if not SingleWordData.empty(qr):
                 self.table[word] = qr
-            q = None
         return qr
     
     def __str__(self):
@@ -98,10 +132,10 @@ class Abst(SingleWordData):
     def queryscheme(self,word):
         return "SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE='{0}'".format(word.lower())
 
-    def handlequery(self,q):
+    def handlequery(self,cu):
         try: 
-            f = q.fetchall()
-            if not q or len(f) == 0:
+            f = cu.fetchall()
+            if not cu or len(f) == 0:
                 return 0
             return f[0][0]
         except:
@@ -186,7 +220,6 @@ class Lex(SingleWordData):
         return 'lex'
 
 class Ngram(SingleWordData):
-    
     def search_table(self):
         return '-'.join([
             self.name,
@@ -205,25 +238,35 @@ class Ngram(SingleWordData):
             self.mi # minimal mutual information required for results
         )
         self.query_base = query_base
-        return bool(self.db.query("IsNgramsReady "+query_base+",1")) == True
+        print("prepping for ",query_base)
+        self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
     
     def queryscheme(self,word):
-        cv = threading.Condition
-        while not self.ready(word): 
-            cv.wait() 
-        return "GetNgrams "+self.query_base    
+        query_base = "'{0}',{1},{2},{3},{4},{5}".format(
+            word,
+            self.key_pos, # this is the POS type of verb
+            self.search_pos,
+            self.left, # how many words to look behind
+            self.right, # how many words to look ahead
+            self.mi # minimal mutual information required for results
+        )
+        print("prepping", query_base)
+        self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
+        time.sleep(2)
+        return "GetNgrams "+query_base    
 
-    def handlequery(self,q):
+    def handlequery(self,c):
         try:
             ret = set()
             cur = 0
-            rows = q.fetchall()
+            rows = c.fetchall()
+            print(self.search_table(),"handling",len(rows),"rows")
             while len(ret) < self.global_limit and cur < len(rows):
                 ret.add(rows[cur][self.column])
                 cur += 1
             return list(ret)
         except:
-            print("db error for ",q)
+            print("db error for ",c)
             return None
 
 class VerbObjects(Ngram):
@@ -276,6 +319,10 @@ class SubjectVerbs(Ngram):
 
 #
 # general utility functions
+
+
+
+
 def printlist(l,k=5,silent=False):
     i = 0
     last = min(k,len(l) - 1)
