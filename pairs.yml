@@ -1,11 +1,16 @@
 verb_subject:
     slip_memory:
+        #Memories  were  <m>slipping  away</m> ,  Emmie  thought ,  and  it  scared  her . 
         verb: slip_away
         noun: memory
         rel: subject
         gold:
             - disperse
             - vanish
+            - pass
+            - fade
+            - go
+    
     operate_change:
         # [..] the context in which these social and economic changes operated [..]
         verb: operate
@@ -25,10 +30,13 @@ verb_subject:
         rel: subject
         gold:
             - intensify
+            - climax
             - increase
             - expand # more metaphoric than surge?
             - extend # ditto
             - strengthen # ditto?
+            - improve
+            - peak
     
     illustrate_example: 
         # There are many well-chosen examples which clearly illustrate [..]
@@ -39,8 +47,10 @@ verb_subject:
             - exemplify
             - demonstrate
             - explain
+            - show
             - prove
             - elaborate
+            - depict 
     
     focus_scientist:
         # scientists focus on [..]
@@ -59,30 +69,53 @@ verb_subject:
             - interrupt
             - interject
             - sound
+            - speak
             - disrupt
             - interfere
-    
+            - intervene
+            - intercept
+    run_time:
+        # But  now  time  had  <m>run  out</m>
+        verb: run_out
+        noun: time
+        rel: subject
+        gold:
+            - finish
+            - end
+            - exhaust
+            - use_up
+            - go
+            - terminate
+        
     shape_factor: 
+        #there  are  other  factors  which  will  have  <m>shaped</m>  the  result  of  this  historic  presidential  election
         verb: shape
         noun: factor
         rel: subject
-        gold:
+        gold: &shape
+            - influence
             - determine
-            - set
             - dictate
-            - delineate
-            - designate
-    
+            - affect
+            - set
+            - cause
+            - percipitate
+
+                
     speak_obituary:
+        #[..] and  our  obituaries speak gallant  struggle.
         verb: speak
         noun: obituary
         rel: subject
         gold:
+            - tell
             - convey
             - relate
             - express
             - confer
             - communicate
+            - inform
+            - describe
     
     regard_present:
         # The present regards the past as a little more than the springboard from which we were launched on our way.
@@ -91,10 +124,13 @@ verb_subject:
         rel: subject
         gold:
             - consider
+            - see
             - contemplate
             - think
             - view
             - conceive
+            - treat
+            
     
     mount_tension:
         # The tension mounted around what seemed such a small ring for two massive men.
@@ -102,22 +138,42 @@ verb_subject:
         noun: tension
         rel: subject
         gold:
-            - increase #less metaphoric than mount?
+            - increase 
             - intensify 
-            - strengthen # ditto
-            - accumulate # ditto
-            - highten
+            - strengthen
+            - accumulate
+            - heighten
+            - ameliorate
+            - build_up
+            - grow
+            
+    
+    feed_attitude:
+        #Scant  attention  has  been  given  to  the  way  in  which  man 's  attitude  to  death  <m>feeds  back</m>  into  his  life  and  so  exerts  an  influence  upon  society .
+        verb: feed_back
+        noun: attitude
+        rel: subject
+        gold:
+            - influence
+            - react
+            - interact
+            - affect
+            - change
     
     reflect_view:
-        verb: reflect #is it really more metaphoric than represent?
+        #Their  views  reflect a  lack  of  enthusiasm  among  the  British  people  at  large  for...
+        verb: reflect
         noun: view
         rel: subject
         gold:
             - represent
+            - reveal
+            - show
+            - demonstrate
             - indicate
             - suggest
             - exemplify
-            - demonstrate
+            - manifest
     
 verb_object:
     #soviet socialism was held to have solved the national question
@@ -155,7 +211,24 @@ verb_object:
             - cancel
             - void
             - transgress
+            - obviate
+            - disobey
+            - terminate
+            - end
+            - renege
     
+    hold_truth:
+    #There  was  no  way  of holding  the  truth  back
+        verb: hold_back
+        noun: truth
+        rel: object
+        gold:
+            - conceal
+            - hide
+            - obscure
+            - keep
+            - withhold
+
     reach_agreement:
         # [..] he is never in doubt about agreements he reaches or deals he makes.
         verb: reach #metaphoric?
@@ -166,7 +239,8 @@ verb_object:
             - obtain
             - make
             - achieve
-            - secure 
+            - finalize 
+            - establish
     
     illustrate_aspect:
         # This aspect of Petrey's thinking is also illustrated in his discussion [..]
@@ -176,8 +250,13 @@ verb_object:
         gold:
             - describe
             - exemplify
+            - show
+            - illuminate
+            - demonstrate
             - elucidate
+            - present
             - elaborate
+            - reveal
             - explain
     
     base_career: 
@@ -191,6 +270,7 @@ verb_object:
             - ground
             - count
             - rely
+            - underpin
     
     accelerate_change:
         # in the nineteenth century change was greatly accelerated
@@ -210,11 +290,16 @@ verb_object:
         noun: concern
         rel: object
         gold: &reflect_object
-            - demonstrate
+            - express
             - exhibit
             - reveal
             - manifest
             - indicate
+            - demonstrate
+            - show
+            - embody
+            - voice
+            - articulate
     
     catch_contagion:
         # Impressionist painters caught the contagion
@@ -251,6 +336,9 @@ verb_object:
             - use
             - enforce
             - realize
+            - keep
+            - maintain
+            - exhibit
 
 
     impose_decision:
@@ -264,6 +352,8 @@ verb_object:
             - make
             - order
             - decree
+            - dictate
+    
     cast_doubt: 
         verb: cast #idiomatic
         noun: doubt
@@ -274,6 +364,8 @@ verb_object:
             - convey
             - communicate
             - elicit
+            - cause
+            - trigger
     
     glimpse_duty:
         # [..] these duties were obscurely glimpsed and seldom accomplished
@@ -281,11 +373,12 @@ verb_object:
         noun: duty
         rel: object
         gold:
-            - explained
-            - clarified
-            - detailed
-            - described
-            - attested
+            - rcognize
+            - acknowledge
+            - understand
+            - describe
+            - attest
+    
     skim_question:
         # [he] skims discretely over the question of survival.
         verb: skim_over
@@ -297,6 +390,7 @@ verb_object:
             - omit
             - escape
             - evade
+    
     reflect_enthusiasm:
         # Their views reflect enthusiasm among the British people
         verb: reflect
@@ -312,9 +406,14 @@ verb_object:
         gold:
             - provoke
             - cause
+            - create
+            - start
+            - trigger
+            - percipitate
             - invoke
             - generate
             - arouse
+            - awake
     
     face_hour: 
         # [..] how man and women in the nineteenth century faced the hour of death
@@ -335,22 +434,28 @@ verb_object:
         rel: object
         gold:
             - improve
+            - repair
             - ameliorate
             - better
+            - reconcile
             - reinstate
             - recover
+            - save
+            - fix
     
     suppress_memory:
-        verb: suppress # metaphoric?
+        #She  could  only  hope with  little  confidence that  the  riotous  atmosphere  of  Samantha's  twentieth  birthday  party  would  help  her  to  <m>suppress</m>  the  memory .
+        verb: suppress 
         noun: memory
         rel: object
         gold:
             - repress
+            - forget 
             - inhibit
             - subdue
             - quell
-            - forget
-   
+            - deny
+            - reject
     
     seize_moment:
         # The photographers tried to seize the fleeting moment
@@ -397,9 +502,14 @@ verb_object:
         gold:
             - confirm
             - strengthen
-            - consolidate
+            - support
             - affirm
+            - supplement
+            - establish
             - validate
+            - underline
+            - consolidate
+            - increase
 
     confront_problem:
         # [..] irrelevant to the social and other problems that we confront.
@@ -436,6 +546,8 @@ verb_object:
             - pose
             - outline
             - ask
+            - articulate
+            - word
      
     tackle_question:
         # [..] use it to tackle different questions
@@ -445,9 +557,13 @@ verb_object:
         gold:
             - take_on
             - handle
+            - address
             - respond
-            - reply
             - answer
+            - attempt
+            - solve
+            - reply
+            - deal
     
     spell_reason:
         verb: spell_out
@@ -457,6 +573,8 @@ verb_object:
             - specify
             - describe
             - account
+            - explicate
+            - clarify
             - detail
             - present
     
@@ -471,6 +589,12 @@ verb_object:
             - express
             - communicate
             - utter
+            - give
+            - speak
+            - offer
+            - declare
+            - impart
+            - exert
     
     brush_accusation:
         # Hillary brushed aside the accusations and [..]
@@ -483,6 +607,8 @@ verb_object:
             - dismiss
             - ignore
             - deny
+            - discard
+            - overlook
     
     leak_report: 
         # The report was carefully leaked
@@ -497,17 +623,12 @@ verb_object:
             - reveal
     
     shape_result:
-        # There are other factors which will have shaped this result
+        #there  are  other  factors  which  will  have  <m>shaped</m>  the  result  of  this  historic  presidential  election
         verb: shape
         noun: result
         rel: object
-        gold:
-            - influence
-            - determine
-            - dictate
-            - affect
-            - set
-    
+        gold: *shape 
+
     limit_significance: 
         # The lack of explicitness will surely limit the significance of the book.
         verb: limit # metaphoric?
@@ -515,17 +636,25 @@ verb_object:
         rel: object
         gold:
             - hinder
+            - inhibit
+            - minimize
             - impede
             - reduce
             - diminish
             - restrict
+            - withhold
+            - undermine
+            
     block_thought:
         # She gripped the steering-wheel tighter and managed to block out the thought
         verb: block_out
         noun: thought
-        rel: obj
+        rel: object
         gold:
             - avoid
+            - suppress
+            - ignore
+            - obstruct
             - refrain
             - prevent
             - resist
@@ -539,10 +668,12 @@ verb_object:
         rel: object
         gold:
             - rule
+            - recieve
             - take_power
             - take_control
             - come_to_office
             - succeed
+            - govern
     
     overlook_subject: 
         # [sociologists] were inclined to overlook this subject.
@@ -556,8 +687,9 @@ verb_object:
             - neglect
             - avoid
     
-    grasp_theory:
-        # This theory is not easy to grasp [..]
+    grasp_term:
+        #Anyone  who  has  introduced  speech  act  theory  to  students  will  know  that  these  technical  terms  ( and  the  third  member  of  the  group  perlocutionary  force )  are  not  at  all  easy  to  <m>grasp</m> .
+
         verb: grasp # metaphoric?
         noun: term
         rel: object
@@ -576,9 +708,12 @@ verb_object:
         gold:
             - invent
             - think
+            - construct
+            - build
             - conjure
             - create
             - put_forth
+            - set_out
     
     waste_time:
         # The did not want to waste their time and [..]
@@ -591,6 +726,8 @@ verb_object:
             - squander
             - misuse
             - pass
+            - misspend
+
     fix_term:
         # fixing these terms clearly in their minds.
         verb: fix 
@@ -602,5 +739,5 @@ verb_object:
             - set
             - imprint
             - impress
-
+            - establish
  

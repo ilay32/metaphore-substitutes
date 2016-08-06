@@ -1,8 +1,9 @@
 # main frame of the program #
-import math,pandas,sys,pickle,yaml,io,random
+import math,pandas,sys,pickle,yaml,io,random,threading
 import numpy as np
 from nltk.corpus import wordnet as wn
 from dbutils import *
+from prygress import progress
 
 conf = yaml.load(open('params.yml').read())
 vecs = Vecs(DB('LSA-ENG'))
@@ -16,13 +17,13 @@ subject_candidates = SubjectVerbs(ngrams)
 
 class MetaphorSubstitute:
     def __init__ (self,options):
-        print("initializing "+options['verb']+"--"+options['noun'])
+        print("initializing",options['verb'],"--",options['noun'])
         for key in options.keys():
             self.__dict__[key] = options[key]
         self.substitutes = list()
         self.no_abst = set()
         self.no_vector = set()
-        self.ignored_verbs = set()
+        self.too_far = set()
         self.go = True
         self.instance_centroid = self.get_instance_centroid()
         if SingleWordData.empty(self.instance_centroid):
@@ -35,13 +36,13 @@ class MetaphorSubstitute:
         if SingleWordData.empty(self.gold):
             return False
         mrr = 0
-        tst = self.substitutes
-        gld = self.gold
-        l = min(len(tst),len(gld))
-        for t in tst[:l]:
-            if t in gld:
-                mrr += 1/gld.index(t)+1
-        return mrr/l
+        tst = [s[0] for s in self.substitutes]
+        #gld = self.gold
+        #l = min(len(tst),len(gld))
+        for t in self.gold:
+            if t in tst:
+                mrr += 1/(tst.index(t)+1)
+        return mrr
             
 
     def __str__(self):
@@ -50,7 +51,6 @@ class MetaphorSubstitute:
     # get n nouns, up to k words to the right of the verb,
     # in this version,simple filtering by the instance abstractness
     # threshold
-    @hereiam
     def noun_cluster(self,verb):
         print("fetching "+self.rel+"s set for "+verb)
         clust = list()
@@ -60,7 +60,6 @@ class MetaphorSubstitute:
             print("can't find noun cluster for ",verb)
             return None
         clust_max = clusters.get(verb)
-        print("looping nouns",self.noun_cluster_size,len(clust_max)) 
         while added < self.noun_cluster_size and cur < len(clust_max):
             lem = clust_max[cur] 
             if not SingleWordData.empty(lem):
@@ -79,12 +78,10 @@ class MetaphorSubstitute:
             cur += 1
         if added == 0:
             print("all ",len(clust_max)," found nouns are either not abstract enough or vectorless. ",verb," is ignored.")
-            self.ignored_verbs.add(verb)
             return None
         print("found: ",printlist(clust,self.noun_cluster_size,True))
         return clust
     
-    @hereiam
     def cluster_centroid(self,cluster):
         if SingleWordData.empty(cluster):
             print("empty cluster")
@@ -103,7 +100,6 @@ class MetaphorSubstitute:
         else:
             return None
 
-    @hereiam
     def get_instance_centroid(self):
         print("computing instance centroid")
         raw_cluster = self.noun_cluster(self.verb)
@@ -127,22 +123,42 @@ class MetaphorSubstitute:
         return None
     
     @hereiam
+    @progress
     def verb_synonyms_wordnet(self):
-        print("getting synonyms:")
-        synsets = wn.synsets(self.verb)
-        syn = list()
-        # make sure they're verbs
-        synsets = [s for s in synsets if ".v." in s.name()]
-        # loop once to get heypernym sets
-        for s in synsets:
-            synsets += s.hypernyms()
-        # loop again to collect lemmas
-        for s in synsets:
-            syn += [l.name() for l in s.lemmas() if l.name() != self.verb]
+        print("getting synonyms")
+        acc = list()
+        syn = set()
+        
+        # synonyms
+        s1 = [s for s in wn.synsets(self.verb) if ".v." in s.name()]
+        
+        # add them
+        acc += s1
+        
+        # loop synonyms to get heypernym sets *depth* steps up
+        for s in s1:
+            acc += s.closure(lambda x: x.hypernyms(), depth=2)        
+        
+        # loop immediate hypernyms and get all their verb hyponyms
+        #for s in s1:
+        #    for h in s.hypernyms():
+        #        acc += [hypo for hypo in h.hyponyms() if ".v." in hypo.name()]
+        
+        # loop the accumulated sets and collect lemmas
+        for s in acc:
+            syn = syn.union(set([l.name() for l in s.lemmas() if l.name() != self.verb and vecs.has(l.name())]))
+        syn = list(syn)
+        syn.sort(key=lambda x: Vecs.distance(self.instance_centroid,vecs.get(x)),reverse=True)
+        a = abst.get(self.verb)
+        abstsyn = [s for s in syn if abst.get(s) > a]
+        if not SingleWordData.empty(abstsyn):
+            syn = abstsyn
         print("found",printlist(syn,5,True))
-        return set(syn)
+        return syn
 
     def get_candidates(self):
+        syn = self.verb_synonyms_wordnet()
+        return syn[:min(len(syn),self.number_of_candidates) - 1]
         print("fetching candidate replacements for "+self.verb)
         cands = set()
         added = cur =  0
@@ -153,17 +169,19 @@ class MetaphorSubstitute:
         cands_max = candidates.get(self.noun)
         added = cur = 0
         while added < self.number_of_candidates and cur < len(cands_max):
+            while cands_max[cur] == self.verb:
+                cur += 1
             candidate = cands_max[cur]
             if not vecs.has(candidate):
                 print(candidate," has no vector representation. ignored.")
                 self.no_vector.add(candidate)
             elif vecs.word_distance(candidate,self.verb) > self.candidate_sphere_radius:
                 print(candidate," is too far from ",self.verb,". ignored")
-                self.ignored_verbs.add(candidate)
+                self.too_far.add(candidate)
             elif not abst.has(candidate):
                 print(candidate," has no abstractness degree. ignored")
                 self.no_abst.add(candidate)
-            elif abst.get(candidate) > self.abstract_thresh:
+            elif abst.get(candidate) > abst.get(self.verb):
                 cands.add(candidate)
                 added += 1
             cur += 1
@@ -176,7 +194,6 @@ class MetaphorSubstitute:
         print("found:",printlist(candlist,self.number_of_candidates,True))
         return candlist
 
-    @hereiam
     def cluster_distance(self,cluster):
         cent = self.cluster_centroid(cluster)
         if cent:
@@ -260,14 +277,15 @@ if __name__ ==  '__main__':
                 "substitutes" : subs, 
                 "no_vector" : ms.no_vector, 
                 "no_abst" : ms.no_abst,
-                "ignored" : ms.ignored_verbs,
+                "too_far" : ms.too_far,
                 "score" : ms.evaluate()
             }
             rundata.append(d)
         print(ms," done","\n====================\n")
     rundata = RunData(pandas.DataFrame(rundata),note)
     print("wrapping up and saving stuff")
-    rundata.save()
+    if note != "discard":
+        rundata.save()
     vecs.destroy()
     ngrams.destroy()
     abst.destroy()

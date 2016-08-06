@@ -4,22 +4,20 @@ def explore_rundata():
     files = os.listdir(RunData.datadir)
     paths = list()
     ignored = list()
-    listed = 0
     for f in files:
         p = os.path.join(RunData.datadir,f)
         try:
-            intstamp = int(os.path.basename(f).strip('.pkl'))
-            listed += 1
-            t = time.ctime(intstamp)
-            print(listed ,".",t)
-            paths.append(p)
+            paths.append((p,int(os.path.basename(f).strip('.pkl'))))
         except:
             ignored.append(p)
     if(len(ignored) > 0):
         print("ignored:")
         printlist(ignored)
+    paths.sort(key=lambda x: x[1])
+    for i,p in enumerate(paths,1):
+        print(str(i)+".",time.ctime(p[1]))
     choice = input("choose data to load: ")
-    data = pandas.read_pickle(paths[int(choice) - 1])
+    data = pandas.read_pickle(paths[int(choice) - 1][0])
     data.when()
     data.how()
     print("\nprint data.show() to view the results of this run")

@@ -36,16 +36,17 @@ class DB:
         c.setoutputsize(conf['cluster_maxrows'] + conf['candidates_maxrows'])
         if tries < 6:
             timer = threading.Timer(float(tries*3),self.query,[q,tries+1])
-            print(q,"try",tries,"of 5")
+            if(tries > 1):
+                print(q,"try",tries,"of 5")
             timer.start()
             try:
                 #timer.join(float(tries*3 + 1))
                 c.execute(q)
                 if c.rownumber == 0:
-                    print("------------",c.rownumber, c.fetchall(),"--------------")
                     timer.cancel()
             except pymssql.DatabaseError as e: 
                 print("trying to execute ",q," got ",e)
+                timer.join()
                 timer.cancel()
             finally:
                 timer.cancel()
@@ -53,9 +54,6 @@ class DB:
                     conn.close()
         else:
             print("tried",q,tries - 1,"times. giving up")
-            for t in threading.enumerate():
-                if t != threading.main_thread():
-                    print(t.get_ident())
         return c  
         
     def destroy(self):
@@ -136,7 +134,7 @@ class Abst(SingleWordData):
         try: 
             f = cu.fetchall()
             if not cu or len(f) == 0:
-                return 0
+                return 0.5
             return f[0][0]
         except:
             return 0
@@ -250,7 +248,6 @@ class Ngram(SingleWordData):
             self.right, # how many words to look ahead
             self.mi # minimal mutual information required for results
         )
-        print("prepping", query_base)
         self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
         time.sleep(2)
         return "GetNgrams "+query_base    
@@ -260,7 +257,6 @@ class Ngram(SingleWordData):
             ret = set()
             cur = 0
             rows = c.fetchall()
-            print(self.search_table(),"handling",len(rows),"rows")
             while len(ret) < self.global_limit and cur < len(rows):
                 ret.add(rows[cur][self.column])
                 cur += 1
@@ -325,7 +321,7 @@ class SubjectVerbs(Ngram):
 
 def printlist(l,k=5,silent=False):
     i = 0
-    last = min(k,len(l) - 1)
+    last = min(k,len(l)) - 1
     out = io.StringIO()
     if isinstance(l,set):
         l = list(l)
@@ -338,7 +334,7 @@ def printlist(l,k=5,silent=False):
             out.write(printdict(l[i]))
         if i == last and i < len(l) - 1:
             out.write("...("+str(len(l))+")")
-        if i < last - 1:
+        if i < last:
             out.write(",")
         i += 1
     ret = out.getvalue()
@@ -460,5 +456,6 @@ class RunData:
         else:
             pairs = d
         for i,row in pairs.iterrows():
-            printlist(row['substitutes'],self.params['number_of_candidates']) 
-    
+            printlist(row['substitutes'],self.params['number_of_candidates'])
+    def evaluate(self):
+        return self.data['score'].mean()
