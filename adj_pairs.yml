@@ -1,0 +1,478 @@
+warm:
+  hug:
+    neuman_top_four:
+      - hot
+      - wet
+      - affectionate
+      - brief  
+    correct: affectionate
+  
+  relations: 
+    neuman_top_four:
+      - loving
+      - tense
+      - public
+      - amicable
+    correct: loving  
+  
+  welcome:
+    neuman_top_four:
+      - affectionate
+      - adoring
+      - royal
+      - tense
+    correct: affectionate  
+  
+  feelings: 
+    neuman_top_four:
+      - comforting
+      - funny
+      - pleasant
+      - mixed
+    correct:
+  
+  personality: 
+    neuman_top_four:
+      - friendly
+      - split
+      - strong
+      - antisocial
+    correct:
+  
+  greeting: 
+     neuman_top_four:
+      - friendly
+      - formal
+      - traditional
+      - usual
+     correct:  
+  
+  support:
+     neuman_top_four:
+      - ardent
+      - public
+      - social
+      - financial
+     correct:
+  
+  debate:
+     neuman_top_four:
+      - lively
+      - public
+      - current
+      - big
+     correct:
+   
+  smile:
+    neuman_top_four:
+       - friendly
+       - big
+       - sly
+       - quick
+    correct:
+  
+  memories:
+    neuman_top_four:
+      - lovable
+      - vivid
+      - old
+      - long (.13)
+    correct:
+  
+  applause:
+    neuman_top_four:
+       - affectionate
+       - polite
+       - quiet
+       - mild (.13)
+    correct: 
+
+sweet:
+  dream:
+    neuman_top_four:
+        - good
+        - golden
+        - wonderful
+        - vivid
+    correct:
+
+  revenge:
+    neuman_top_four:
+      - gratifying
+      - political
+      - passionate
+      - ultimate
+    correct:
+
+  smile:
+    neuman_top_four:
+      - gentle
+      - big
+      - sugary
+      - strange
+    correct:
+
+  baby:
+    neuman_top_four:
+      - cute
+      - litt
+      - beautiful
+      - honeyed
+    correct:
+  
+  music:
+    neuman_top_four:
+      - pleasing
+      - classical
+      - loud
+      - choral
+    correct:
+
+  song:
+    neuman_top_four:
+      - pleasing
+      - old
+      - popular
+      - sad
+    correct:  
+  
+  child:
+    neuman_top_four:
+      - lovable
+      - young
+      - sick
+      - small
+    correct:
+
+  deal:
+    neuman_top_four:
+      - satisfying
+      - fair
+      - bigger
+      - new
+    correct:
+
+  voice:
+    neuman_top_four:
+      - melodic
+      - male
+      - deep
+      - inner
+    correct:
+  
+  memories:
+    neuman_top_four:
+      - pleasant
+      - vivid
+      - old
+      - long
+    correct:
+
+  charity:
+    neuman_top_four:
+      - gratifying
+      - christian
+      - local
+      - muslim
+    correct: 
+  
+  victory:
+    neuman_top_four:
+      - pleasant
+      - upset
+      - great
+      - electoral (.08)
+    correct: 
+
+
+deep:
+  depression:
+    neuman_top_four:
+      - intense
+      - terrible
+      - recurrent
+      - great
+    correct:
+  
+  sleep:
+    neuman_top_four:
+      - profound
+      - feigned
+      - archetypal
+      - cold
+    correct:
+
+  trouble:
+    neuman_top_four:
+      - serious
+      - enormous
+      - powerful
+      - financial
+    correct:
+  
+  understanding: 
+    neuman_top_four:
+      - profound
+      - tacit
+      - broad
+      - collective
+    correct:
+
+  sigh: 
+    neuman_top_four:
+      - profound
+      - collective
+      - small
+      - audible
+    correct:
+
+  emotion: 
+    neuman_top_four:
+      - strong
+      - bottomless
+      - human
+      - real
+    correct:
+
+  thoughts:
+    neuman_top_four:
+      - profound
+      - private
+      - random
+      - happy
+    correct:
+  
+  happiness: 
+    neuman_top_four:
+      - intense
+      - future
+      - human
+      - martial
+    correct:
+
+  voice: 
+    neuman_top_four:
+      - low
+      - female
+      - human
+      - male
+    correct:
+
+  secret: 
+    neuman_top_four:
+      - mysterious
+      - guarded
+      - soviet
+      - open
+    correct:
+
+  theory: 
+    neuman_top_four:
+      - abstruse
+      - low
+      - economic
+      - cognitive
+    correct:
+
+  lecture: 
+    neuman_top_four:
+      - recondite
+      - public
+      - large
+      - free
+
+dark:
+  comedy: 
+    neuman_top_four:
+      - gallous
+      - broad
+      - classic
+      - black
+    correct: gallous
+
+  humor: 
+    neuman_top_four:
+      - wicked
+      - light
+      - jewish
+      - ethnic
+    correct: wicked
+
+  secret:
+    neuman_top_four:
+      - concealed
+      - little
+      - soviet
+      - open
+    correct: concealed
+
+  thoughts: 
+    neuman_top_four:
+      - evil
+      - intimate
+      -  romantic
+      - intrusive
+    correct: evil
+  
+  purpose: 
+    neuman_top_four:
+      - evil
+      - sole
+      - general
+      - main
+    correct: evil
+
+
+
+  vision: 
+    neuman_top_four:
+      - pessimistic
+      - clear
+      - personal
+      - comic
+    correct: pessimistic
+  
+  look: 
+    neuman_top_four:
+      - threatening
+      - close
+      - fresh
+      - curios
+    correct: threatening 
+
+  deeds: 
+    neuman_top_four:
+      - sinister
+      - good
+      - heroic
+      - past
+    correct: sinister
+
+  angel: 
+    neuman_top_four:
+      - vicious
+      - stone
+      - guardian
+      - christmas
+    correct: vicious
+
+  mood: 
+    neuman_top_four:
+      - gloomy
+      - good
+      - positive
+      - public
+    correct: gloomy
+  
+  forces: 
+    neuman_top_four:
+      - evil
+      - armed
+      - social
+      - economic
+    correct: evil
+
+  magic: 
+    neuman_top_four:
+      - sinister
+      - practical
+      - ancient
+      - powerful
+    correct: sinister
+
+hard:
+  task: 
+    neuman_top_four:
+      - difficult
+      - solid
+      - simple
+      - joint
+    correct: difficult
+
+  look: 
+    neuman_top_four:
+      - dispassionate
+      - brief
+      - close
+      - firm
+    correct: dispassionate
+
+  bargainer: 
+    neuman_top_four:
+      - dispassionate
+      - solid
+      - good
+      - trustworthy
+    correct: 
+
+  winds: 
+    neuman_top_four:
+      - strong
+      - high
+      - political
+      - cold
+    correct: strong
+
+  blow: 
+    neuman_top_four:
+      - strong
+      - firm
+      - low
+      - single
+    correct: strong
+
+  liquors: 
+    neuman_top_four:
+      - strong
+      - flavored
+      - organic
+      - exotic
+    correct: strong #metaphoric too? should be "alcoholic" or "intoxicating"!
+
+  drinker: 
+    neuman_top_four:
+      - intemperate
+      - young
+      - social
+      - oldest
+    correct: intemperate
+  
+  luck: 
+    neuman_top_four:
+      - tough
+      - good
+      - pure
+      - random
+    correct: tough #just as metaphoric + idiomatic
+
+  feelings: 
+    neuman_top_four:
+      - negative
+      - raw
+      - bad
+      - awful
+    correct: negative #? 
+  
+  evidence: 
+    neuman_top_four:
+      - convincing
+      - scant
+      - recent
+      - criminal
+    correct: convincing
+
+  time: 
+    neuman_top_four:
+      - difficult
+      - insufficient
+      - wasted
+      - tough
+    correct: difficult
+
+  work: 
+    neuman_top_four:
+      - difficult
+      - tough
+      - extra
+      - diligent
+    correct: diligent

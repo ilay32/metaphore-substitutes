@@ -3,7 +3,7 @@ import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
-conf = yaml.load(open('params.yml').read())
+conf = yaml.load(open('params.yml'))
 
 def hereiam(fn):
     def inside(*args,**kwargs):
@@ -13,9 +13,22 @@ def hereiam(fn):
         return ans
     return inside
 
+def dberror(ret=None):
+    def wrap(fn): 
+        def inside(*args,**kwargs):
+            try:
+                ans = fn(*args,**kwargs)
+            except Exception as e:
+                print(e)
+                ans = ret
+            return ans
+        return inside
+    return wrap
+
+
 class DB:
     def __init__(self,catalog=None):
-        specs = yaml.load(open('db.yml').read())
+        specs = yaml.load(open('db.yml'))
         self.server_name = specs['server']
         self.user = specs['user']
         self.password = specs['pass']
@@ -129,15 +142,13 @@ class SingleWordData:
 class Abst(SingleWordData):
     def queryscheme(self,word):
         return "SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE='{0}'".format(word.lower())
-
+    
+    @dberror(0)
     def handlequery(self,cu):
-        try: 
-            f = cu.fetchall()
-            if not cu or len(f) == 0:
-                return 0.5
-            return f[0][0]
-        except:
-            return 0
+        f = cu.fetchall()
+        if not cu or len(f) == 0:
+            return 0.5
+        return f[0][0]
     
     def search_table(self):
         return 'abst'
@@ -145,16 +156,13 @@ class Abst(SingleWordData):
 class Vecs(SingleWordData):
     def queryscheme(self,word):
         return "GetRows '{0}'".format(word.lower())
-
+    
+    @dberror()
     def handlequery(self,query):
-        try:
-            ret = dict()
-            for row in query:
-                ret.update({row[2] : row[3]})
-            return ret
-        except:
-            print("db error for ",query)
-            return None
+        ret = dict()
+        for row in query:
+            ret.update({row[2] : row[3]})
+        return ret
    
     def distance(u,v):
         norms = Vecs.norm(u) * Vecs.norm(v)
@@ -204,7 +212,7 @@ class Vecs(SingleWordData):
         return ret
 
 class Lex(SingleWordData):
-    
+    @dberror() 
     def handlequery(self,q):
         ret = tuple()
         for r in q:
@@ -251,19 +259,16 @@ class Ngram(SingleWordData):
         self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
         time.sleep(2)
         return "GetNgrams "+query_base    
-
+    
+    @dberror()
     def handlequery(self,c):
-        try:
-            ret = set()
-            cur = 0
-            rows = c.fetchall()
-            while len(ret) < self.global_limit and cur < len(rows):
-                ret.add(rows[cur][self.column])
-                cur += 1
-            return list(ret)
-        except:
-            print("db error for ",c)
-            return None
+        ret = set()
+        cur = 0
+        rows = c.fetchall()
+        while len(ret) < self.global_limit and cur < len(rows):
+            ret.add(rows[cur][self.column])
+            cur += 1
+        return list(ret)
 
 class VerbObjects(Ngram):
     def __init__(self,db):
@@ -275,6 +280,18 @@ class VerbObjects(Ngram):
         self.column = 10
         self.global_limit = conf['cluster_maxrows']
         self.name = 'object-clusters'
+        super(Ngram,self).__init__(db)
+
+class AdjObjects(Ngram):
+    def __init__(self,db):
+        self.key_pos = 3
+        self.search_pos = 1
+        self.left = str(conf['search_aobjects_left'])
+        self.right = str(conf['search_aobjects_right'])
+        self.mi = str(conf['noun_min_MI'])
+        self.name = 'adj-object-clusters'
+        self.column = 10
+        self.global_limit = conf['cluster_maxrows']
         super(Ngram,self).__init__(db)
 
 class VerbSubjects(Ngram):
@@ -459,3 +476,5 @@ class RunData:
             printlist(row['substitutes'],self.params['number_of_candidates'])
     def evaluate(self):
         return self.data['score'].mean()
+
+

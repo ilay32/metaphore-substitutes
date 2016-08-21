@@ -63,4 +63,5 @@ target/
 *.yml
 dbcache/
 rundata/
-!pairs.yml
+!verb_pairs.yml
+!adj_pairs.yml
