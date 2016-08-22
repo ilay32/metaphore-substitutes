@@ -136,8 +136,9 @@ class MetaphorSubstitute:
 class AdjSubstitute(MetaphorSubstitute):
     object_clusters = AdjObjects(ngrams)
     
+    @hereiam
     def neuman_eval(self):
-       return int(self.substitute == self.correct)
+        return int(self.substitute() == self.correct)
 
         # this is probably all wrong    
     def verb_synonyms_noam(self):

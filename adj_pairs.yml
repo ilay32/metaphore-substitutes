@@ -29,7 +29,7 @@ warm:
       - funny
       - pleasant
       - mixed
-    correct:
+    correct: pleasant
   
   personality: 
     neuman_top_four:
@@ -37,7 +37,7 @@ warm:
       - split
       - strong
       - antisocial
-    correct:
+    correct: friendly
   
   greeting: 
      neuman_top_four:
@@ -45,7 +45,7 @@ warm:
       - formal
       - traditional
       - usual
-     correct:  
+     correct: friendly
   
   support:
      neuman_top_four:
@@ -53,7 +53,7 @@ warm:
       - public
       - social
       - financial
-     correct:
+     correct: ardent
   
   debate:
      neuman_top_four:
@@ -61,7 +61,7 @@ warm:
       - public
       - current
       - big
-     correct:
+     correct: lively
    
   smile:
     neuman_top_four:
@@ -69,23 +69,23 @@ warm:
        - big
        - sly
        - quick
-    correct:
+    correct: friendly
   
   memories:
     neuman_top_four:
       - lovable
       - vivid
       - old
-      - long (.13)
-    correct:
+      - long
+    correct: lovable
   
   applause:
     neuman_top_four:
        - affectionate
        - polite
        - quiet
-       - mild (.13)
-    correct: 
+       - mild
+    correct: affectionate 
 
 sweet:
   dream:
@@ -94,7 +94,7 @@ sweet:
         - golden
         - wonderful
         - vivid
-    correct:
+    correct: good
 
   revenge:
     neuman_top_four:
@@ -102,7 +102,7 @@ sweet:
       - political
       - passionate
       - ultimate
-    correct:
+    correct: gratifying
 
   smile:
     neuman_top_four:
@@ -110,7 +110,7 @@ sweet:
       - big
       - sugary
       - strange
-    correct:
+    correct: gentle
 
   baby:
     neuman_top_four:
@@ -118,7 +118,7 @@ sweet:
       - litt
       - beautiful
       - honeyed
-    correct:
+    correct: cute
   
   music:
     neuman_top_four:
@@ -126,7 +126,7 @@ sweet:
       - classical
       - loud
       - choral
-    correct:
+    correct: pleasing
 
   song:
     neuman_top_four:
@@ -134,7 +134,7 @@ sweet:
       - old
       - popular
       - sad
-    correct:  
+    correct: pleasing 
   
   child:
     neuman_top_four:
@@ -142,7 +142,7 @@ sweet:
       - young
       - sick
       - small
-    correct:
+    correct: lovable
 
   deal:
     neuman_top_four:
@@ -150,7 +150,7 @@ sweet:
       - fair
       - bigger
       - new
-    correct:
+    correct: satisfying 
 
   voice:
     neuman_top_four:
@@ -158,7 +158,7 @@ sweet:
       - male
       - deep
       - inner
-    correct:
+    correct: melodic
   
   memories:
     neuman_top_four:
@@ -166,7 +166,7 @@ sweet:
       - vivid
       - old
       - long
-    correct:
+    correct: pleasant
 
   charity:
     neuman_top_four:
@@ -174,15 +174,15 @@ sweet:
       - christian
       - local
       - muslim
-    correct: 
+    correct: gratifying
   
   victory:
     neuman_top_four:
       - pleasant
       - upset
       - great
-      - electoral (.08)
-    correct: 
+      - electoral
+    correct: pleasant 
 
 
 deep:
@@ -192,7 +192,7 @@ deep:
       - terrible
       - recurrent
       - great
-    correct:
+    correct: intense
   
   sleep:
     neuman_top_four:
@@ -200,7 +200,7 @@ deep:
       - feigned
       - archetypal
       - cold
-    correct:
+    correct: profound
 
   trouble:
     neuman_top_four:
@@ -208,7 +208,7 @@ deep:
       - enormous
       - powerful
       - financial
-    correct:
+    correct: serious
   
   understanding: 
     neuman_top_four:
@@ -216,7 +216,7 @@ deep:
       - tacit
       - broad
       - collective
-    correct:
+    correct: profound
 
   sigh: 
     neuman_top_four:
@@ -224,7 +224,7 @@ deep:
       - collective
       - small
       - audible
-    correct:
+    correct: profound
 
   emotion: 
     neuman_top_four:
@@ -232,7 +232,7 @@ deep:
       - bottomless
       - human
       - real
-    correct:
+    correct: strong
 
   thoughts:
     neuman_top_four:
@@ -240,7 +240,7 @@ deep:
       - private
       - random
       - happy
-    correct:
+    correct: profound
   
   happiness: 
     neuman_top_four:
@@ -248,7 +248,7 @@ deep:
       - future
       - human
       - martial
-    correct:
+    correct: intense
 
   voice: 
     neuman_top_four:
@@ -256,7 +256,7 @@ deep:
       - female
       - human
       - male
-    correct:
+    correct: low
 
   secret: 
     neuman_top_four:
@@ -264,7 +264,7 @@ deep:
       - guarded
       - soviet
       - open
-    correct:
+    correct: mysterious
 
   theory: 
     neuman_top_four:
@@ -272,7 +272,7 @@ deep:
       - low
       - economic
       - cognitive
-    correct:
+    correct: abstruse
 
   lecture: 
     neuman_top_four:
@@ -280,6 +280,7 @@ deep:
       - public
       - large
       - free
+    correct: recondite
 
 dark:
   comedy: 
@@ -310,7 +311,7 @@ dark:
     neuman_top_four:
       - evil
       - intimate
-      -  romantic
+      - romantic
       - intrusive
     correct: evil
   
@@ -321,8 +322,6 @@ dark:
       - general
       - main
     correct: evil
-
-
 
   vision: 
     neuman_top_four:

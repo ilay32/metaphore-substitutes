@@ -336,7 +336,7 @@ class SubjectVerbs(Ngram):
 
 
 
-def printlist(l,k=5,silent=False):
+def printlist(l,k=5,silent=False,separator=","):
     i = 0
     last = min(k,len(l)) - 1
     out = io.StringIO()
@@ -352,7 +352,7 @@ def printlist(l,k=5,silent=False):
         if i == last and i < len(l) - 1:
             out.write("...("+str(len(l))+")")
         if i < last:
-            out.write(",")
+            out.write(separator)
         i += 1
     ret = out.getvalue()
     out.close()
@@ -403,16 +403,17 @@ class RunData:
     def __exit__(self,typer, value, traceback):
         print("done")    
     
-    def __init__(self,df,note):
+    def __init__(self,df,note,typ):
         self.data = df
         self.params = yaml.load(open('params.yml').read())
         self.timestamp = int(time.time())
         self.note = note.strip()
+        self.typ = typ
     
     def __str__(self):
         out = io.StringIO()
         out.write(time.ctime(self.timestamp)+"\n")
-        out.write(self.note+"\n")
+        out.write(self.typ+" "+self.note+"\n")
         out.write("parameters:\n"+printdict(self.params,True))
         return out.getvalue()
 
@@ -429,7 +430,7 @@ class RunData:
             d = self.data
             f.write(str(self)+"\n")
             for i,row in d.iterrows():
-                f.write(row.verb+" "+row.noun+" ("+row.rel+")")
+                f.write(row.pred+" "+row.noun+" ("+self.typ+")")
                 f.write("\n=====================\n")
                 for sub in row['substitutes'][:self.params['number_of_candidates']]:
                     f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
@@ -447,34 +448,43 @@ class RunData:
     def how(self):
         printdict(self.params)
         print("note: ",self.note)
+    
+    def howmany(self) :
+        return len(self.data)
 
-    def show(self,verb=None,noun=None):
+    def show(self,pred=None,noun=None):
         d = self.data
-        if verb == 'pairs':
+        if pred == 'pairs':
             for i,row in d.iterrows():
-                print(str(i)+".",row.verb," ",row.noun," ",row.rel,"\n")
+                print(str(i+1)+".",row.pred," ",row.noun,"\n")
             return
 
-        if verb in ['no_vector','no_abst','ignored']:
+        if pred in ['no_vector','no_abst','ignored']:
             acc = set()
             for i,row in d.iterrows():
-                acc = acc.union(row[verb])
-            printlist(acc,len(acc))
+                acc = acc.union(row[pred])
+            printlist(acc,len(acc),False,"\n")
             return
         
         pairs = list()
-        if verb!=None and noun!=None:
-            pairs = d[d.verb == verb & d.noun == noun]
-        elif verb != None and noun == None:
-            pairs = d[d.verb == verb]
-        elif noun != None and verb == None:
+        if pred!=None and noun!=None:
+            pairs = d[(d.pred == pred) & (d.noun == noun)]
+        elif pred != None and noun == None:
+            pairs = d[d.pred == pred]
+        elif noun != None and pred == None:
             pairs =  d[d.noun == noun]
                     
         else:
             pairs = d
         for i,row in pairs.iterrows():
-            printlist(row['substitutes'],self.params['number_of_candidates'])
+            print(row.pred," ",row.noun,":\n")
+            printlist(row['substitutes'],self.params['number_of_candidates'],False,"\n")
+    
     def evaluate(self):
         return self.data['score'].mean()
 
+    def neuman_eval(self):
+        frac = self.data['neuman_score'].sum()/self.howmany()
+        print("{:.0%}".format(frac))
+        return frac
 

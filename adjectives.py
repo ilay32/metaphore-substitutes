@@ -1,13 +1,18 @@
 import yaml,random
 from metsub import *
 from dbutils import *
+
+def pairblock(adj,noun,dat):
+    return {
+        'pred' : adj,
+        'noun' : noun,
+        'topfour' : dat['neuman_top_four'],
+        'correct' : dat['correct']
+    }
+
 if __name__ ==  '__main__':
     pairsraw = yaml.load(open('adj_pairs.yml'))
-    pairs = sum([[{
-        "pred": adj,
-        "noun" : noun,
-        "topfour" : ndata['neuman_top_four']
-    } for noun,ndata in pairsraw[adj].items()] for adj in pairsraw.keys()],[])
+    pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairsraw[adj].items()] for adj in pairsraw.keys()],[])
     pairs.sort(key=lambda x: x['noun'])
     pairs.sort(key=lambda x: x['pred'])
     print("adjective - object pairs:")
@@ -39,7 +44,7 @@ if __name__ ==  '__main__':
         adj = ""
         while adj not in pairsraw:
             adj =  input("pick an adjective: ")
-        run = [{'pred' : adj, 'noun' : noun, 'topfour':ndata['neuman_top_four']} for noun,ndata in pairsraw[adj].items()]
+        run = sorted([pairblock(adj,noun,ndata) for noun,ndata in pairsraw[adj].items()],key=lambda x : x['noun'])
     
     rundata = list()
     note = input("add a note about this run:")
@@ -54,11 +59,12 @@ if __name__ ==  '__main__':
                 "substitutes" : subs, 
                 "no_vector" : ms.no_vector, 
                 "no_abst" : ms.no_abst,
-                "too_far" : ms.too_far
+                "too_far" : ms.too_far,
+                "neuman_score" : ms.neuman_eval()
             }
             rundata.append(d)
         print(ms," done","\n====================\n")
-    rundata = RunData(pandas.DataFrame(rundata),note)
+    rundata = RunData(pandas.DataFrame(rundata),note,'adjecitves')
     print("wrapping up and saving stuff")
     if note != "discard":
         rundata.save()

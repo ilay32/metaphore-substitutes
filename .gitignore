@@ -65,3 +65,4 @@ dbcache/
 rundata/
 !verb_pairs.yml
 !adj_pairs.yml
+*.txt
