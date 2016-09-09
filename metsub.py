@@ -107,6 +107,75 @@ class MetaphorSubstitute:
             return None
         print("found:",printlist(clust,self.noun_cluster_size,True))
         return clust
+    
+    @hereiam
+    def pred_synonyms_wordnet(self):
+        print("getting synonyms")
+        acc = list()
+        syn = set()
+        
+        # synonyms
+        s1 = [s for s in wn.synsets(self.pred) if self.wn_mark in s.name()]
+        
+        # add them
+        acc += s1
+        
+        # loop synonyms to get heypernym sets *depth* steps up
+        for s in s1:
+            acc += s.closure(lambda x: x.hypernyms(), depth=2)        
+        
+        # loop immediate hypernyms and get all their pred hyponyms
+        #for s in s1:
+        #    for h in s.hypernyms():
+        #        acc += [hypo for hypo in h.hyponyms() if ".v." in hypo.name()]
+        
+        # loop the accumulated sets and collect lemmas
+        for s in acc:
+            syn = syn.union(set([l.name() for l in s.lemmas() if l.name() != self.pred and vecs.has(l.name())]))
+        syn = list(syn)
+        syn.sort(key=lambda x: Vecs.distance(self.instance_centroid,vecs.get(x)),reverse=True)
+        a = abst.get(self.pred)
+        abstsyn = [s for s in syn if abst.get(s) > a]
+        if not SingleWordData.empty(abstsyn):
+            syn = abstsyn
+        print("from wordnet:",printlist(syn,5,True))
+        return syn
+
+    def get_candidates(self):
+        print("fetching candidate replacements for "+self.pred)
+        cands = set()
+        candidates = eval(self.classname).pred_candidates
+        added = cur =  0
+        if not candidates.has(self.noun):
+            print("can't find typical preds for ",self.noun)
+            return None
+        cands_max = candidates.get(self.noun)
+        added = cur = 0
+        while added < self.number_of_candidates and cur < len(cands_max):
+            while cands_max[cur] == self.pred:
+                cur += 1
+            candidate = cands_max[cur]
+            if not vecs.has(candidate):
+                print(candidate," has no vector representation. ignored.")
+                self.no_vector.add(candidate)
+            elif vecs.word_distance(candidate,self.pred) > self.candidate_sphere_radius:
+                print(candidate," is too far from ",self.pred,". ignored")
+                self.too_far.add(candidate)
+            elif not abst.has(candidate):
+                print(candidate," has no abstractness degree. ignored")
+                self.no_abst.add(candidate)
+            elif abst.get(candidate) > abst.get(self.pred):
+                cands.add(candidate)
+                added += 1
+            cur += 1
+        wn_syns = self.pred_synonyms_wordnet()
+        # put the synonyms first while eliminating duplicates
+        candlist = list(wn_syns) + [cand for cand in cands if cand not in wn_syns]
+        if SingleWordData.empty(candlist):
+            print("all ",len(cands_max)," candidates are either vectorless or too far from ",self.pred)
+            return None
+        print("found:",printlist(candlist,self.number_of_candidates,True))
+        return candlist
 
     @hereiam
     def find_substitutes(self):
@@ -135,7 +204,11 @@ class MetaphorSubstitute:
 
 class AdjSubstitute(MetaphorSubstitute):
     object_clusters = AdjObjects(ngrams)
-    
+    pred_candidates = ObjectAdjs(ngrams) 
+    def __init__(self,options):
+        self.wn_mark = ".a."
+        super(AdjSubstitute,self).__init__(options)
+
     @hereiam
     def neuman_eval(self):
         return int(self.substitute() == self.correct)
@@ -154,7 +227,5 @@ class AdjSubstitute(MetaphorSubstitute):
         return None
     
     
-    def get_candidates(self):
-        return self.topfour
-
+    
     

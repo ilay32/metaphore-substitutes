@@ -294,6 +294,18 @@ class AdjObjects(Ngram):
         self.global_limit = conf['cluster_maxrows']
         super(Ngram,self).__init__(db)
 
+class ObjectAdjs(Ngram):
+    def __init__(self,db):
+        self.key_pos = 1
+        self.search_pos = 3
+        self.left = str(conf['search_aobjects_right'])
+        self.right = str(conf['search_aobjects_left'])
+        self.mi = str(conf['verb_min_MI'])
+        self.column = 10
+        self.global_limit = conf['candidates_maxrows']
+        self.name = 'aobject-candidates'
+        super(Ngram,self).__init__(db)
+
 class VerbSubjects(Ngram):
     def __init__(self,db):
         self.key_pos = 2
