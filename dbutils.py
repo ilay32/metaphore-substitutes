@@ -342,12 +342,21 @@ class SubjectVerbs(Ngram):
         self.name = 'subject-candidates'
         super(Ngram,self).__init__(db)
 
+class NounNoun(Ngram):
+    def __init__(self,db):
+        self.key_pos = 1
+        self.search_pos = 1
+        self.left = str(conf['neuman_graph']['nn_window'])
+        self.right = self.left
+        self.mi = str(conf['noun_min_MI'])
+        self.column = 10
+        self.global_limit = conf['cluster_maxrows'] 
+        self.name = 'nn-cluster'
+        super(Ngram,self).__init__(db)
+
 #
 # general utility functions
-
-
-
-
+#
 def printlist(l,k=5,silent=False,separator=","):
     i = 0
     last = min(k,len(l)) - 1

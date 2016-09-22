@@ -12,7 +12,7 @@ def pairblock(adj,noun,dat):
 
 if __name__ ==  '__main__':
     pairsraw = yaml.load(open('adj_pairs.yml'))
-    pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairsraw[adj].items()] for adj in pairsraw.keys()],[])
+    pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairsraw[adj]['with'].items()] for adj in pairsraw.keys()],[])
     pairs.sort(key=lambda x: x['noun'])
     pairs.sort(key=lambda x: x['pred'])
     print("adjective - object pairs:")
@@ -50,7 +50,7 @@ if __name__ ==  '__main__':
     note = input("add a note about this run:")
     for p in run:
         conf.update(p)
-        ms = AdjSubstitute(conf)
+        ms = AdjWithGraphProt(conf)
         if ms.go:
             subs = ms.find_substitutes()
             d = {

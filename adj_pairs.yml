@@ -1,477 +1,632 @@
 warm:
-  hug:
-    neuman_top_four:
-      - hot
-      - wet
-      - affectionate
-      - brief  
-    correct: affectionate
-  
-  relations: 
-    neuman_top_four:
-      - loving
-      - tense
-      - public
-      - amicable
-    correct: loving  
-  
-  welcome:
-    neuman_top_four:
-      - affectionate
-      - adoring
-      - royal
-      - tense
-    correct: affectionate  
-  
-  feelings: 
-    neuman_top_four:
-      - comforting
-      - funny
-      - pleasant
-      - mixed
-    correct: pleasant
-  
-  personality: 
-    neuman_top_four:
-      - friendly
-      - split
-      - strong
-      - antisocial
-    correct: friendly
-  
-  greeting: 
-     neuman_top_four:
-      - friendly
-      - formal
-      - traditional
-      - usual
-     correct: friendly
-  
-  support:
-     neuman_top_four:
-      - ardent
-      - public
-      - social
-      - financial
-     correct: ardent
-  
-  debate:
-     neuman_top_four:
-      - lively
-      - public
-      - current
-      - big
-     correct: lively
-   
-  smile:
-    neuman_top_four:
-       - friendly
-       - big
-       - sly
-       - quick
-    correct: friendly
-  
-  memories:
-    neuman_top_four:
-      - lovable
-      - vivid
-      - old
-      - long
-    correct: lovable
-  
-  applause:
-    neuman_top_four:
-       - affectionate
-       - polite
-       - quiet
-       - mild
-    correct: affectionate 
+  coca_syns:
+    - hot
+    - deep
+    - friendly
+    - tender
+    - passionate
+    - loving
+    - enthusiastic
+    - lively
+    - earnest
+    - cozy
+    - sincere
+    - cheerful
+    - fiery
+    - kind
+    - inviting
+    - welcoming
+    - ardent
+    - snug
+    - temperate
+    - affectionate
+    - heartfelt
+    - cheery
+    - hospitable
+    - cordial
+    - lukewarm
+    - kindly
+    - tepid
+    - amiable
+
+  with:
+    hug:
+      neuman_top_four:
+        - hot
+        - wet
+        - affectionate
+        - brief  
+      correct: affectionate
+    
+    relations: 
+      neuman_top_four:
+        - loving
+        - tense
+        - public
+        - amicable
+      correct: loving  
+    
+    welcome:
+      neuman_top_four:
+        - affectionate
+        - adoring
+        - royal
+        - tense
+      correct: affectionate  
+    
+    feelings: 
+      neuman_top_four:
+        - comforting
+        - funny
+        - pleasant
+        - mixed
+      correct: pleasant
+    
+    personality: 
+      neuman_top_four:
+        - friendly
+        - split
+        - strong
+        - antisocial
+      correct: friendly
+    
+    greeting: 
+       neuman_top_four:
+        - friendly
+        - formal
+        - traditional
+        - usual
+       correct: friendly
+    
+    support:
+       neuman_top_four:
+        - ardent
+        - public
+        - social
+        - financial
+       correct: ardent
+    
+    debate:
+       neuman_top_four:
+        - lively
+        - public
+        - current
+        - big
+       correct: lively
+     
+    smile:
+      neuman_top_four:
+         - friendly
+         - big
+         - sly
+         - quick
+      correct: friendly
+    
+    memories:
+      neuman_top_four:
+        - lovable
+        - vivid
+        - old
+        - long
+      correct: lovable
+    
+    applause:
+      neuman_top_four:
+         - affectionate
+         - polite
+         - quiet
+         - mild
+      correct: affectionate 
 
 sweet:
-  dream:
-    neuman_top_four:
-        - good
-        - golden
-        - wonderful
+  coca_syns:
+    - fresh
+    - musical
+    - pure
+    - friendly
+    - attractive
+    - gentle
+    - pleasant
+    - cute
+    - charming
+    - sympathetic
+    - thoughtful
+    - satisfying
+    - appealing
+    - kind
+    - fragrant
+    - engaging
+    - delightful
+    - enjoyable
+    - caring
+    - rewarding
+    - pleasing
+    - adorable
+    - melodic
+    - harmonious
+    - wholesome
+    - gratifying
+    - agreeable
+    - pleasurable
+    - lovable
+  
+  with: 
+    dream:
+      neuman_top_four:
+          - good
+          - golden
+          - wonderful
+          - vivid
+      correct: good
+
+    revenge:
+      neuman_top_four:
+        - gratifying
+        - political
+        - passionate
+        - ultimate
+      correct: gratifying
+
+    smile:
+      neuman_top_four:
+        - gentle
+        - big
+        - sugary
+        - strange
+      correct: gentle
+
+    baby:
+      neuman_top_four:
+        - cute
+        - little
+        - beautiful
+        - honeyed
+      correct: cute
+    
+    music:
+      neuman_top_four:
+        - pleasing
+        - classical
+        - loud
+        - choral
+      correct: pleasing
+
+    song:
+      neuman_top_four:
+        - pleasing
+        - old
+        - popular
+        - sad
+      correct: pleasing 
+    
+    child:
+      neuman_top_four:
+        - lovable
+        - young
+        - sick
+        - small
+      correct: lovable
+
+    deal:
+      neuman_top_four:
+        - satisfying
+        - fair
+        - bigger
+        - new
+      correct: satisfying 
+
+    voice:
+      neuman_top_four:
+        - melodic
+        - male
+        - deep
+        - inner
+      correct: melodic
+    
+    memories:
+      neuman_top_four:
+        - pleasant
         - vivid
-    correct: good
+        - old
+        - long
+      correct: pleasant
 
-  revenge:
-    neuman_top_four:
-      - gratifying
-      - political
-      - passionate
-      - ultimate
-    correct: gratifying
-
-  smile:
-    neuman_top_four:
-      - gentle
-      - big
-      - sugary
-      - strange
-    correct: gentle
-
-  baby:
-    neuman_top_four:
-      - cute
-      - litt
-      - beautiful
-      - honeyed
-    correct: cute
-  
-  music:
-    neuman_top_four:
-      - pleasing
-      - classical
-      - loud
-      - choral
-    correct: pleasing
-
-  song:
-    neuman_top_four:
-      - pleasing
-      - old
-      - popular
-      - sad
-    correct: pleasing 
-  
-  child:
-    neuman_top_four:
-      - lovable
-      - young
-      - sick
-      - small
-    correct: lovable
-
-  deal:
-    neuman_top_four:
-      - satisfying
-      - fair
-      - bigger
-      - new
-    correct: satisfying 
-
-  voice:
-    neuman_top_four:
-      - melodic
-      - male
-      - deep
-      - inner
-    correct: melodic
-  
-  memories:
-    neuman_top_four:
-      - pleasant
-      - vivid
-      - old
-      - long
-    correct: pleasant
-
-  charity:
-    neuman_top_four:
-      - gratifying
-      - christian
-      - local
-      - muslim
-    correct: gratifying
-  
-  victory:
-    neuman_top_four:
-      - pleasant
-      - upset
-      - great
-      - electoral
-    correct: pleasant 
+    charity:
+      neuman_top_four:
+        - gratifying
+        - christian
+        - local
+        - muslim
+      correct: gratifying
+    
+    victory:
+      neuman_top_four:
+        - pleasant
+        - upset
+        - great
+        - electoral
+      correct: pleasant 
 
 
 deep:
-  depression:
-    neuman_top_four:
-      - intense
-      - terrible
-      - recurrent
-      - great
-    correct: intense
+  coca_syns:
+    - low
+    - rich
+    - secret
+    - silent
+    - intense
+    - meaningful
+    - profound
+    - hidden
+    - mysterious
+    - inherent
+    - booming
+    - concentrated
+    - innate
+    - entrenched
+    - untold
+    - cavernous
+    - arcane
+    - resonant
+    - subterranean
+    - multifaceted
+    - bottomless
+    - inscrutable
+    - unfathomable
+    - abysmal
+    - subconscious
+    - yawning
+    - absorbed
+    - rumbling
   
-  sleep:
-    neuman_top_four:
-      - profound
-      - feigned
-      - archetypal
-      - cold
-    correct: profound
+  with:
+    depression:
+      neuman_top_four:
+        - intense
+        - terrible
+        - recurrent
+        - great
+      correct: intense
+    
+    sleep:
+      neuman_top_four:
+        - profound
+        - feigned
+        - archetypal
+        - cold
+      correct: profound
 
-  trouble:
-    neuman_top_four:
-      - serious
-      - enormous
-      - powerful
-      - financial
-    correct: serious
-  
-  understanding: 
-    neuman_top_four:
-      - profound
-      - tacit
-      - broad
-      - collective
-    correct: profound
+    trouble:
+      neuman_top_four:
+        - serious
+        - enormous
+        - powerful
+        - financial
+      correct: serious
+    
+    understanding: 
+      neuman_top_four:
+        - profound
+        - tacit
+        - broad
+        - collective
+      correct: profound
 
-  sigh: 
-    neuman_top_four:
-      - profound
-      - collective
-      - small
-      - audible
-    correct: profound
+    sigh: 
+      neuman_top_four:
+        - profound
+        - collective
+        - small
+        - audible
+      correct: profound
 
-  emotion: 
-    neuman_top_four:
-      - strong
-      - bottomless
-      - human
-      - real
-    correct: strong
+    emotion: 
+      neuman_top_four:
+        - strong
+        - bottomless
+        - human
+        - real
+      correct: strong
 
-  thoughts:
-    neuman_top_four:
-      - profound
-      - private
-      - random
-      - happy
-    correct: profound
-  
-  happiness: 
-    neuman_top_four:
-      - intense
-      - future
-      - human
-      - martial
-    correct: intense
+    thoughts:
+      neuman_top_four:
+        - profound
+        - private
+        - random
+        - happy
+      correct: profound
+    
+    happiness: 
+      neuman_top_four:
+        - intense
+        - future
+        - human
+        - martial
+      correct: intense
 
-  voice: 
-    neuman_top_four:
-      - low
-      - female
-      - human
-      - male
-    correct: low
+    voice: 
+      neuman_top_four:
+        - low
+        - female
+        - human
+        - male
+      correct: low
 
-  secret: 
-    neuman_top_four:
-      - mysterious
-      - guarded
-      - soviet
-      - open
-    correct: mysterious
+    secret: 
+      neuman_top_four:
+        - mysterious
+        - guarded
+        - soviet
+        - open
+      correct: mysterious
 
-  theory: 
-    neuman_top_four:
-      - abstruse
-      - low
-      - economic
-      - cognitive
-    correct: abstruse
+    theory: 
+      neuman_top_four:
+        - abstruse
+        - low
+        - economic
+        - cognitive
+      correct: abstruse
 
-  lecture: 
-    neuman_top_four:
-      - recondite
-      - public
-      - large
-      - free
-    correct: recondite
+    lecture: 
+      neuman_top_four:
+        - recondite
+        - public
+        - large
+        - free
+      correct: recondite
 
 dark:
-  comedy: 
-    neuman_top_four:
-      - gallous
-      - broad
-      - classic
-      - black
-    correct: gallous
-
-  humor: 
-    neuman_top_four:
-      - wicked
-      - light
-      - jewish
-      - ethnic
-    correct: wicked
-
-  secret:
-    neuman_top_four:
-      - concealed
-      - little
-      - soviet
-      - open
-    correct: concealed
-
-  thoughts: 
-    neuman_top_four:
-      - evil
-      - intimate
-      - romantic
-      - intrusive
-    correct: evil
+  coca_syns:
+    - black
+    - brown
+    - sad
+    - evil
+    - mysterious
+    - nasty
+    - unhappy
+    - dim
+    - obscure
+    - wicked
+    - bleak
+    - depressing
+    - murky
+    - opaque
+    - shady
+    - sinister
+    - dismal
+    - somber
+    - shadowy
+    - gloomy
+    - threatening
+    - dreary
+    - spooky
+    - dusky
+    - nefarious
+    - sable
+    - joyless
+    - cheerless
   
-  purpose: 
-    neuman_top_four:
-      - evil
-      - sole
-      - general
-      - main
-    correct: evil
+  with:
+    comedy: 
+      neuman_top_four:
+        - gallous
+        - broad
+        - classic
+        - black
+      correct: gallous
 
-  vision: 
-    neuman_top_four:
-      - pessimistic
-      - clear
-      - personal
-      - comic
-    correct: pessimistic
-  
-  look: 
-    neuman_top_four:
-      - threatening
-      - close
-      - fresh
-      - curios
-    correct: threatening 
+    humor: 
+      neuman_top_four:
+        - wicked
+        - light
+        - jewish
+        - ethnic
+      correct: wicked
 
-  deeds: 
-    neuman_top_four:
-      - sinister
-      - good
-      - heroic
-      - past
-    correct: sinister
+    secret:
+      neuman_top_four:
+        - concealed
+        - little
+        - soviet
+        - open
+      correct: concealed
 
-  angel: 
-    neuman_top_four:
-      - vicious
-      - stone
-      - guardian
-      - christmas
-    correct: vicious
+    thoughts: 
+      neuman_top_four:
+        - evil
+        - intimate
+        - romantic
+        - intrusive
+      correct: evil
+    
+    purpose: 
+      neuman_top_four:
+        - evil
+        - sole
+        - general
+        - main
+      correct: evil
 
-  mood: 
-    neuman_top_four:
-      - gloomy
-      - good
-      - positive
-      - public
-    correct: gloomy
-  
-  forces: 
-    neuman_top_four:
-      - evil
-      - armed
-      - social
-      - economic
-    correct: evil
+    vision: 
+      neuman_top_four:
+        - pessimistic
+        - clear
+        - personal
+        - comic
+      correct: pessimistic
+    
+    look: 
+      neuman_top_four:
+        - threatening
+        - close
+        - fresh
+        - curios
+      correct: threatening 
 
-  magic: 
-    neuman_top_four:
-      - sinister
-      - practical
-      - ancient
-      - powerful
-    correct: sinister
+    deeds: 
+      neuman_top_four:
+        - sinister
+        - good
+        - heroic
+        - past
+      correct: sinister
+
+    angel: 
+      neuman_top_four:
+        - vicious
+        - stone
+        - guardian
+        - christmas
+      correct: vicious
+
+    mood: 
+      neuman_top_four:
+        - gloomy
+        - good
+        - positive
+        - public
+      correct: gloomy
+    
+    forces: 
+      neuman_top_four:
+        - evil
+        - armed
+        - social
+        - economic
+      correct: evil
+
+    magic: 
+      neuman_top_four:
+        - sinister
+        - practical
+        - ancient
+        - powerful
+      correct: sinister
 
 hard:
-  task: 
-    neuman_top_four:
-      - difficult
-      - solid
-      - simple
-      - joint
-    correct: difficult
+  coca_syns:
+    - difficult
+    - powerful
+    - tough
+    - solid
+    - violent
+    - severe
+    - intense
+    - fast
+    - firm
+    - harsh
+    - strict
+    - challenging
+    - stiff
+    - brutal
+    - awkward
+    - fierce
+    - cruel
+    - rigid
+    - tricky
+    - relentless
+    - durable
+    - demanding
+    - troublesome
+    - arduous
+    - grueling
+    - callous
+    - unkind
+    - unbreakable
+  with: 
+    task: 
+      neuman_top_four:
+        - difficult
+        - solid
+        - simple
+        - joint
+      correct: difficult
 
-  look: 
-    neuman_top_four:
-      - dispassionate
-      - brief
-      - close
-      - firm
-    correct: dispassionate
+    look: 
+      neuman_top_four:
+        - dispassionate
+        - brief
+        - close
+        - firm
+      correct: dispassionate
 
-  bargainer: 
-    neuman_top_four:
-      - dispassionate
-      - solid
-      - good
-      - trustworthy
-    correct: 
+    bargainer: 
+      neuman_top_four:
+        - dispassionate
+        - solid
+        - stubborn
+        - trustworthy
+      correct: stubborn 
 
-  winds: 
-    neuman_top_four:
-      - strong
-      - high
-      - political
-      - cold
-    correct: strong
+    winds: 
+      neuman_top_four:
+        - strong
+        - high
+        - political
+        - cold
+      correct: strong
 
-  blow: 
-    neuman_top_four:
-      - strong
-      - firm
-      - low
-      - single
-    correct: strong
+    blow: 
+      neuman_top_four:
+        - strong
+        - firm
+        - low
+        - single
+      correct: strong
 
-  liquors: 
-    neuman_top_four:
-      - strong
-      - flavored
-      - organic
-      - exotic
-    correct: strong #metaphoric too? should be "alcoholic" or "intoxicating"!
+    liquors: 
+      neuman_top_four:
+        - strong
+        - flavored
+        - organic
+        - exotic
+      correct: strong #metaphoric too? should be "alcoholic" or "intoxicating"!
 
-  drinker: 
-    neuman_top_four:
-      - intemperate
-      - young
-      - social
-      - oldest
-    correct: intemperate
-  
-  luck: 
-    neuman_top_four:
-      - tough
-      - good
-      - pure
-      - random
-    correct: tough #just as metaphoric + idiomatic
+    drinker: 
+      neuman_top_four:
+        - intemperate
+        - young
+        - social
+        - oldest
+      correct: intemperate
+    
+    luck: 
+      neuman_top_four:
+        - tough
+        - good
+        - pure
+        - random
+      correct: tough #just as metaphoric + idiomatic
 
-  feelings: 
-    neuman_top_four:
-      - negative
-      - raw
-      - bad
-      - awful
-    correct: negative #? 
-  
-  evidence: 
-    neuman_top_four:
-      - convincing
-      - scant
-      - recent
-      - criminal
-    correct: convincing
+    feelings: 
+      neuman_top_four:
+        - negative
+        - raw
+        - bad
+        - awful
+      correct: negative #? 
+    
+    evidence: 
+      neuman_top_four:
+        - convincing
+        - scant
+        - recent
+        - criminal
+      correct: convincing
 
-  time: 
-    neuman_top_four:
-      - difficult
-      - insufficient
-      - wasted
-      - tough
-    correct: difficult
+    time: 
+      neuman_top_four:
+        - difficult
+        - insufficient
+        - wasted
+        - tough
+      correct: difficult
 
-  work: 
-    neuman_top_four:
-      - difficult
-      - tough
-      - extra
-      - diligent
-    correct: diligent
+    work: 
+      neuman_top_four:
+        - difficult
+        - tough
+        - extra
+        - diligent
+      correct: difficult

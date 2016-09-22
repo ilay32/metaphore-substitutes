@@ -22,6 +22,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.pkl
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -63,6 +64,7 @@ target/
 *.yml
 dbcache/
 rundata/
+graph-data/
 !verb_pairs.yml
 !adj_pairs.yml
 *.txt
