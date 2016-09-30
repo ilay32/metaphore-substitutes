@@ -14,13 +14,14 @@ class NeumanExp2:
     
     @hereiam 
     def get_graph_data(self,kind,crit):
+        #return MetaphorSubstitute.cluster_centroid(pairs[self.adj]['olprot'][kind]) 
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,self.adj+"-"+kind+".pkl"),'rb'))
         proto_nouns = [n[0] for n in data[crit].most_common() if vecs.has(n[0])][:NeumanGraph.most_connected]
         return MetaphorSubstitute.cluster_centroid(proto_nouns)
                 
     @hereiam 
     def get_synonyms(self):
-        simcut =  0.099 # Theta_cut
+        simcut =  0.15 # Theta_cut
         syns = [a for a in pairs[self.adj]['coca_syns'] if vecs.has(a)][:NeumanGraph.most_connected]
         ret = list()
         for s in syns:
@@ -28,7 +29,9 @@ class NeumanExp2:
             sim_conc = Vecs.distance(self.concrete_vector,vecs.get(s))
             if sim_abst > simcut and sim_conc < simcut:
                 ret.append(s)
-        print("cleaned:",len(syns) - len(ret))
+            else:
+                print(s,"ruled out by protolist")
+        print("in total ruled out for", self.adj+":",len(syns) - len(ret))
         # this is why "mingled"
         ret.append(self.adj)
         ret.append(self.noun)
@@ -41,8 +44,8 @@ class NeumanExp2:
         return sorted(ret,key=lambda x: x[1],reverse=True)
     
     def eval_results(self,ccriterion):
-        self.concrete_vector = NeumanExp2.get_graph_data('concrete',ccriterion)
-        self.abstract_vector = NeumanExp2.get_graph_data('abstract',ccriterion)
+        self.concrete_vector = self.get_graph_data('concrete',ccriterion)
+        self.abstract_vector = self.get_graph_data('abstract',ccriterion)
         res = self.rate_substitutes()
         self.results[ccriterion] = res[0][0]
         return int(res[0][0] == self.correct)
@@ -52,7 +55,6 @@ if __name__ == '__main__':
     rundata = list()
     for adj in pairs:
         for noun in pairs[adj]['with']:
-            print(adj,noun,pairs[adj]['with'][noun]['correct'])
             print("\ndoing",adj,noun)
             print("===============")
             ne2 = NeumanExp2(adj,noun)

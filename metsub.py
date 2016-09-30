@@ -1,9 +1,8 @@
-import math,pandas,sys,pickle,yaml,io,random
-import numpy as np
 from nltk.corpus import wordnet as wn
 from dbutils import *
 from prygress import progress
-
+from ngraph import NeumanGraph
+pairs = yaml.load(open('adj_pairs.yml'))
 vecs = Vecs(DB('LSA-ENG'))
 ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
@@ -49,23 +48,23 @@ class MetaphorSubstitute:
                 mrr += 1/(tst.index(t)+1)
         return mrr
     
-    def cluster_centroid(self,cluster):
+    def cluster_centroid(cluster):
         if SingleWordData.empty(cluster):
             print("empty cluster")
             return None
-        print("computing cluster centroid for ",printlist(cluster,7,True))
-        added = 0
-        acc = vecs.get(cluster[0])
-        for word in cluster[1:]:
-            if vecs.has(word):
-                if SingleWordData.empty(vecs.get(word)): 
-                    print("nan in vector", word)
-                acc = Vecs.addition(acc,vecs.get(word))
-                added += 1
-        if added > 0:
-            return Vecs.multiply(acc,1/added)
-        else:
+        cluster = [w for w in cluster if vecs.has(w)]
+        if SingleWordData.empty(cluster):
+            print("no vector for any of the words in this cluster")
             return None
+        print("computing cluster centroid for ",printlist(cluster,7,True))
+        acc = vecs.get(cluster[0])
+        added = 1
+        for word in cluster[1:]:
+            if SingleWordData.empty(vecs.get(word)): 
+                print("nan in vector", word)
+            acc = Vecs.addition(acc,vecs.get(word))
+            added += 1
+        return Vecs.multiply(acc,1/added)
 
     def get_instance_centroid(self):
         print("computing instance centroid")
@@ -73,7 +72,7 @@ class MetaphorSubstitute:
         if SingleWordData.empty(raw_cluster):
             print("this instance has no cluster. calling it quits")
             return None 
-        cent = self.cluster_centroid(raw_cluster)
+        cent = MetaphorSubstitute.cluster_centroid(raw_cluster)
         return Vecs.multiply(Vecs.addition(cent,Vecs.multiply(vecs.get(self.noun),self.instance_noun_weight)),1/2)
     
 
@@ -213,19 +212,13 @@ class AdjSubstitute(MetaphorSubstitute):
     def neuman_eval(self):
         return int(self.substitute() == self.correct)
 
-        # this is probably all wrong    
-    def verb_synonyms_noam(self):
-        identifier = self.noun+"_"+self.pred+"\t"
-        with open(self.synonyms_file) as s:
-            for line in s:
-                if identifier in line:
-                    synraw = line.partition(identifier)[2].split(',')
-                    print(synraw[:15])
-                    synfiltered = [w for w in synraw if lex.has(w) and 2 in lex.get(w) and abst.has(w) and abst.get(w) > self.abstract_thresh]
-                    print("syns:\n", )
-                    return synfiltered[:min(self.number_of_synonyms,len(synfiltered))]
-        return None
+class AdjWithGraphProt(AdjSubstitute):
+    def noun_cluster(self,pred,rel):
+        data = pickle.load(open(os.path.join(NeumanGraph.datadir,pred+"-abstract.pkl"),'rb'))
+        proto_nouns = [n[0] for n in data['out'].most_common() if vecs.has(n[0])][:self.noun_cluster_size]
+        print("abstract objects for",pred+":",printlist(proto_nouns,10,True))
+        return proto_nouns 
     
-    
-    
-    
+    def get_candidates(self):
+        return pairs[self.pred]['with'][self.noun]['neuman_top_four'] 
+

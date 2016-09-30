@@ -28,7 +28,40 @@ warm:
     - kindly
     - tepid
     - amiable
-
+  olprot:
+    abstract:
+      - word
+      - response
+      - friendship
+      - wave
+      - interaction
+      - relationship
+      - feeling
+      - spirit
+      - embrace
+      - impression
+      - gesture
+      - reference
+      - approval
+      - reaction
+      - connection
+    concrete:
+      - eye
+      - note
+      - voice
+      - hand
+      - smile
+      - memory
+      - heart
+      - hug
+      - shadow
+      - picture
+      - link
+      - version
+      - glance
+      - light
+      - kiss
+  
   with:
     hug:
       neuman_top_four:
@@ -38,7 +71,7 @@ warm:
         - brief  
       correct: affectionate
     
-    relations: 
+    relation: 
       neuman_top_four:
         - loving
         - tense
@@ -54,7 +87,7 @@ warm:
         - tense
       correct: affectionate  
     
-    feelings: 
+    feeling: 
       neuman_top_four:
         - comforting
         - funny
@@ -102,7 +135,7 @@ warm:
          - quick
       correct: friendly
     
-    memories:
+    memory:
       neuman_top_four:
         - lovable
         - vivid
@@ -149,7 +182,40 @@ sweet:
     - agreeable
     - pleasurable
     - lovable
-  
+  olprot:
+    abstract:
+      - thing
+      - thought
+      - moment
+      - opportunity
+      - taste
+      - inspiration
+      - sense
+      - element
+      - combination
+      - side
+      - weight
+      - idea
+      - surprise
+      - whiff
+      - beginning
+    concrete:
+      - look
+      - fruit
+      - strawberry
+      - face
+      - grape
+      - water
+      - apple
+      - lime
+      - mango
+      - bread
+      - flower
+      - berry
+      - sound
+      - voice
+      - drink
+
   with: 
     dream:
       neuman_top_four:
@@ -223,7 +289,7 @@ sweet:
         - inner
       correct: melodic
     
-    memories:
+    memory:
       neuman_top_four:
         - pleasant
         - vivid
@@ -278,7 +344,39 @@ deep:
     - yawning
     - absorbed
     - rumbling
-  
+  olprot:
+    abstract:
+      - part
+      - end
+      - thought
+      - section
+      - side
+      - threat
+      - cover
+      - atmosphere
+      - tone
+      - layer
+      - meaning
+      - wave
+      - level
+      - place
+      - one
+    concrete:
+      - voice
+      - line
+      - note
+      - stream
+      - forest
+      - bed
+      - river
+      - sound
+      - cut
+      - water
+      - root
+      - scar
+      - jungle
+      - shade
+      - patch
   with:
     depression:
       neuman_top_four:
@@ -328,7 +426,7 @@ deep:
         - real
       correct: strong
 
-    thoughts:
+    thought:
       neuman_top_four:
         - profound
         - private
@@ -406,7 +504,39 @@ dark:
     - sable
     - joyless
     - cheerless
-  
+  olprot:
+    abstract:
+      - suit
+      - wave
+      - background
+      - uniform
+      - print
+      - mood
+      - soul
+      - figure
+      - space
+      - place
+      - character
+      - period
+      - horizon
+      - mass
+      - feature
+    concrete:
+      - bird
+      - line
+      - water
+      - cloud
+      - glass
+      - spot
+      - band
+      - rock
+      - ball
+      - dot
+      - bar
+      - bag
+      - dress
+      - wall
+      - stone
   with:
     comedy: 
       neuman_top_four:
@@ -432,7 +562,7 @@ dark:
         - open
       correct: concealed
 
-    thoughts: 
+    thought: 
       neuman_top_four:
         - evil
         - intimate
@@ -488,7 +618,7 @@ dark:
         - public
       correct: gloomy
     
-    forces: 
+    force: 
       neuman_top_four:
         - evil
         - armed
@@ -534,6 +664,39 @@ hard:
     - callous
     - unkind
     - unbreakable
+  olprot:
+    abstract:
+      - labor
+      - question
+      - time
+      - struggle
+      - thing
+      - life
+      - task
+      - condition
+      - effort
+      - place
+      - part
+      - negotiation
+      - decision
+      - fight
+      - journey
+    concrete:
+      - day
+      - job
+      - battle
+      - path
+      - winter
+      - trade-off
+      - ride
+      - travel
+      - spot
+      - workout
+      - material
+      - hike
+      - object
+      - shot
+      - road
   with: 
     task: 
       neuman_top_four:
@@ -559,7 +722,7 @@ hard:
         - trustworthy
       correct: stubborn 
 
-    winds: 
+    wind: 
       neuman_top_four:
         - strong
         - high
@@ -575,7 +738,7 @@ hard:
         - single
       correct: strong
 
-    liquors: 
+    liquor: 
       neuman_top_four:
         - strong
         - flavored
@@ -599,7 +762,7 @@ hard:
         - random
       correct: tough #just as metaphoric + idiomatic
 
-    feelings: 
+    feeling: 
       neuman_top_four:
         - negative
         - raw
