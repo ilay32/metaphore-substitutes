@@ -35,15 +35,17 @@ class DB:
         self.catalog = catalog
         self.abst = dict()
         self.vecs = dict()
-        self.connected = True
         self.conn = self.connect()
+        self.connected = isinstance(self.conn,pymssql.Connection)
     
     def connect(self):
-        try:
-            return pymssql.connect(self.server_name, self.user, self.password,self.catalog)
-        except:
-            self.connected = False
-            return None
+        cu = None
+        if os.access(self.server_name,os.R_OK):
+            try:
+                cu =  pymssql.connect(self.server_name, self.user, self.password,self.catalog)
+            except:
+                cu = None
+        return cu
 
     def query(self,q,tries=1):
         if not self.connected:
@@ -125,7 +127,9 @@ class SingleWordData:
             if not SingleWordData.empty(qr):
                 self.table[word] = qr
                 self.table_changed = True
-        return qr
+            qr
+        else:
+            return None
     
     def __str__(self):
         return self.table[:min(len(self.table),5)]
