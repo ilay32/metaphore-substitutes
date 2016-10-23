@@ -35,12 +35,19 @@ class DB:
         self.catalog = catalog
         self.abst = dict()
         self.vecs = dict()
+        self.connected = True
         self.conn = self.connect()
     
     def connect(self):
-        return pymssql.connect(self.server_name, self.user, self.password,self.catalog)
-   
+        try:
+            return pymssql.connect(self.server_name, self.user, self.password,self.catalog)
+        except:
+            self.connected = False
+            return None
+
     def query(self,q,tries=1):
+        if not self.connected:
+            return
         if tries > 1:
             conn = self.connect()
         else:
@@ -70,7 +77,8 @@ class DB:
         return c  
         
     def destroy(self):
-        self.conn.close()
+        if self.connected:
+            self.conn.close()
 
 class SingleWordData:
     dbcache = 'dbcache'
@@ -78,6 +86,7 @@ class SingleWordData:
         self.db = db
         self.table_path = self.get_table_path()
         self.table = self.get_table()
+        self.table_changed = False
         self.notfound = set()
     
     def searchval(self,val):
@@ -107,14 +116,15 @@ class SingleWordData:
             return None
         word = word.replace("'","")
         if word in self.notfound:
-            print("this shouldn't be here")
+            print("this shouldn't be here:",word)
         if word in self.table:
             return self.table[word]
-        else:
+        elif self.db.connected:
             cu  = self.db.query(self.queryscheme(word))
             qr = self.handlequery(cu)
             if not SingleWordData.empty(qr):
                 self.table[word] = qr
+                self.table_changed = True
         return qr
     
     def __str__(self):
@@ -131,10 +141,11 @@ class SingleWordData:
         return table
     
     def save_table(self):
-        with open(self.table_path, 'wb') as f:
-            pickle.dump(self.table,f)
+        if self.table_changed:
+            with open(self.table_path, 'wb') as f:
+                pickle.dump(self.table,f)
     
-    def destroy(self,save=False):
+    def destroy(self):
         self.save_table()
         self.db.destroy()
 
@@ -146,7 +157,7 @@ class Abst(SingleWordData):
     @dberror(0)
     def handlequery(self,cu):
         f = cu.fetchall()
-        if not cu or len(f) == 0:
+        if (not cu) or (len(f) == 0):
             return 0.5
         return f[0][0]
     
@@ -210,6 +221,9 @@ class Vecs(SingleWordData):
         for k in ret.keys():
             ret[k] = u[k]*scalar
         return ret
+    
+    def subtract(u,v):
+        return Vecs.addition(u,Vecs.multiply(v,-1))
 
 class Lex(SingleWordData):
     @dberror() 
@@ -234,19 +248,7 @@ class Ngram(SingleWordData):
             self.mi
         ])
     
-    def ready(self,word):
-        query_base = "'{0}',{1},{2},{3},{4},{5}".format(
-            word,
-            self.key_pos, # this is the POS type of verb
-            self.search_pos,
-            self.left, # how many words to look behind
-            self.right, # how many words to look ahead
-            self.mi # minimal mutual information required for results
-        )
-        self.query_base = query_base
-        print("prepping for ",query_base)
-        self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
-    
+        
     def queryscheme(self,word):
         query_base = "'{0}',{1},{2},{3},{4},{5}".format(
             word,
@@ -256,7 +258,8 @@ class Ngram(SingleWordData):
             self.right, # how many words to look ahead
             self.mi # minimal mutual information required for results
         )
-        self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
+        if self.db.connected:
+            self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
         time.sleep(2)
         return "GetNgrams "+query_base    
     
@@ -405,7 +408,7 @@ def explore_cache():
     dbcache = SingleWordData.dbcache
     cached = os.listdir(dbcache)
     for i,cache in enumerate(cached):
-        print(i+1,".\t",os.path.basename(cache))
+        print(str(i+1)+".\t",os.path.basename(cache))
     cache = int(input("choose one of the above: "))
     path = os.path.join(dbcache,cached[cache-1])
     if os.path.isfile(path):
@@ -436,22 +439,21 @@ class RunData:
         out.write(time.ctime(self.timestamp)+"\n")
         out.write(self.typ+" "+self.note+"\n")
         out.write("parameters:\n"+printdict(self.params,True))
+        out.write("\nNeuman Score: "+self.neuman_eval())
+        out.write("\nMRR: "+self.evaluate())
         return out.getvalue()
 
     def __repr__(self):
         return self.__str__()
     
-    def tofile(self,location=None):
-        if location != None and not os.path.isdir(location):
-            print(location," is not a valid directory. aborting")
-            return
-        filename  = self.note.replace(' ','_')
-        path =  os.path.join(location,filename) if location != None else filename
-        with open(os.path.join(path+".txt"),"w") as f:
+    def tofile(self,filename=None):
+        if not filename:
+            filename  = self.note.replace(' ','_')
+        with open(os.path.join(filename+".txt"),"w") as f:
             d = self.data
             f.write(str(self)+"\n")
             for i,row in d.iterrows():
-                f.write(row.pred+" "+row.noun+" ("+self.typ+")")
+                f.write(row.pred+" "+row.noun+" ("+self.typ+", expected "+row.correct+")")
                 f.write("\n=====================\n")
                 for sub in row['substitutes'][:self.params['number_of_candidates']]:
                     f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
@@ -498,14 +500,16 @@ class RunData:
         else:
             pairs = d
         for i,row in pairs.iterrows():
-            print(row.pred," ",row.noun,":\n")
-            printlist(row['substitutes'],self.params['number_of_candidates'],False,"\n")
+            print(row.pred," ",row.noun," (expected", row.correct,"):")
+            printlist(row['substitutes'],len(row['substitutes']),False,"\n")
+            print("\n")
     
     def evaluate(self):
         return self.data['score'].mean()
 
     def neuman_eval(self):
         frac = self.data['neuman_score'].sum()/self.howmany()
-        print("{:.0%}".format(frac))
-        return frac
+        return "{:.1%}".format(frac)
 
+if __name__ == '__main__':
+    print("to explore the cache type data=explore_cache()")

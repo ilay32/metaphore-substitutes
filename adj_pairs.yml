@@ -68,7 +68,7 @@ warm:
         - hot
         - wet
         - affectionate
-        - brief  
+        - quick  
       correct: affectionate
     
     relation: 
@@ -244,7 +244,7 @@ sweet:
     baby:
       neuman_top_four:
         - cute
-        - little
+        - small
         - beautiful
         - honeyed
       correct: cute
@@ -286,7 +286,7 @@ sweet:
         - melodic
         - male
         - deep
-        - inner
+        - internal
       correct: melodic
     
     memory:
@@ -540,11 +540,11 @@ dark:
   with:
     comedy: 
       neuman_top_four:
-        - gallous
+        - macabre
         - broad
         - classic
         - black
-      correct: gallous
+      correct: macabre
 
     humor: 
       neuman_top_four:
@@ -557,7 +557,7 @@ dark:
     secret:
       neuman_top_four:
         - concealed
-        - little
+        - small
         - soviet
         - open
       correct: concealed
@@ -709,7 +709,7 @@ hard:
     look: 
       neuman_top_four:
         - dispassionate
-        - brief
+        - quick
         - close
         - firm
       correct: dispassionate
