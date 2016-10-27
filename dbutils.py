@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess
 import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
@@ -38,9 +38,13 @@ class DB:
         self.conn = self.connect()
         self.connected = isinstance(self.conn,pymssql.Connection)
     
+    def db_available(self):
+        rcode = subprocess.run(["ping","-c 1",self.server_name],stdout = subprocess.PIPE)
+        return rcode.returncode == 0
+
     def connect(self):
         cu = None
-        if os.access(self.server_name,os.R_OK):
+        if self.db_available():
             try:
                 cu =  pymssql.connect(self.server_name, self.user, self.password,self.catalog)
             except:
