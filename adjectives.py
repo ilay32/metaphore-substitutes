@@ -53,6 +53,7 @@ if __name__ ==  '__main__':
     for p in run:
         conf.update(p)
         ms = AdjSubstitute(conf)
+        #ms = SimpleNeuman(conf)
         if ms.go:
             subs = ms.find_substitutes()
             d = {
@@ -73,21 +74,13 @@ if __name__ ==  '__main__':
     print("wrapping up and saving stuff")
     if note != "discard":
         rundata.save()
-    for obj in dir():
+    for objname in dir():
         try:
-            o = eval(obj)
-            if isinstance(o,SingleWordData):
-                print("saving",obj)
+            obj = eval(objname)
+            if isinstance(obj,SingleWordData):
                 obj.destroy()
         except:
             None
-    #vecs.destroy()
-    #ngrams.destroy()
-    #abst.destroy()
-    #lex.destroy()
-    #nouns.destroy()
-    #AdjSubstitute.object_clusters.destroy()
-    #AdjSubstitute.pred_candidates.destroy()
     print("\n\t\tHura!\n")
 
 

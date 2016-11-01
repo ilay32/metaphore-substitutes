@@ -48,6 +48,7 @@ class DB:
             try:
                 cu =  pymssql.connect(self.server_name, self.user, self.password,self.catalog)
             except:
+                print("could not connect to",self.catalog,"working offline")
                 cu = None
         return cu
 
@@ -131,7 +132,7 @@ class SingleWordData:
             if not SingleWordData.empty(qr):
                 self.table[word] = qr
                 self.table_changed = True
-            qr
+            return qr
         else:
             return None
     
@@ -150,6 +151,7 @@ class SingleWordData:
     
     def save_table(self):
         if self.table_changed:
+            print("saving",self.table_path)
             with open(self.table_path, 'wb') as f:
                 pickle.dump(self.table,f)
     
