@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk
 import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
@@ -88,11 +88,12 @@ class DB:
             self.conn.close()
 
 class SingleWordData:
-    dbcache = 'dbcache'
+    dbcache = 'newdbcache'
     def __init__(self,db):
         self.db = db
         self.table_path = self.get_table_path()
         self.table = self.get_table()
+        self.empty_table = dict()
         self.table_changed = False
         self.notfound = set()
     
@@ -146,7 +147,7 @@ class SingleWordData:
         if os.path.isfile(self.table_path): 
             table = pandas.read_pickle(self.table_path)
         else:
-            table = dict()
+            table = self.empty_table
         return table
     
     def save_table(self):
@@ -250,6 +251,13 @@ class Lex(SingleWordData):
         return 'lex'
 
 class Ngram(SingleWordData):
+    def __init__(self,db):
+        self.empty_table = nltk.ConditionalFreqDist()
+        self.lem_column = 10
+        self.freq_column = 1
+        self.global_limit = conf['cluster_maxrows']
+        super(Ngram,self).__init__(db)
+
     def search_table(self):
         return '-'.join([
             self.name,
@@ -275,13 +283,13 @@ class Ngram(SingleWordData):
     
     @dberror()
     def handlequery(self,c):
-        ret = set()
+        freqs = dict()
         cur = 0
         rows = c.fetchall()
-        while len(ret) < self.global_limit and cur < len(rows):
-            ret.add(rows[cur][self.column])
+        while cur < min(self.global_limit,len(rows)):
+            freqs[rows[cur][self.lem_column]] = rows[cur][self.freq_column] 
             cur += 1
-        return list(ret)
+        return nltk.FreqDist(freqs)
 
 class VerbObjects(Ngram):
     def __init__(self,db):
@@ -290,10 +298,8 @@ class VerbObjects(Ngram):
         self.left = str(conf['search_objects_left'])
         self.right = str(conf['search_objects_right'])
         self.mi = str(conf['noun_min_MI'])
-        self.column = 10
-        self.global_limit = conf['cluster_maxrows']
         self.name = 'object-clusters'
-        super(Ngram,self).__init__(db)
+        super(VerbObjects,self).__init__(db)
 
 class AdjObjects(Ngram):
     def __init__(self,db):
@@ -303,9 +309,7 @@ class AdjObjects(Ngram):
         self.right = str(conf['search_aobjects_right'])
         self.mi = str(conf['noun_min_MI'])
         self.name = 'adj-object-clusters'
-        self.column = 10
-        self.global_limit = conf['cluster_maxrows']
-        super(Ngram,self).__init__(db)
+        super(AdjObjects,self).__init__(db)
 
 class ObjectAdjs(Ngram):
     def __init__(self,db):
@@ -314,10 +318,8 @@ class ObjectAdjs(Ngram):
         self.left = str(conf['search_aobjects_right'])
         self.right = str(conf['search_aobjects_left'])
         self.mi = str(conf['verb_min_MI'])
-        self.column = 10
-        self.global_limit = conf['candidates_maxrows']
         self.name = 'aobject-candidates'
-        super(Ngram,self).__init__(db)
+        super(ObjectAdjs,self).__init__(db)
 
 class VerbSubjects(Ngram):
     def __init__(self,db):
@@ -326,10 +328,8 @@ class VerbSubjects(Ngram):
         self.left = str(conf['search_subjects_left'])
         self.right = str(conf['search_subjects_right'])
         self.mi = str(conf['noun_min_MI'])
-        self.column = 10
-        self.global_limit = conf['cluster_maxrows']
         self.name = 'subject-clusters'
-        super(Ngram,self).__init__(db)
+        super(VerbSubjects,self).__init__(db)
 
 class ObjectVerbs(Ngram):
     def __init__(self,db):
@@ -338,10 +338,8 @@ class ObjectVerbs(Ngram):
         self.left = str(conf['search_object_verbs_left'])
         self.right = str(conf['search_object_verbs_right'])
         self.mi = str(conf['verb_min_MI'])
-        self.column = 10
-        self.global_limit = conf['candidates_maxrows']
         self.name = 'object-candidates'
-        super(Ngram,self).__init__(db)
+        super(ObjectVerbs,self).__init__(db)
 
 class SubjectVerbs(Ngram):
     def __init__(self,db):
@@ -350,10 +348,8 @@ class SubjectVerbs(Ngram):
         self.left = str(conf['search_subject_verbs_left'])
         self.right = str(conf['search_subject_verbs_right'])
         self.mi = str(conf['verb_min_MI'])
-        self.column = 10
-        self.global_limit = conf['candidates_maxrows']
         self.name = 'subject-candidates'
-        super(Ngram,self).__init__(db)
+        super(SubjectVerbs,self).__init__(db)
 
 class NounNoun(Ngram):
     def __init__(self,db):
@@ -362,10 +358,8 @@ class NounNoun(Ngram):
         self.left = str(conf['neuman_graph']['nn_window'])
         self.right = self.left
         self.mi = str(conf['noun_min_MI'])
-        self.column = 10
-        self.global_limit = conf['cluster_maxrows'] 
         self.name = 'nn-cluster'
-        super(Ngram,self).__init__(db)
+        super(NounNoun,self).__init__(db)
 
 #
 # general utility functions
@@ -515,7 +509,7 @@ class RunData:
             print("\n")
     
     def evaluate(self):
-        return self.data['score'].mean()
+        return str(self.data['score'].mean())
 
     def neuman_eval(self):
         frac = self.data['neuman_score'].sum()/self.howmany()

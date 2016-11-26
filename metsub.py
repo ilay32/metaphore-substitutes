@@ -1,13 +1,18 @@
 from nltk.corpus import wordnet as wn
+from nltk.stem import WordNetLemmatizer
+from gensim.models.word2vec import Word2Vec
 from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
 import random
-vecs = Vecs(DB('LSA-ENG'))
+
+#vecs = Vecs(DB('LSA-ENG'))
+vecs = Word2Vec.load_word2vec_format(conf['w2v_file'],binary=True) 
 ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
-lex = Lex(ngrams)
-nouns = NounNoun(ngrams)
+lemmatizer = WordNetLemmatizer()
+#lex = Lex(ngrams)
+#nouns = NounNoun(ngrams)
 
 def preeval(fn):
     def inside(*args,**kwargs):
@@ -21,11 +26,18 @@ def preeval(fn):
         return ans
     return inside
 
+def squeeze(words,lim):
+    while len(words) > lim:
+        out = vecs.doesnt_match(words)
+        words.remove(out)
+    return words
+
 class MetaphorSubstitute:
     def __init__ (self,options):
         print("initializing",options['pred'],"--",options['noun'])
         for key in options.keys():
             self.__dict__[key] = options[key]
+        self.noun = lemmatizer.lemmatize(self.noun)
         self.substitutes = list()
         self.no_abst = set()
         self.no_vector = set()
@@ -104,31 +116,10 @@ class MetaphorSubstitute:
     
     def wordnet_closure(word,pos):
         print("getting synonyms")
-        acc = list()
         syn = set()
-        
-        s1 = wn.synsets(word,pos)
-        
-        acc += s1
-        # loop synonyms to get heypernym sets *depth* steps up
-        for s in s1:
-            acc += s.closure(lambda x: x.hypernyms(), depth=2)        
-        
-        # loop immediate hypernyms and get all their pred hyponyms
-        #for s in s1:
-        #    for h in s.hypernyms():
-        #        acc += h
-        #        acc += h.hyponyms(pos)
-        #
-        #loop the accumulated sets and collect lemmas
-        for s in acc:
-            syn = syn.union(set([l.name() for l in s.lemmas() if l.name() != word]))
-        #a = abst.get(self.pred)
-        #abstsyn = [s for s in syn if abst.get(s) > a]
-        #if not SingleWordData.empty(abstsyn):
-        #    syn = abstsyn
-        print("from wordnet:",printlist(syn,10,True))
-        return syn
+        for s in wn.synsets(word,pos):
+            syn = syn.union(set([l.name() for l in s.lemmas() ]))
+        return list(syn)
 
     def get_candidates(self):
         print("fetching candidate replacements for "+self.pred)
@@ -197,55 +188,106 @@ class MetaphorSubstitute:
 class AdjSubstitute(MetaphorSubstitute):
     object_clusters = AdjObjects(ngrams)
     pred_candidates = ObjectAdjs(ngrams) 
+    adjsyns = dict()
+    
     def __init__(self,options):
+        super(AdjSubstitute,self).__init__(options)
         self.wordnet_class = wn.ADJ
         self.nc = None
-        super(AdjSubstitute,self).__init__(options)
+        self.noun_env = self.get_noun_env()
+        self.adj_env = self.get_adj_env()
+        self.type = None
     
-        
-    def noun_cluster_bynoun(self,pred,rel) :
-        if self.nc:
-            return self.nc
-        else:
-            clust = [n for n in nouns.get(self.noun) if abst.has(n) and vecs.has(n)][:100]
-            clust.sort(key=lambda x : abst.get(x), reverse=True)
-            nc = MetaphorSubstitute.cluster_centroid(clust[:self.noun_cluster_size])
-            self.nc = nc
-            return nc
+    def get_instance_centroid(self):
+        return 1
+
+    def get_noun_env(self):
+        env = vecs.most_similar(self.noun,topn=self.noun_cluster_size)
+        return [w[0] for w in env]
+
+    def get_adj_env(self):
+        return sorted(self.get_syns(),key=lambda x : abst.get(x),reverse=True)[:10]
 
     def neuman_eval(self):
         return int(self.substitute() == self.correct)
     
-    def get_synonyms(self):
-        return sorted(self.coca_syns,key=lambda x: abs(abst.get(x) - abst.get(self.pred)))[:20]
-
-    def get_candidates(self):
-        raw = [a for a in AdjSubstitute.pred_candidates.get(self.noun) if abst.has(a) and vecs.has(a) and abst.get(a) > abst.get(self.pred)]
-        ret = raw[:min(len(raw), 20)]
-        #random.shuffle(ret)
-        #while self.correct in ret[:3]:
-            #random.shuffle(ret)
-        #ret = set(ret).union(set(sorted([a for a in self.coca_syns if abst.has(a) and vecs.has(a)][:max(nc,15)],key=lambda x: abst.get(x),reverse=True)[:nc]))
-        #ret = ret[:3]
-        #ret.append(self.correct)
-        print("candidates:",printlist(ret,10,True))
+    def find_substitutes(self):
+        subs = list()
+        asyns = sorted(self.get_syns(),key=lambda x: abst.get(x),reverse=True)[:10]
+        for c in self.get_candidates():
+            r = abst.get(c)*vecs.n_similarity([c],asyns)
+            subs.append((c,r))
+        subs.sort(key=lambda x: x[1],reverse=True)
+        s = squeeze([s[0] for s in subs][:15],5)
+        printlist(s,10,False,"\n")
+        self.substitutes = subs
+        return subs
+    
+    def wn_syns(word):
+        ret = set()
+        for snset in wn.synsets(word,wn.ADJ):
+            for lem in snset.lemmas():
+                if lem.name() in vecs:
+                    ret.add(lem.name())
         return ret 
     
-    def get_instance_centroid(self) :
-        #MetaphorSubstitute.cluster_centroid(self.get_synonyms())
-        vp = vecs.get(self.pred)
-        if vecs.has(self.noun):
-            ret = Vecs.subtract(vp,vecs.get(self.noun))
+    def get_syns(self):
+        if self.pred in AdjSubstitute.adjsyns:
+            return AdjSubstitute.adjsyns[self.pred]
         else:
-            serrogate = MetaphorSubstitute.cluster_centroid(self.noun_cluster(self.pred,'object'))            
-            ret = Vecs.subtract(vp,serrogate)
-        return ret
+            csyns = set([a for a in self.coca_syns if a in vecs])
+            wsyns = AdjSubstitute.wn_syns(self.pred)
+            syns = list(csyns.union(wsyns))
+            AdjSubstitute.adjsyns[self.pred] = syns
+        return syns
     
-    def cluster_distance(self,pred,clust):
-        cent = MetaphorSubstitute.cluster_centroid(clust)
-        d = Vecs.subtract(vecs.get(pred),cent)
-        return Vecs.distance(d,self.instance_centroid)
+    def modifies_noun(self,adj):
+        objs = AdjSubstitute.object_clusters.get(adj)
+        if self.noun in objs:
+            return objs.freq(self.noun)
+        return 0
+    
+    def filter_antonyms(self,words):
+        print("filtering antonyms")
+        rem = list()
+        for word in words:
+            synsts = wn.synsets(word,wn.ADJ)
+            syns = self.get_syns()[:10]
+            for snset in synsts:
+                for lem in snset.lemmas():
+                    ants = lem.antonyms()
+                    for ant in [a.name() for a in ants if a.name() in vecs]:
+                        remove  = ""
+                        add = ""
+                        print("checking",ant,"against",word)
+                        dis1 = vecs.n_similarity([word],syns)
+                        dis2 = vecs.n_similarity([ant],syns)
+                        if dis1 > dis2:
+                            remove = ant
+                        elif dis2 > dis1:
+                            remove = word
+                            add = ant
+                        if add in vecs and add not in words:
+                            print("adding",add)
+                            #words.append(add)
+                        if remove not in rem and remove in words:
+                            print("removing",remove)
+                            words.remove(remove)
+                            rem.append(remove)
+        return words
 
+    def get_candidates(self):
+        print("fetching candidate replacements for "+self.pred)
+        cdatasource = eval(self.classname).pred_candidates
+        if not cdatasource.has(self.noun):
+            print("can't find typical preds for ",self.noun)
+            return None
+        cands_max = cdatasource.get(self.noun)
+        syns = self.get_syns()
+        syns.sort(key=lambda x: self.modifies_noun(x),reverse=True)
+        cands = set([p[0] for p in cands_max.most_common(30) if p[0] in vecs]).union(set(syns[:5]))
+        cands.discard(self.pred)
+        return list(cands)
 
 class SimpleNeuman(AdjSubstitute):
     def find_substitutes(self):
@@ -262,6 +304,7 @@ class SimpleNeuman(AdjSubstitute):
     def get_instance_centroid(self):
         return MetaphorSubstitute.cluster_centroid(self.get_synonyms()[:10])
 
+    
 class AdjWithGraphProt(AdjSubstitute):
     def noun_cluster(self,pred,rel):
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,pred+"-abstract.pkl"),'rb'))
