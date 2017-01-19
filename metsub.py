@@ -65,6 +65,31 @@ class MetaphorSubstitute:
                 mrr += 1/(tst.index(t)+1)
         return mrr
     
+    def detect(self,adj):
+        print("checking",adj,"literality")
+        allnouns = eval(self.classname).object_clusters.get(adj).most_common(classifier_params['total'])
+        concrete = [n[0] for n in sorted(allnouns,key=lambda x: abst.get(x[0]) if not SingleWordData.empty(x[0]) else 1)][:classifier_params['kappa']]
+        print("concrete:",printlist(concrete,5,True))
+        categories = self.concrete_categories(concrete)
+        for cat in categories:
+            print(cat)
+            if self.noun in nouncats[cat]:
+                print(adj,"--",self.noun,"is literal. found category:",cat)
+                return False #literal
+        return True #metaphoric
+        
+    def concrete_categories(self,conclist):
+        concrete_cats = list()
+        for cat in nouncats:
+            intersect = len(set(conclist).intersection(set(nouncats[cat])))
+            if intersect >= classifier_params['cat_thresh']:
+                concrete_cats.append(cat)
+        if len(concrete_cats) > 0:
+            print("found categories:",printlist(concrete_cats,len(concrete_cats),True))
+        else:
+            print("no category found")
+        return concrete_cats
+
     def cluster_centroid(cluster):
         if SingleWordData.empty(cluster):
             print("empty cluster")
@@ -105,7 +130,7 @@ class MetaphorSubstitute:
         if not clusters.has(pred):
             print("can't find noun cluster for ",pred)
             return None
-        clust = sorted([n for n in clusters.get(pred) if vecs.has(n) and abst.has(n)],key=lambda x: abst.get(x),reverse=True)[:self.noun_cluster_size]
+        clust = sorted([n[0] for n in clusters.get(pred).most_common() if n[0] in vecs and abst.has(n[0])],key=lambda x: abst.get(x),reverse=True)[:self.noun_cluster_size]
         if len(clust) == 0:
             print("all",len(clust)," found nouns are either not abstract enough or vectorless. only the instance noun will be used.")
         else:
