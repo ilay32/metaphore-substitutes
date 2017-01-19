@@ -23,7 +23,7 @@ def pairblock(adj,noun,dat):
         'noun' : noun,
         'topfour' : dat['neuman_top_four'],
         'correct' : dat['correct'],
-        'gold' : dat['neuman_top_four'],
+        'gold' : dat['gold'],
         'coca_syns' : pairsraw[adj]['coca_syns']
     }
 

@@ -1,4 +1,17 @@
 warm:
+  literal:
+    - water
+    - air
+    - weather
+    - place
+    - day
+    - spring
+    - milk
+    - bath
+    - body
+    - file
+    - breath
+    - wind
   coca_syns:
     - hot
     - deep
@@ -73,6 +86,7 @@ warm:
       gold:
         - affectionate
         - loving
+        - heart-felt
         - heartfelt
         - friendly 
     
@@ -129,9 +143,9 @@ warm:
       gold:
         - friendly
         - amiable
-        - lively
-        - cheerful
+        - caring
         - loving
+        - lively
         - nice
         - emotional
     
@@ -171,9 +185,9 @@ warm:
         - big
        correct: lively
        gold:
+        - lively 
         - passionate
         - vigorous
-        - lively
         - fierce
         - intense
      
@@ -184,12 +198,12 @@ warm:
         - sly
         - quick
       correct: friendly
+      gold:
         - friendly
-        - fond
+        - loving
         - kindly
         - hearty
         - welcoming
-        - inviting
     
     memory:
       neuman_top_four:
@@ -198,6 +212,11 @@ warm:
         - old
         - long
       correct: lovable
+      gold:
+        - fond
+        - good
+        - pleasant
+        - nice
     
     applause:
       neuman_top_four:
@@ -214,6 +233,19 @@ warm:
         - hearty
 
 sweet:
+  literal:
+    - potato
+    - corn
+    - tea
+    - taste
+    - onion
+    - honey
+    - wine
+    - fruit
+    - roll
+    - scent
+    - flavor
+    - dessert
   coca_syns:
     - fresh
     - musical
@@ -287,14 +319,14 @@ sweet:
         - vivid
       correct: good
       gold:
-        - delightful
-        - enjoyable
-        - nice
-        - wonderful
-        - good
-        - pleasant
-        - beautiful
-        - pleasurable
+       - delightful
+       - enjoyable
+       - nice
+       - good
+       - pleasant
+       - wonderful
+       - beautiful
+       - pleasurable
 
     revenge:
       neuman_top_four:
@@ -304,12 +336,13 @@ sweet:
         - ultimate
       correct: gratifying
       gold:
-        - gratifying
-        - satisfying
-        - delightful
-        - pleasing
-        - enjoyable
-        - delicious
+       - gratifying
+       - satisfying
+       - delightful
+       - awaited
+       - pleasing
+       - enjoyable
+       - delicious
 
     smile:
       neuman_top_four:
@@ -319,8 +352,7 @@ sweet:
         - strange
       correct: gentle
       gold:
-        - charming
-        - beautiful
+        - kind
         - nice
         - friendly
         - gentle
@@ -356,6 +388,7 @@ sweet:
       gold:
         - nice
         - pleasant
+        - gentle
         - melodic
         - pleasurable
         - soothing
@@ -373,6 +406,7 @@ sweet:
         - pleasant
         - nice
         - beautiful
+        - gentle
         - wonderful
         - delightful
         - lovely
@@ -400,12 +434,12 @@ sweet:
       correct: satisfying 
       gold:
         - lucrative
+        - good
         - favorable
         - attractive
         - advantageous
         - rewarding
         - worthwhile
-        - good
         - excellent
         - terrific
 
@@ -448,9 +482,11 @@ sweet:
       gold:
         - kind
         - gratifying
+        - loving
         - caring
         - divine
         - compassionate
+        - fortuitous
         - satisfying
         - good
         - nice
@@ -467,6 +503,7 @@ sweet:
         - satisfying
         - gratifying
         - rewarding
+        - awaited
         - pleasing
         - delightful
         - pleasant
@@ -475,6 +512,19 @@ sweet:
 
 
 deep:
+  literal:
+    - water
+    - space
+    - end
+    - root
+    - snow
+    - sea
+    - cut
+    - wood
+    - seabed
+    - skillet
+    - sky
+    - well
   coca_syns:
     - low
     - rich
@@ -594,6 +644,7 @@ deep:
         - abstruse
         - thorough
         - fundamental
+        - comprehensive
 
     sigh: 
       neuman_top_four:
@@ -605,6 +656,7 @@ deep:
       gold:
         - exhaustive
         - heartfelt
+        - prolonged
         - desperate
         - exasperated
         - sad
@@ -634,6 +686,7 @@ deep:
       gold:
         - abstruse
         - profound
+        - insightful
         - penetrating
         - recondite
     
@@ -645,9 +698,10 @@ deep:
         - martial
       correct: intense
       gold:
-        - true
+        - 'true'
         - genuine
         - profound
+        - extreme
         
     voice: 
       neuman_top_four:
@@ -657,10 +711,10 @@ deep:
         - male
       correct: low
       gold:
-        - bass
-        - low-pitched
-        - booming
-        - baritone
+       - bass
+       - low-pitched
+       - booming
+       - baritone
 
     secret: 
       neuman_top_four:
@@ -689,7 +743,7 @@ deep:
         - profound
         - fundamental
         - far-reaching
-        - 
+        - underlying
 
     lecture: 
       neuman_top_four:
@@ -703,8 +757,23 @@ deep:
         - abstruse
         - profound
         - thoughtful
+        - comprehensive
 
 dark:
+  literal:
+    - hair
+    - eye
+    - matter
+    - room
+    - glass
+    - chocolate
+    - inght
+    - skin
+    - sky
+    - wood
+    - suit
+    - cloud
+    - horse
   coca_syns:
     - black
     - brown
@@ -778,6 +847,7 @@ dark:
       gold:
         - macabre
         - morbid
+        - cynical
         - grim
         - gruesome
 
@@ -791,6 +861,7 @@ dark:
       gold:
         - morbid
         - macabre
+        - cynical
         - wicked
         - sardonic
         - depraved
@@ -823,14 +894,14 @@ dark:
         - intrusive
       correct: evil
       gold:
-       - despondent
-       - bad
-       - depressive
-       - hurtful
-       - somber
-       - evil
-       - sinister
-       - melancholy
+        - despondent
+        - bad
+        - depressive
+        - gloomy
+        - somber
+        - evil
+        - sinister
+        - melancholy
 
     purpose: 
       neuman_top_four:
@@ -844,6 +915,7 @@ dark:
         - bad
         - sinister
         - malevolent
+        - unkind
         - atrocious 
         - harmful
         - villainous
@@ -862,7 +934,7 @@ dark:
         - despondent
         - desolate
         - dismal
-        - sad
+        - malicious
         
     
     look: 
@@ -877,6 +949,7 @@ dark:
         - threatening
         - serious
         - glowering
+        - sinister
         - maleficent
         - ominous
         - hateful
@@ -893,6 +966,7 @@ dark:
         - sinister
         - heinous
         - bad
+        - evil
         - shameful
         - appalling
         - atrocious
@@ -908,6 +982,7 @@ dark:
       correct: vicious
       gold:
         - vicious
+        - malicious
         - menacing
         - evil
         - bad
@@ -931,6 +1006,7 @@ dark:
         - dismal
         - cheerless
         - melancholy
+        - sinister
         - sad
         - despaired
         - mournful
@@ -970,6 +1046,19 @@ dark:
         - satanic
 
 hard:
+  literal:
+    - rock
+    - core
+    - hat
+    - plastic
+    - candy
+    - ground
+    - surface
+    - cover
+    - nut
+    - cheese
+    - sand
+    - sole
   coca_syns:
     - difficult
     - powerful
@@ -1060,6 +1149,7 @@ hard:
         - glowering
         - fierce
         - angry
+        - severe
         - foreboding
         - scrutinizing
         - critical
@@ -1075,6 +1165,7 @@ hard:
         - stubborn
         - dogged
         - adamant
+        - intractable
         - determined
         - strong-minded
         - unwavering
@@ -1136,6 +1227,8 @@ hard:
       gold:
         - intemperate
         - excessive
+        - abusive
+        - overly-frequent
         - extreme
         - voluminous
         - insatiable
@@ -1164,6 +1257,8 @@ hard:
       correct: negative
       gold:
         - unpleasant
+        - offended
+        - rancorous
         - bad
         - uneasy
         - negative
@@ -1198,10 +1293,10 @@ hard:
         - tough
       correct: difficult
       gold:
+        - difficult
         - inopportune
         - adverse
         - bad
-        - difficult
         - taxing
         - strenuous
         - trying
@@ -1223,6 +1318,7 @@ hard:
         - toilsome
         - excruciating
         - demanding
+        - effortful
         - challenging
 
 
