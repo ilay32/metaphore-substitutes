@@ -116,8 +116,16 @@ class SingleWordData:
         if isinstance(obj,int) or  isinstance(obj,float):
             return obj == 0
         if isinstance(obj,str):
-            return obj.isspace()
-        return len(obj) ==  0
+            return obj.isspace() or obj == ""
+        notempty = False
+        try:
+            iterator = iter(obj)
+            for x in iterator:
+                notempty = not SingleWordData.empty(x)
+        except:
+            print("can't determine emptiness of type",type(obj))
+            return False
+        return len(obj) ==  0 or not notempty
     
     def get(self,word):
         if SingleWordData.empty(word):
@@ -168,7 +176,7 @@ class Abst(SingleWordData):
     @dberror(0)
     def handlequery(self,cu):
         f = cu.fetchall()
-        if (not cu) or (len(f) == 0):
+        if SingleWordData.empty(f):
             return 0.5
         return f[0][0]
     
@@ -514,6 +522,61 @@ class RunData:
     def neuman_eval(self):
         frac = self.data['neuman_score'].sum()/self.howmany()
         return "{:.1%}".format(frac)
+
+class SPVecs:
+    def __init__(self):
+        self.dim = 300
+        with open('nspvecs.pkl','rb') as t:
+            self.table = pickle.load(t)
+    
+    def __contains__(self,word):
+        return word in self.table
+    
+    def n_similarity(self,ws1,ws2):
+        if SingleWordData.empty(ws1) or SingleWordData.empty(ws2):
+            print("empty argument for n_similarity")
+            return
+        v1 = self.centroid(ws1) if len(ws1) > 1 else self.get(ws1[0])
+        v2 = self.centroid(ws2) if len(ws2) > 1 else self.get(ws2[0])
+        if SPVecs.check_two(v1,v2):
+            return SPVecs.vec_similarity(v1,v2)
+        print("None in n_similarity")
+        return
+    
+    def check_two(v1,v2):
+        return isinstance(v1,np.ndarray) and isinstance(v2,np.ndarray)
+
+    def similarity(self,w1,w2):
+        v1 = self.get(w1)
+        v2 = self.get(w2)
+        if SPVecs.check_two(v1,v2):
+            return SPVecs.vec_similarity(v1,v2)
+        print("None in similarity")
+        return None
+
+    def vec_similarity(v1,v2):
+        return v1.dot(v2)/np.linalg.norm(v1)*np.linalg.norm(v2)
+    
+    def get(self,word):
+        if word in self.table:
+            return self.table[word]
+        return None
+
+    def centroid(self,words):
+        ret = np.zeros(self.dim)
+        for w in words:
+            if w in self.table:
+                ret = np.add(ret,self.table[w])
+            else:
+                print(w,"not in sp vectors")
+        return ret/len(words) 
+
+    def doesnt_match(self,words):
+        cent = self.centroid(words)
+        o = [(word,SPVecs.vec_similarity(self.get(word),cent)) for word in words if word in self]
+        o.sort(key=lambda x: x[1])
+        return o[0][0]
+
 
 if __name__ == '__main__':
     print("to explore the cache type data=explore_cache()")
