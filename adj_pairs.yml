@@ -942,7 +942,7 @@ dark:
         - threatening
         - close
         - fresh
-        - curios
+        - curious
       correct: threatening 
       gold:
         - menacing

@@ -4,15 +4,22 @@ from gensim.models.word2vec import Word2Vec
 from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
+from sklearn.cluster import KMeans as km
+pairs = yaml.load(open('adj_pairs.yml'))
+classifier_params = yaml.load(open('classparams.yml'))
+nouncats = pickle.load(open('nclass.pkl','rb'))
 import random
 
-#vecs = Vecs(DB('LSA-ENG'))
-vecs = Word2Vec.load_word2vec_format(conf['w2v_file'],binary=True) 
+vectormodel = conf['vectormodel']
+if vectormodel == "LSA":
+    vecs = Vecs(DB('LSA-ENG'))
+elif vectormodel == "SPVecs":
+    vecs = SPVecs()
+else:
+    vecs = Word2Vec.load_word2vec_format(vectormodel,binary=True) 
 ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
 lemmatizer = WordNetLemmatizer()
-#lex = Lex(ngrams)
-#nouns = NounNoun(ngrams)
 
 def preeval(fn):
     def inside(*args,**kwargs):
@@ -42,19 +49,10 @@ class MetaphorSubstitute:
         self.no_abst = set()
         self.no_vector = set()
         self.too_far = set()
-        self.go = True
         self.classname = self.__class__.__name__
-        self.instance_centroid = self.get_instance_centroid()
-        if SingleWordData.empty(self.instance_centroid):
-            self.go = False
     
     def __str__(self):
-        ret =  "{0} {1}".format(self.pred,self.noun)
-        if self.go:
-            ret += " top candidate: "+self.substitute()
-        else:
-            ret += " noun not known"
-        return ret
+        return  "{0} {1} top candidate: ".format(self.pred,self.noun,self.substitute())
     
     @preeval
     def mrr(self):
@@ -90,38 +88,7 @@ class MetaphorSubstitute:
             print("no category found")
         return concrete_cats
 
-    def cluster_centroid(cluster):
-        if SingleWordData.empty(cluster):
-            print("empty cluster")
-            return None
-        cluster = [w for w in cluster if vecs.has(w)]
-        if SingleWordData.empty(cluster):
-            print("no vector for any of the words in this cluster")
-            return None
-        print("computing cluster centroid for ",printlist(cluster,7,True))
-        acc = vecs.get(cluster[0])
-        added = 1
-        for word in cluster[1:]:
-            if SingleWordData.empty(vecs.get(word)): 
-                print("nan in vector", word)
-            else:
-                acc = Vecs.addition(acc,vecs.get(word))
-                added += 1
-        return Vecs.multiply(acc,1/added)
-
-    def get_instance_centroid(self):
-        print("computing instance centroid")
-        raw_cluster = self.noun_cluster(self.pred,'object')
-        if SingleWordData.empty(raw_cluster):
-            print("this instance has no cluster. calling it quits")
-            return None 
-        cent = MetaphorSubstitute.cluster_centroid(raw_cluster)
-        instance_noun_vec = Vecs.multiply(vecs.get(self.noun),self.instance_noun_weight)
-        instance_pred_vec = vecs.get(self.pred)
-        syncent = MetaphorSubstitute.cluster_centroid(self.get_synonyms())
-        return Vecs.subtract(vecs.get(self.pred),vecs.get(self.noun))
-         
-
+        
     def noun_cluster(self,pred,rel):
         print("fetching "+rel+"s set for "+pred)
         clust = list()
@@ -223,16 +190,15 @@ class AdjSubstitute(MetaphorSubstitute):
         self.strong_syns = list()
         self.type = None
     
-    def get_instance_centroid(self):
-        return 1
-
     def neuman_eval(self):
         return int(self.substitute() == self.correct)
     
     def candidate_rank(self,cand):
+        if cand not in vecs:
+            return float('nan')
         s = self.get_syns()
         asyns = sorted(s,key=lambda x: abst.get(x),reverse=True)[:10]
-        return vecs.n_similarity([c],asyns)
+        return vecs.n_similarity([cand],asyns)
     
     def wn_syns(word):
         ret = set()
@@ -246,11 +212,12 @@ class AdjSubstitute(MetaphorSubstitute):
         if self.pred in AdjSubstitute.adjsyns:
             return AdjSubstitute.adjsyns[self.pred]
         else:
-            csyns = set([a for a in self.coca_syns if a in vecs])
+            csyns = set(self.coca_syns)
             wsyns = AdjSubstitute.wn_syns(self.pred)
             syns = list(csyns.union(wsyns))
+            syns = [s for s in syns if s in vecs]
             AdjSubstitute.adjsyns[self.pred] = syns
-        return syns
+            return syns
     
     def modifies_noun(self,adj):
         objs = AdjSubstitute.object_clusters.get(adj)
@@ -338,9 +305,6 @@ class SimpleNeuman(AdjSubstitute):
     
     def get_candidates(self):
         return self.topfour
-
-    def get_instance_centroid(self):
-        return 1
 
     def get_syns(self):
         return self.coca_syns[:10]
