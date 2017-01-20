@@ -181,16 +181,17 @@ class MetaphorSubstitute:
             return None
         print("found:",printlist(candlist,self.number_of_candidates,True))
         return candlist
+    
+    def candsrank(self,cand):
+        return vecs.n_similarity([cand],self.get_synonyms()[:10])
 
     def find_substitutes(self):
         candidates = self.get_candidates()
         subs = list()
         if not SingleWordData.empty(candidates):
             for pred in candidates:
-                vc = self.noun_cluster(pred,'object')
-                if not SingleWordData.empty(vc):
-                    subs.append((pred,self.cluster_distance(pred,vc)))
-            subs = sorted(subs,key=lambda t: t[1],reverse=True)
+                subs.append((pred,self.candidate_rank(pred)))
+            subs.sort(key=lambda t: t[1],reverse=True)
         self.substitutes = subs
         return subs 
     
@@ -219,34 +220,19 @@ class AdjSubstitute(MetaphorSubstitute):
         super(AdjSubstitute,self).__init__(options)
         self.wordnet_class = wn.ADJ
         self.nc = None
-        self.noun_env = self.get_noun_env()
-        self.adj_env = self.get_adj_env()
+        self.strong_syns = list()
         self.type = None
     
     def get_instance_centroid(self):
         return 1
 
-    def get_noun_env(self):
-        env = vecs.most_similar(self.noun,topn=self.noun_cluster_size)
-        return [w[0] for w in env]
-
-    def get_adj_env(self):
-        return sorted(self.get_syns(),key=lambda x : abst.get(x),reverse=True)[:10]
-
     def neuman_eval(self):
         return int(self.substitute() == self.correct)
     
-    def find_substitutes(self):
-        subs = list()
-        asyns = sorted(self.get_syns(),key=lambda x: abst.get(x),reverse=True)[:10]
-        for c in self.get_candidates():
-            r = abst.get(c)*vecs.n_similarity([c],asyns)
-            subs.append((c,r))
-        subs.sort(key=lambda x: x[1],reverse=True)
-        s = squeeze([s[0] for s in subs][:15],5)
-        printlist(s,10,False,"\n")
-        self.substitutes = subs
-        return subs
+    def candidate_rank(self,cand):
+        s = self.get_syns()
+        asyns = sorted(s,key=lambda x: abst.get(x),reverse=True)[:10]
+        return vecs.n_similarity([c],asyns)
     
     def wn_syns(word):
         ret = set()
@@ -307,27 +293,70 @@ class AdjSubstitute(MetaphorSubstitute):
         if not cdatasource.has(self.noun):
             print("can't find typical preds for ",self.noun)
             return None
-        cands_max = cdatasource.get(self.noun)
+        cands_max = cdatasource.get(self.noun).most_common()
+        cands = set()
         syns = self.get_syns()
         syns.sort(key=lambda x: self.modifies_noun(x),reverse=True)
-        cands = set([p[0] for p in cands_max.most_common(30) if p[0] in vecs]).union(set(syns[:5]))
-        cands.discard(self.pred)
-        return list(cands)
+        strong_syns = list()
+        mat = list()
+        good = list()
+        for cand in cands_max:
+            c = cand[0]
+            if c in vecs and abst.has(c) and abst.get(c) > abst.get(self.pred):
+                if c != self.pred and c in syns:
+                    strong_syns.append(c)
+                mat.append(vecs.get(c))
+                good.append(cand)
+        if len(strong_syns) > 0:
+            self.strong_syns = strong_syns
+        mat = np.array(mat)
+        if len(cands_max) > 100 and False:
+            k = km(n_clusters=round(len(cands_max)/50),random_state=0).fit(mat)
+            hotclust = k.predict(vecs.get(self.pred).reshape(1,-1))
+            cands = [cand for cand in good if k.predict(vecs.get(cand[0]).reshape(1,-1)) == hotclust]
+            cands.sort(key=lambda x : x[1])
+            #cands = squeeze(cands,15)
+        else:
+            cands = good
+        cands = [cand[0] for cand in cands[:50]]
+        if len(strong_syns) > 1:
+            cands = set(cands[:5]).union(set(strong_syns))
+            cands.discard(self.pred)
+            ret = list(cands)
+        else:  
+            cands = set(cands[:15]).union(set(syns[:5]))
+            cands.discard(self.pred)
+            ret =  squeeze(list(cands),5)
+        return ret
 
 class SimpleNeuman(AdjSubstitute):
-    def find_substitutes(self):
-        candidates = self.get_candidates()
-        ic = self.get_instance_centroid()
-        subs = list()
-        if not SingleWordData.empty(candidates):
-            for pred in candidates:
-                subs.append((pred,Vecs.distance(vecs.get(pred),ic)))
-            subs = sorted(subs,key=lambda t: t[1],reverse=True)
-        self.substitutes = subs
-        return subs 
-        
+    def candidate_rank(self,cand):
+        syns = self.get_syns()
+        if cand in vecs:
+            return vecs.n_similarity([cand],syns)
+        return float('nan') 
+    
+    def get_candidates(self):
+        return self.topfour
+
     def get_instance_centroid(self):
-        return MetaphorSubstitute.cluster_centroid(self.get_synonyms()[:10])
+        return 1
+
+    def get_syns(self):
+        return self.coca_syns[:10]
+
+class ASimpleNeuman(SimpleNeuman):
+    def get_syns(self):
+        syns = [s for s in self.coca_syns if s in vecs]
+        return sorted(syns,key=lambda x: abst.get(x),reverse=True)[:10]
+
+class SNwithNounData(SimpleNeuman):
+    def candidate_rank(self,cand):
+        frompred = super(SNwithNounData,self).candidate_rank(cand)
+        candnouns = self.noun_cluster(cand,'object')
+        fromnouns = vecs.n_similarity([self.noun],candnouns) if not SingleWordData.empty(candnouns) else 1
+        return frompred*fromnouns
+        
 
     
 class AdjWithGraphProt(AdjSubstitute):
