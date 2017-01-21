@@ -92,8 +92,8 @@ class SingleWordData:
     def __init__(self,db):
         self.db = db
         self.table_path = self.get_table_path()
-        self.table = self.get_table()
         self.empty_table = dict()
+        self.table = self.get_table()
         self.table_changed = False
         self.notfound = set()
     
@@ -184,9 +184,44 @@ class Abst(SingleWordData):
         return 'abst'
 
 class Vecs(SingleWordData):
+    def __contains__(self,word):
+        return self.has(word)
+
     def queryscheme(self,word):
         return "GetRows '{0}'".format(word.lower())
     
+    def n_similarity(self,ws1,ws2):
+        if SingleWordData.empty(ws1) or SingleWordData.empty(ws2):
+            print("empty argument for n_similarity")
+            return
+        v1 = self.centroid(ws1) if len(ws1) > 1 else self.get(ws1[0])
+        v2 = self.centroid(ws2) if len(ws2) > 1 else self.get(ws2[0])
+        try: 
+            ret = Vecs.vec_similarity(v1,v2)
+        except Exception as e:
+            print(str(e))
+            return
+        return ret
+     
+    def centroid(self,words):
+        if SingleWordData.empty(words):
+            print("empty argument to Vecs.centroid")
+            return None
+        cluster = [w for w in words if self.has(w)]
+        if SingleWordData.empty(cluster):
+            print("no vector for any of the words in this list")
+            return None
+        acc = self.get(cluster[0])
+        added = 1
+        for word in cluster[1:]:
+            if SingleWordData.empty(self.get(word)): 
+                print("empty vector", word)
+            else:
+                acc = Vecs.addition(acc,self.get(word))
+                added += 1
+        return Vecs.multiply(acc,1/added)
+
+
     @dberror()
     def handlequery(self,query):
         ret = dict()
@@ -194,13 +229,12 @@ class Vecs(SingleWordData):
             ret.update({row[2] : row[3]})
         return ret
    
-    def distance(u,v):
+    def vec_similarity(u,v):
         norms = Vecs.norm(u) * Vecs.norm(v)
         if norms == 0:
             return -1
         return Vecs.dot(u,v)/norms
-       # m = min(len(u),len(v))
-       # return cosine(u[:m],v[:m])
+    
     def dot(u,v):
         d = 0
         for colid,uval,vval in Vecs.vectorpair(u,v):
@@ -209,10 +243,10 @@ class Vecs(SingleWordData):
             print("zero norm")
         return d
     
-    def word_distance(self,w1,w2):
+    def similarity(self,w1,w2):
         if self.has(w1) and self.has(w2):
-            return Vecs.distance(self.get(w1),self.get(w2))
-        return float("inf")
+            return Vecs.vec_similarity(self.get(w1),self.get(w2))
+        return float("nan")
 
     def vectorpair(u,v):
         us = set(u.keys())
@@ -448,15 +482,14 @@ class RunData:
     
     def __str__(self):
         out = io.StringIO()
-        out.write(time.ctime(self.timestamp)+"\n")
-        out.write(self.typ+" "+self.note+"\n")
-        out.write("parameters:\n"+printdict(self.params,True))
+        out.write(time.ctime(self.timestamp))
+        out.write(" "+self.typ+" "+self.note)
         out.write("\nNeuman Score: "+self.neuman_eval())
         out.write("\nMRR: "+self.evaluate())
         return out.getvalue()
 
     def __repr__(self):
-        return self.__str__()
+        return "<{0}>".format(self.__class__)
     
     def tofile(self,filename=None):
         if not filename:
@@ -483,6 +516,7 @@ class RunData:
     def how(self):
         printdict(self.params)
         print("note: ",self.note)
+        print("class: ",self.typ)
     
     def howmany(self) :
         return len(self.data)

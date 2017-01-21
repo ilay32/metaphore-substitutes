@@ -166,7 +166,7 @@ class MetaphorSubstitute:
     def cluster_distance(self,pred,cluster):
         cent = MetaphorSubstitute.cluster_centroid(cluster)
         if cent:
-            return Vecs.distance(cent,self.instance_centroid)
+            return Vecs.vec_similarity(cent,self.instance_centroid)
         else:
             return 0
 
@@ -298,6 +298,9 @@ class AdjSubstitute(MetaphorSubstitute):
         return ret
 
 class NeumanAsIs(AdjSubstitute):
+    """
+    This class will only work with the LSA-ENG vector model
+    """
     #store the filtered synonym lists and the concrete/abstract
     #vectors corresponding to each adjective
     adjdata = dict()
@@ -307,14 +310,14 @@ class NeumanAsIs(AdjSubstitute):
     # so I just compute all three.
     ccriterion = 'all'
     
-    """
-    static helper that reads the graph previously
-    computed according to Neuman et al description
-    :param adj: the queried adjective
-    :param: kind: concrete/abstract 
-    :return the centroid of the vectors of the words pulled from the abstract/concrete graph of the current adjective
-    """
     def get_graph_data(adj,kind):
+        """
+        static helper that reads the graph previously
+        computed according to Neuman et al description
+        :param adj: the queried adjective
+        :param: kind: concrete/abstract 
+        :return the centroid of the vectors of the words pulled from the abstract/concrete graph of the current adjective
+        """
         crit = NeumanAsIs.ccriterion
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,adj+"-"+kind+".pkl"),'rb'))
         proto_nouns = [n[0] for n in data[crit].most_common() if vecs.has(n[0])][:NeumanGraph.most_connected]
@@ -340,13 +343,15 @@ class NeumanAsIs(AdjSubstitute):
         n = self.params['thetanum']
         syns = [a for a in pairs[self.pred]['coca_syns'] if vecs.has(a)][:n]
         for s in syns:
-            sim_abst = Vecs.distance(NeumanAsIs.adjdata[self.pred]['abstract_centroid'],vecs.get(s))
-            sim_conc = Vecs.distance(NeumanAsIs.adjdata[self.pred]['concrete_centroid'],vecs.get(s))
+            sim_abst = Vecs.vec_similarity(NeumanAsIs.adjdata[self.pred]['abstract_centroid'],vecs.get(s))
+            sim_conc = Vecs.vec_similarity(NeumanAsIs.adjdata[self.pred]['concrete_centroid'],vecs.get(s))
             if sim_abst > simcut and sim_conc < simcut:
                 ret.append(s)
             else:
                 print(s,"ruled out by protolist")
         print("in total ruled out for", self.pred+":",len(syns) - len(ret))
+        # this was not clear in the paper, I'm assuming it makes sense
+        ret.append(self.pred)
         NeumanAsIs.adjdata[self.pred]['syns'] = ret
         return ret
     

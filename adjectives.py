@@ -5,8 +5,7 @@ pairsraw = yaml.load(open('adj_pairs.yml'))
 
 @hereiam
 def cleanup():
-    print(len(dir()))
-    for objname in dir():
+    for objname in sorted(globals()):
         print(objname)
         try:
             obj = eval(objname)
