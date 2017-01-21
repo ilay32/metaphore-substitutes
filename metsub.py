@@ -1,3 +1,4 @@
+import random,copy
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
@@ -5,10 +6,9 @@ from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
 from sklearn.cluster import KMeans as km
+params = yaml.load(open('params.yml'))
 pairs = yaml.load(open('adj_pairs.yml'))
-classifier_params = yaml.load(open('classparams.yml'))
 nouncats = pickle.load(open('nclass.pkl','rb'))
-import random
 
 vectormodel = conf['vectormodel']
 if vectormodel == "LSA":
@@ -52,7 +52,7 @@ class MetaphorSubstitute:
         self.classname = self.__class__.__name__
     
     def __str__(self):
-        return  "{0} {1} top candidate: ".format(self.pred,self.noun,self.substitute())
+        return  "{0} {1} top candidate: {2}".format(self.pred,self.noun,self.substitute())
     
     @preeval
     def mrr(self):
@@ -64,9 +64,10 @@ class MetaphorSubstitute:
         return mrr
     
     def detect(self,adj):
+        cparams = params['classifier']
         print("checking",adj,"literality")
-        allnouns = eval(self.classname).object_clusters.get(adj).most_common(classifier_params['total'])
-        concrete = [n[0] for n in sorted(allnouns,key=lambda x: abst.get(x[0]) if not SingleWordData.empty(x[0]) else 1)][:classifier_params['kappa']]
+        allnouns = eval(self.classname).object_clusters.get(adj).most_common(cparams['total'])
+        concrete = [n[0] for n in sorted(allnouns,key=lambda x: abst.get(x[0]) if not SingleWordData.empty(x[0]) else 1)][:cparmas['kappa']]
         print("concrete:",printlist(concrete,5,True))
         categories = self.concrete_categories(concrete)
         for cat in categories:
@@ -80,7 +81,7 @@ class MetaphorSubstitute:
         concrete_cats = list()
         for cat in nouncats:
             intersect = len(set(conclist).intersection(set(nouncats[cat])))
-            if intersect >= classifier_params['cat_thresh']:
+            if intersect >= cparams['cat_thresh']:
                 concrete_cats.append(cat)
         if len(concrete_cats) > 0:
             print("found categories:",printlist(concrete_cats,len(concrete_cats),True))
@@ -295,6 +296,66 @@ class AdjSubstitute(MetaphorSubstitute):
             cands.discard(self.pred)
             ret =  squeeze(list(cands),5)
         return ret
+
+class NeumanAsIs(AdjSubstitute):
+    #store the filtered synonym lists and the concrete/abstract
+    #vectors corresponding to each adjective
+    adjdata = dict()
+    
+    # it's not clear what Neuman et al mean by "most connected".
+    # the graph is directed, so is it in, out or all archs of a node.
+    # so I just compute all three.
+    ccriterion = 'all'
+    
+    """
+    static helper that reads the graph previously
+    computed according to Neuman et al description
+    :param adj: the queried adjective
+    :param: kind: concrete/abstract 
+    :return the centroid of the vectors of the words pulled from the abstract/concrete graph of the current adjective
+    """
+    def get_graph_data(adj,kind):
+        crit = NeumanAsIs.ccriterion
+        data = pickle.load(open(os.path.join(NeumanGraph.datadir,adj+"-"+kind+".pkl"),'rb'))
+        proto_nouns = [n[0] for n in data[crit].most_common() if vecs.has(n[0])][:NeumanGraph.most_connected]
+        return vecs.centroid(proto_nouns)
+    
+
+    def __init__(self,conf):
+        super(NeumanAsIs,self).__init__(conf)
+        self.params = params['neuman_exp2']
+        self.classname += "ccriterion: "+NeumanAsIs.ccriterion
+        if self.pred not in NeumanAsIs.adjdata:
+            NeumanAsIs.adjdata[self.pred] = {
+                'concrete_centroid' : NeumanAsIs.get_graph_data(self.pred,'concrete'),
+                'abstract_centroid' : NeumanAsIs.get_graph_data(self.pred,'abstract'),
+            }
+    
+    
+    def get_synonyms(self):
+        if 'syns' in NeumanAsIs.adjdata[self.pred]:
+            return copy.copy(NeumanAsIs.adjdata[self.pred]['syns'])
+        ret = list()
+        simcut =  self.params['thetacut']
+        n = self.params['thetanum']
+        syns = [a for a in pairs[self.pred]['coca_syns'] if vecs.has(a)][:n]
+        for s in syns:
+            sim_abst = Vecs.distance(NeumanAsIs.adjdata[self.pred]['abstract_centroid'],vecs.get(s))
+            sim_conc = Vecs.distance(NeumanAsIs.adjdata[self.pred]['concrete_centroid'],vecs.get(s))
+            if sim_abst > simcut and sim_conc < simcut:
+                ret.append(s)
+            else:
+                print(s,"ruled out by protolist")
+        print("in total ruled out for", self.pred+":",len(syns) - len(ret))
+        NeumanAsIs.adjdata[self.pred]['syns'] = ret
+        return ret
+    
+    def get_candidates(self):
+        return self.topfour
+    
+    def candidate_rank(self,cand):
+        l = self.get_synonyms() + [self.noun]
+        return vecs.n_similarity([cand],l)
 
 class SimpleNeuman(AdjSubstitute):
     def candidate_rank(self,cand):
