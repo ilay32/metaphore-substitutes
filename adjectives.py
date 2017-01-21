@@ -3,20 +3,16 @@ from metsub import *
 from dbutils import *
 pairsraw = yaml.load(open('adj_pairs.yml'))
 
-@hereiam
 def cleanup():
     for objname in sorted(globals()):
-        print(objname)
         try:
             obj = eval(objname)
             if isinstance(obj,SingleWordData):
-                print('dest')
                 obj.destroy()
             elif isinstance(obj,MetaphorSubstitute):
                 for sobjname in dir(obj):
                     sobj = eval(objname+'.'+sobjname)
                     if isinstance(sobj,SingleWordData):
-                        print(sobj)
                         sobj.destroy()
         except:
             None

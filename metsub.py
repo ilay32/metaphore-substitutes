@@ -128,7 +128,7 @@ class MetaphorSubstitute:
             while cands_max[cur] == self.pred:
                 cur += 1
             candidate = cands_max[cur]
-            if not vecs.has(candidate):
+            if not candidate in vecs:
                 print(candidate," has no vector representation. ignored.")
                 self.no_vector.add(candidate)
             elif vecs.word_distance(candidate,self.pred) > self.candidate_sphere_radius:
@@ -166,7 +166,7 @@ class MetaphorSubstitute:
     def cluster_distance(self,pred,cluster):
         cent = MetaphorSubstitute.cluster_centroid(cluster)
         if cent:
-            return Vecs.vec_similarity(cent,self.instance_centroid)
+            return vecs.vec_similarity(cent,self.instance_centroid)
         else:
             return 0
 
@@ -298,9 +298,6 @@ class AdjSubstitute(MetaphorSubstitute):
         return ret
 
 class NeumanAsIs(AdjSubstitute):
-    """
-    This class will only work with the LSA-ENG vector model
-    """
     #store the filtered synonym lists and the concrete/abstract
     #vectors corresponding to each adjective
     adjdata = dict()
@@ -308,20 +305,20 @@ class NeumanAsIs(AdjSubstitute):
     # it's not clear what Neuman et al mean by "most connected".
     # the graph is directed, so is it in, out or all archs of a node.
     # so I just compute all three.
-    ccriterion = 'all'
+    ccriterion = 'out'
     
     def get_graph_data(adj,kind):
         """
         static helper that reads the graph previously
         computed according to Neuman et al description
         :param adj: the queried adjective
-        :param: kind: concrete/abstract 
-        :return the centroid of the vectors of the words pulled from the abstract/concrete graph of the current adjective
+        :param kind: concrete/abstract 
+        :return: list of prototypical abstract/concrete nouns modified by adj
         """
         crit = NeumanAsIs.ccriterion
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,adj+"-"+kind+".pkl"),'rb'))
-        proto_nouns = [n[0] for n in data[crit].most_common() if vecs.has(n[0])][:NeumanGraph.most_connected]
-        return vecs.centroid(proto_nouns)
+        proto_nouns = [n[0] for n in data[crit].most_common() if n[0] in vecs][:NeumanGraph.most_connected]
+        return proto_nouns
     
 
     def __init__(self,conf):
@@ -330,8 +327,8 @@ class NeumanAsIs(AdjSubstitute):
         self.classname += "ccriterion: "+NeumanAsIs.ccriterion
         if self.pred not in NeumanAsIs.adjdata:
             NeumanAsIs.adjdata[self.pred] = {
-                'concrete_centroid' : NeumanAsIs.get_graph_data(self.pred,'concrete'),
-                'abstract_centroid' : NeumanAsIs.get_graph_data(self.pred,'abstract'),
+                'concrete_nouns' : NeumanAsIs.get_graph_data(self.pred,'concrete'),
+                'abstract_nouns' : NeumanAsIs.get_graph_data(self.pred,'abstract'),
             }
     
     
@@ -341,10 +338,10 @@ class NeumanAsIs(AdjSubstitute):
         ret = list()
         simcut =  self.params['thetacut']
         n = self.params['thetanum']
-        syns = [a for a in pairs[self.pred]['coca_syns'] if vecs.has(a)][:n]
+        syns = [a for a in pairs[self.pred]['coca_syns'] if a in vecs][:n]
         for s in syns:
-            sim_abst = Vecs.vec_similarity(NeumanAsIs.adjdata[self.pred]['abstract_centroid'],vecs.get(s))
-            sim_conc = Vecs.vec_similarity(NeumanAsIs.adjdata[self.pred]['concrete_centroid'],vecs.get(s))
+            sim_abst = vecs.n_similarity(NeumanAsIs.adjdata[self.pred]['abstract_nouns'], [s])
+            sim_conc = vecs.n_similarity(NeumanAsIs.adjdata[self.pred]['concrete_nouns'],[s])
             if sim_abst > simcut and sim_conc < simcut:
                 ret.append(s)
             else:
@@ -360,8 +357,10 @@ class NeumanAsIs(AdjSubstitute):
     
     def candidate_rank(self,cand):
         l = self.get_synonyms() + [self.noun]
-        return vecs.n_similarity([cand],l)
-
+        if cand in vecs:
+            return vecs.n_similarity([cand],l)
+        else:
+            return float('nan')
 class SimpleNeuman(AdjSubstitute):
     def candidate_rank(self,cand):
         syns = self.get_syns()
@@ -392,7 +391,7 @@ class SNwithNounData(SimpleNeuman):
 class AdjWithGraphProt(AdjSubstitute):
     def noun_cluster(self,pred,rel):
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,pred+"-abstract.pkl"),'rb'))
-        proto_nouns = [n[0] for n in data['out'].most_common() if vecs.has(n[0])][:self.noun_cluster_size]
+        proto_nouns = [n[0] for n in data['out'].most_common() if  n[0] in vecs][:self.noun_cluster_size]
         print("abstract objects for",pred+":",printlist(proto_nouns,10,True))
         return proto_nouns 
     

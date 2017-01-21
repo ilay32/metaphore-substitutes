@@ -111,6 +111,8 @@ class SingleWordData:
         return False
     
     def empty(obj):
+        if isinstance(obj,np.ndarray):
+            return not obj.any() 
         if not obj:
             return True
         if isinstance(obj,int) or  isinstance(obj,float):
@@ -197,7 +199,7 @@ class Vecs(SingleWordData):
         v1 = self.centroid(ws1) if len(ws1) > 1 else self.get(ws1[0])
         v2 = self.centroid(ws2) if len(ws2) > 1 else self.get(ws2[0])
         try: 
-            ret = Vecs.vec_similarity(v1,v2)
+            ret = self.vec_similarity(v1,v2)
         except Exception as e:
             print(str(e))
             return
@@ -229,7 +231,7 @@ class Vecs(SingleWordData):
             ret.update({row[2] : row[3]})
         return ret
    
-    def vec_similarity(u,v):
+    def vec_similarity(self,u,v):
         norms = Vecs.norm(u) * Vecs.norm(v)
         if norms == 0:
             return -1
@@ -245,7 +247,7 @@ class Vecs(SingleWordData):
     
     def similarity(self,w1,w2):
         if self.has(w1) and self.has(w2):
-            return Vecs.vec_similarity(self.get(w1),self.get(w2))
+            return self.vec_similarity(self.get(w1),self.get(w2))
         return float("nan")
 
     def vectorpair(u,v):
@@ -259,6 +261,7 @@ class Vecs(SingleWordData):
     
     def search_table(self):
         return 'vecs'
+    
     # u and v are not of equal length, so this norm is conditioned on shared coordinates (just like the inner product) 
     def norm(u):
         return math.sqrt(Vecs.dot(u,u))
@@ -573,7 +576,7 @@ class SPVecs:
         v1 = self.centroid(ws1) if len(ws1) > 1 else self.get(ws1[0])
         v2 = self.centroid(ws2) if len(ws2) > 1 else self.get(ws2[0])
         if SPVecs.check_two(v1,v2):
-            return SPVecs.vec_similarity(v1,v2)
+            return self.vec_similarity(v1,v2)
         print("None in n_similarity")
         return
     
@@ -584,11 +587,11 @@ class SPVecs:
         v1 = self.get(w1)
         v2 = self.get(w2)
         if SPVecs.check_two(v1,v2):
-            return SPVecs.vec_similarity(v1,v2)
+            return self.vec_similarity(v1,v2)
         print("None in similarity")
         return None
 
-    def vec_similarity(v1,v2):
+    def vec_similarity(self,v1,v2):
         return v1.dot(v2)/np.linalg.norm(v1)*np.linalg.norm(v2)
     
     def get(self,word):
@@ -607,7 +610,7 @@ class SPVecs:
 
     def doesnt_match(self,words):
         cent = self.centroid(words)
-        o = [(word,SPVecs.vec_similarity(self.get(word),cent)) for word in words if word in self]
+        o = [(self.vec_similarity(self.get(word),cent)) for word in words if word in self]
         o.sort(key=lambda x: x[1])
         return o[0][0]
 
