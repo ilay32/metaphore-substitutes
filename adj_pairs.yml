@@ -92,10 +92,10 @@ warm:
     
     relation: 
       neuman_top_four:
-        - loving
         - tense
         - public
         - amicable
+        - loving
       correct: loving
       gold:
         - loving
@@ -105,10 +105,10 @@ warm:
     
     welcome:
       neuman_top_four:
-        - affectionate
         - adoring
         - royal
         - tense
+        - affectionate
       correct: affectionate  
       gold:
         - affectionate
@@ -135,10 +135,10 @@ warm:
         
     personality: 
       neuman_top_four:
-        - friendly
         - split
         - strong
         - antisocial
+        - friendly
       correct: friendly
       gold:
         - friendly
@@ -151,10 +151,10 @@ warm:
     
     greeting: 
        neuman_top_four:
-        - friendly
         - formal
         - traditional
         - usual
+        - friendly
        correct: friendly
        gold:
         - friendly
@@ -165,10 +165,10 @@ warm:
     
     support:
        neuman_top_four:
-        - ardent
         - public
         - social
         - financial
+        - ardent
        correct: ardent
        gold:
         - ardent
@@ -179,10 +179,10 @@ warm:
     
     debate:
        neuman_top_four:
-        - lively
         - public
         - current
         - big
+        - lively
        correct: lively
        gold:
         - lively 
@@ -193,10 +193,10 @@ warm:
      
     smile:
       neuman_top_four:
-        - friendly
         - big
         - sly
         - quick
+        - friendly
       correct: friendly
       gold:
         - friendly
@@ -207,10 +207,10 @@ warm:
     
     memory:
       neuman_top_four:
-        - lovable
         - vivid
         - old
         - long
+        - lovable
       correct: lovable
       gold:
         - fond
@@ -220,10 +220,10 @@ warm:
     
     applause:
       neuman_top_four:
-        - affectionate
         - polite
         - quiet
         - mild
+        - affectionate
       correct: affectionate 
       gold:
         - enthusiastic
@@ -313,10 +313,10 @@ sweet:
   with: 
     dream:
       neuman_top_four:
-        - good
         - golden
         - wonderful
         - vivid
+        - good
       correct: good
       gold:
        - delightful
@@ -330,10 +330,10 @@ sweet:
 
     revenge:
       neuman_top_four:
-        - gratifying
         - political
         - passionate
         - ultimate
+        - gratifying
       correct: gratifying
       gold:
        - gratifying
@@ -346,10 +346,10 @@ sweet:
 
     smile:
       neuman_top_four:
-        - gentle
         - big
         - sugary
         - strange
+        - gentle
       correct: gentle
       gold:
         - kind
@@ -366,10 +366,10 @@ sweet:
 
     baby:
       neuman_top_four:
-        - cute
         - small
         - beautiful
         - honeyed
+        - cute
       correct: cute
       gold:
         - cute
@@ -380,10 +380,10 @@ sweet:
     
     music:
       neuman_top_four:
-        - pleasing
         - classical
         - loud
         - choral
+        - pleasing
       correct: pleasing
       gold:
         - nice
@@ -397,10 +397,10 @@ sweet:
 
     song:
       neuman_top_four:
-        - pleasing
         - old
         - popular
         - sad
+        - pleasing
       correct: pleasing 
       gold:
         - pleasant
@@ -413,10 +413,10 @@ sweet:
     
     child:
       neuman_top_four:
-        - lovable
         - young
         - sick
         - small
+        - lovable
       correct: lovable
       gold:
         - cute
@@ -427,10 +427,10 @@ sweet:
 
     deal:
       neuman_top_four:
-        - satisfying
         - fair
         - bigger
         - new
+        - satisfying
       correct: satisfying 
       gold:
         - lucrative
@@ -445,10 +445,10 @@ sweet:
 
     voice:
       neuman_top_four:
-        - melodic
         - male
         - deep
         - internal
+        - melodic
       correct: melodic
       gold:
         - pleasant
@@ -461,10 +461,10 @@ sweet:
     
     memory:
       neuman_top_four:
-        - pleasant
         - vivid
         - old
         - long
+        - pleasant
       correct: pleasant
       gold:
         - fond
@@ -474,10 +474,10 @@ sweet:
 
     charity:
       neuman_top_four:
-        - gratifying
         - christian
         - local
         - muslim
+        - gratifying
       correct: gratifying
       gold:
         - kind
@@ -494,10 +494,10 @@ sweet:
     
     victory:
       neuman_top_four:
-        - pleasant
         - upset
         - great
         - electoral
+        - pleasant
       correct: pleasant 
       gold:
         - satisfying
@@ -590,10 +590,10 @@ deep:
   with:
     depression:
       neuman_top_four:
-        - intense
         - terrible
         - recurrent
         - great
+        - intense
       correct: intense
       gold:
         - severe
@@ -605,10 +605,10 @@ deep:
     
     sleep:
       neuman_top_four:
-        - profound
         - feigned
         - archetypal
         - cold
+        - profound
       correct: profound
       gold:
         - profound
@@ -618,10 +618,10 @@ deep:
 
     trouble:
       neuman_top_four:
-        - serious
         - enormous
         - powerful
         - financial
+        - serious
       correct: serious
       gold:
         - serious
@@ -634,10 +634,10 @@ deep:
     
     understanding: 
       neuman_top_four:
-        - profound
         - tacit
         - broad
         - collective
+        - profound
       correct: profound
       gold:
         - profound
@@ -648,10 +648,10 @@ deep:
 
     sigh: 
       neuman_top_four:
-        - profound
         - collective
         - small
         - audible
+        - profound
       correct: profound
       gold:
         - exhaustive
@@ -664,10 +664,10 @@ deep:
 
     emotion: 
       neuman_top_four:
-        - strong
         - bottomless
         - human
         - real
+        - strong
       correct: strong
       gold:
         - profound
@@ -678,10 +678,10 @@ deep:
 
     thought:
       neuman_top_four:
-        - profound
         - private
         - random
         - happy
+        - profound
       correct: profound
       gold:
         - abstruse
@@ -692,10 +692,10 @@ deep:
     
     happiness: 
       neuman_top_four:
-        - intense
         - future
         - human
         - martial
+        - intense
       correct: intense
       gold:
         - 'true'
@@ -705,10 +705,10 @@ deep:
         
     voice: 
       neuman_top_four:
-        - low
         - female
         - human
         - male
+        - low
       correct: low
       gold:
        - bass
@@ -718,10 +718,10 @@ deep:
 
     secret: 
       neuman_top_four:
-        - mysterious
         - guarded
         - soviet
         - open
+        - mysterious
       correct: mysterious
       gold:
         - arcane
@@ -732,10 +732,10 @@ deep:
 
     theory: 
       neuman_top_four:
-        - abstruse
         - low
         - economic
         - cognitive
+        - abstruse
       correct: abstruse
       gold:
         - abstruse
@@ -747,10 +747,10 @@ deep:
 
     lecture: 
       neuman_top_four:
-        - recondite
         - public
         - large
         - free
+        - recondite
       correct: recondite
       gold:
         - recondite
@@ -839,10 +839,10 @@ dark:
   with:
     comedy: 
       neuman_top_four:
-        - macabre
         - broad
         - classic
         - black
+        - macabre
       correct: macabre
       gold:
         - macabre
@@ -853,10 +853,10 @@ dark:
 
     humor: 
       neuman_top_four:
-        - wicked
         - light
         - jewish
         - ethnic
+        - wicked
       correct: wicked
       gold:
         - morbid
@@ -870,10 +870,10 @@ dark:
 
     secret:
       neuman_top_four:
-        - concealed
         - small
         - soviet
         - open
+        - concealed
       correct: concealed
       gold:
         - horrid
@@ -888,10 +888,10 @@ dark:
 
     thought: 
       neuman_top_four:
-        - evil
         - intimate
         - romantic
         - intrusive
+        - evil
       correct: evil
       gold:
         - despondent
@@ -905,10 +905,10 @@ dark:
 
     purpose: 
       neuman_top_four:
-        - evil
         - sole
         - general
         - main
+        - evil
       correct: evil
       gold:
         - evil
@@ -923,10 +923,10 @@ dark:
 
     vision: 
       neuman_top_four:
-        - pessimistic
         - clear
         - personal
         - comic
+        - pessimistic
       correct: pessimistic
       gold:
         - pessimistic
@@ -939,10 +939,10 @@ dark:
     
     look: 
       neuman_top_four:
-        - threatening
         - close
         - fresh
         - curious
+        - threatening
       correct: threatening 
       gold:
         - menacing
@@ -957,10 +957,10 @@ dark:
 
     deeds: 
       neuman_top_four:
-        - sinister
         - good
         - heroic
         - past
+        - sinister
       correct: sinister
       gold:
         - sinister
@@ -975,10 +975,10 @@ dark:
 
     angel: 
       neuman_top_four:
-        - vicious
         - stone
         - guardian
         - christmas
+        - vicious
       correct: vicious
       gold:
         - vicious
@@ -994,10 +994,10 @@ dark:
 
     mood: 
       neuman_top_four:
-        - gloomy
         - good
         - positive
         - public
+        - gloomy
       correct: gloomy
       gold:
         - morose
@@ -1017,10 +1017,10 @@ dark:
     
     force: 
       neuman_top_four:
-        - evil
         - armed
         - social
         - economic
+        - evil
       correct: evil
       gold:
         - evil
@@ -1032,10 +1032,10 @@ dark:
 
     magic: 
       neuman_top_four:
-        - sinister
         - practical
         - ancient
         - powerful
+        - sinister
       correct: sinister
       gold:
         - evil
@@ -1124,10 +1124,10 @@ hard:
   with: 
     task: 
       neuman_top_four:
-        - difficult
         - solid
         - simple
         - joint
+        - difficult
       correct: difficult
       gold:
         - difficult
@@ -1139,10 +1139,10 @@ hard:
 
     look: 
       neuman_top_four:
-        - dispassionate
         - quick
         - close
         - firm
+        - dispassionate
       correct: dispassionate
       gold:
         - glaring
@@ -1173,10 +1173,10 @@ hard:
 
     wind: 
       neuman_top_four:
-        - strong
         - high
         - political
         - cold
+        - strong
       correct: strong
       gold:
         - strong
@@ -1188,10 +1188,10 @@ hard:
 
     blow: 
       neuman_top_four:
-        - strong
         - firm
         - low
         - single
+        - strong
       correct: strong
       gold:
         - severe
@@ -1204,10 +1204,10 @@ hard:
 
     liquor: 
       neuman_top_four:
-        - strong
         - flavored
         - organic
         - exotic
+        - strong
       correct: strong 
       gold:
         - alcoholic
@@ -1219,10 +1219,10 @@ hard:
 
     drinker: 
       neuman_top_four:
-        - intemperate
         - young
         - social
         - oldest
+        - intemperate
       correct: intemperate
       gold:
         - intemperate
@@ -1236,10 +1236,10 @@ hard:
     
     luck: 
       neuman_top_four:
-        - tough
         - good
         - pure
         - random
+        - tough
       correct: tough #just as metaphoric + idiomatic
       gold:
         - bad
@@ -1250,10 +1250,10 @@ hard:
 
     feeling: 
       neuman_top_four:
-        - negative
         - raw
         - bad
         - awful
+        - negative
       correct: negative
       gold:
         - unpleasant
@@ -1270,10 +1270,10 @@ hard:
     
     evidence: 
       neuman_top_four:
-        - convincing
         - scant
         - recent
         - criminal
+        - convincing
       correct: convincing
       gold:
         - conclusive
@@ -1287,10 +1287,10 @@ hard:
 
     time: 
       neuman_top_four:
-        - difficult
         - insufficient
         - wasted
         - tough
+        - difficult
       correct: difficult
       gold:
         - difficult
@@ -1304,10 +1304,10 @@ hard:
 
     work: 
       neuman_top_four:
-        - difficult
         - tough
         - extra
         - diligent
+        - difficult
       correct: difficult
       gold:
         - arduous
