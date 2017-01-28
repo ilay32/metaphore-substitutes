@@ -17,6 +17,10 @@ elif vectormodel == "SPVecs":
     vecs = SPVecs()
 else:
     vecs = Word2Vec.load_word2vec_format(vectormodel,binary=True) 
+    vecs.has = lambda x: x in vecs
+    vecs.get = lambda x: vecs[x]
+    vecs.centroid = lambda l: vecs[vecs.most_similar(l,topn=1)[0][0]]
+
 ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
 lemmatizer = WordNetLemmatizer()
@@ -57,11 +61,13 @@ class MetaphorSubstitute:
     @preeval
     def mrr(self):
         mrr = 0
-        tst = [s[0] for s in self.substitutes]
-        for t in self.gold:
-            if t in tst:
-                mrr += 1/(tst.index(t)+1)
-        return mrr
+        sampsize = self.mrr_sample_size
+        tst = [s[0] for s in self.substitutes[:sampsize]]
+        for i,t in enumerate(tst):
+            rank = 1/(i + 1) #1/sampsize .. 1
+            worth = len(self.gold) - self.gold.index(t)  if t in self.gold else 0 # 0 .. len(gld)
+            mrr += rank * worth #0 .. len(gld)
+        return mrr/sampsize # 0 .. 1
     
     def detect(self,adj):
         cparams = params['classifier']
@@ -98,15 +104,18 @@ class MetaphorSubstitute:
         if not clusters.has(pred):
             print("can't find noun cluster for ",pred)
             return None
-        clust = sorted([n[0] for n in clusters.get(pred).most_common() if n[0] in vecs and abst.has(n[0])],key=lambda x: abst.get(x),reverse=True)[:self.noun_cluster_size]
-        if len(clust) == 0:
+        clust = sorted([n[0] for n in clusters.get(pred).most_common()
+        if n[0] in vecs and abst.has(n[0])],key=lambda x: abst.get(x),reverse=True)
+        if len(clust) == 0: 
             print("all",len(clust)," found nouns are either not abstract enough or vectorless. only the instance noun will be used.")
         else:
             print("found:",printlist(clust,self.noun_cluster_size,True))
         #if(not self.noun in clust):
         #    clust.append(self.noun)
-        return clust
-    
+        return {
+            'abstract' : clust[:self.noun_cluster_size],
+            'concrete' : clust[-1*self.noun_cluster_size:]
+        }  
     def wordnet_closure(word,pos):
         print("getting synonyms")
         syn = set()
@@ -176,9 +185,6 @@ class MetaphorSubstitute:
         return self.substitutes[0][0]
 
 
-###################################################
-# overriding the generic metaphore substitute class
-###################################################
 class AdjSubstitute(MetaphorSubstitute):
     object_clusters = AdjObjects(ngrams)
     pred_candidates = ObjectAdjs(ngrams) 
@@ -195,8 +201,6 @@ class AdjSubstitute(MetaphorSubstitute):
         return int(self.substitute() == self.correct)
     
     def candidate_rank(self,cand):
-        if cand not in vecs:
-            return float('nan')
         s = self.get_syns()
         asyns = sorted(s,key=lambda x: abst.get(x),reverse=True)[:10]
         return vecs.n_similarity([cand],asyns)
@@ -357,16 +361,18 @@ class NeumanAsIs(AdjSubstitute):
     
     def candidate_rank(self,cand):
         l = self.get_synonyms() + [self.noun]
-        if cand in vecs:
-            return vecs.n_similarity([cand],l)
-        else:
-            return float('nan')
+        return vecs.n_similarity([cand],l)
+
+class NeumanAsIsnoNoun(NeumanAsIs):
+    def candidate_rank(self,cand):
+        return vecs.n_similarity([cand],self.get_synonyms()) 
+
 class SimpleNeuman(AdjSubstitute):
     def candidate_rank(self,cand):
         syns = self.get_syns()
-        if cand in vecs:
-            return vecs.n_similarity([cand],syns)
-        return float('nan') 
+        if cand not in vecs:
+            return 0
+        return vecs.n_similarity([cand],syns)
     
     def get_candidates(self):
         return self.topfour
@@ -374,27 +380,72 @@ class SimpleNeuman(AdjSubstitute):
     def get_syns(self):
         return self.coca_syns[:10]
 
+class NSimpleNeuman(SimpleNeuman):
+    def candidate_rank(self,cand):
+        syns = self.get_syns() + [self.noun]
+        return vecs.n_similarity([cand],syns)
+        
+class ANeumanAsIs(NeumanAsIs):
+    def get_syns(self):
+        return sorted(syns,key=lambda x: abst.get(x),reverse=True)[:10] + [self.noun]
+
+class ANeumanAsIs(NeumanAsIs):
+    def get_syns(self):
+        syns = self.coca_syns[15] 
+        
+
 class ASimpleNeuman(SimpleNeuman):
     def get_syns(self):
         syns = [s for s in self.coca_syns if s in vecs]
-        return sorted(syns,key=lambda x: abst.get(x),reverse=True)[:10]
+        return sorted(syns,key=lambda x: abst.get(x),reverse=True)[:10] + [self.noun]
+
 
 class SNwithNounData(SimpleNeuman):
+    def __init__(self,conf):
+        super(SimpleNeuman,self).__init__(conf)
+        self.abstract_center = vecs.centroid(NeumanAsIs.get_graph_data(self.pred,'abstract'))
+        
+    
+    def quazi_centroid(self,words):
+        cent = vecs.most_similar(words,topn=1)
+        return vecs[cent[0]]
+
     def candidate_rank(self,cand):
         frompred = super(SNwithNounData,self).candidate_rank(cand)
-        candnouns = self.noun_cluster(cand,'object')
-        fromnouns = vecs.n_similarity([self.noun],candnouns) if not SingleWordData.empty(candnouns) else 1
-        return frompred*fromnouns
-        
-
+        fromnoun = self.rank_by_noun_me(cand)
+        return fromnoun
     
+    def rank_by_noun_u(self,cand):
+        if cand not in vecs:
+            return 0
+        env = vecs.most_similar(self.pred,topn=50)
+        env.sort(key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)
+        return vecs.n_similarity([cand],[w[0] for w in env[:15]])
+    
+    def rank_by_noun_me(self,cand):
+        if cand not in vecs:
+            return 0
+        objs = self.noun_cluster(cand,'object')
+        if objs is None:
+            return 0
+        cand_diff = vecs.centroid(objs['abstract']) - vecs.centroid(objs['concrete'])
+        inst_diff = self.abstract_center - vecs.get(self.noun) 
+        return cosine(cand_diff,inst_diff)
+
+
+
 class AdjWithGraphProt(AdjSubstitute):
     def noun_cluster(self,pred,rel):
-        data = pickle.load(open(os.path.join(NeumanGraph.datadir,pred+"-abstract.pkl"),'rb'))
-        proto_nouns = [n[0] for n in data['out'].most_common() if  n[0] in vecs][:self.noun_cluster_size]
-        print("abstract objects for",pred+":",printlist(proto_nouns,10,True))
-        return proto_nouns 
+       return NeumanAsIs.get_graph_data(pred,'abstract')
     
     def get_candidates(self):
         return self.topfour
+
+    def get_synonyms(self):
+        return self.coca_syns[:10]
+    
+    def candidate_rank(self,cand):
+        sim1 = super(AdjWithGraphProt,self).candidate_rank(cand)
+        sim2 = vecs.n_similarity([self.noun],self.noun_cluster(cand,'object')) 
+        return sim1
 

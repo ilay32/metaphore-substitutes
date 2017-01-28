@@ -134,7 +134,7 @@ class SingleWordData:
             return None
         word = word.replace("'","")
         if word in self.notfound:
-            print("this shouldn't be here:",word)
+            print(word,"is not in",self,"table")
         if word in self.table:
             return self.table[word]
         elif self.db.connected:
@@ -147,9 +147,7 @@ class SingleWordData:
         else:
             return None
     
-    def __str__(self):
-        return self.table[:min(len(self.table),5)]
-    
+        
     def get_table_path(self):
         return os.path.join(SingleWordData.dbcache,self.search_table()+'.pkl')
     
@@ -202,25 +200,28 @@ class Vecs(SingleWordData):
             ret = self.vec_similarity(v1,v2)
         except Exception as e:
             print(str(e))
-            return
+            return float('nan')
         return ret
      
     def centroid(self,words):
+        defret = float('NaN')
         if SingleWordData.empty(words):
             print("empty argument to Vecs.centroid")
-            return None
+            return defret
         cluster = [w for w in words if self.has(w)]
         if SingleWordData.empty(cluster):
             print("no vector for any of the words in this list")
-            return None
+            return defret
         acc = self.get(cluster[0])
         added = 1
         for word in cluster[1:]:
-            if SingleWordData.empty(self.get(word)): 
-                print("empty vector", word)
+            u = self.get(word)
+            if SingleWordData.empty(u): 
+                print(word,"has an empty vector!")
+                continue
             else:
-                acc = Vecs.addition(acc,self.get(word))
-                added += 1
+                acc = Vecs.addition(acc,u)
+                added += Vecs.norm(u)
         return Vecs.multiply(acc,1/added)
 
 
@@ -241,8 +242,6 @@ class Vecs(SingleWordData):
         d = 0
         for colid,uval,vval in Vecs.vectorpair(u,v):
             d += uval*vval
-        if d == 0:
-            print("zero norm")
         return d
     
     def similarity(self,w1,w2):
@@ -523,31 +522,33 @@ class RunData:
     
     def howmany(self) :
         return len(self.data)
-
+    
     def show(self,pred=None,noun=None):
         d = self.data
         if pred == 'pairs':
             for i,row in d.iterrows():
                 print(str(i+1)+".",row.pred," ",row.noun,"\n")
             return
-
+        
+        
         if pred in ['no_vector','no_abst','ignored']:
             acc = set()
             for i,row in d.iterrows():
                 acc = acc.union(row[pred])
             printlist(acc,len(acc),False,"\n")
             return
-        
-        pairs = list()
-        if pred!=None and noun!=None:
+        pairs = d
+        if pred == 'nerrors':
+            pairs = d[d.neuman_score == 0]
+        elif pred == 'errors' :
+            pairs = d[d.score < 0.5]
+        elif pred!=None and noun!=None:
             pairs = d[(d.pred == pred) & (d.noun == noun)]
         elif pred != None and noun == None:
             pairs = d[d.pred == pred]
         elif noun != None and pred == None:
             pairs =  d[d.noun == noun]
                     
-        else:
-            pairs = d
         for i,row in pairs.iterrows():
             print(row.pred," ",row.noun," (expected", row.correct,"):")
             printlist(row['substitutes'],len(row['substitutes']),False,"\n")
