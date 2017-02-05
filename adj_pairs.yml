@@ -472,25 +472,25 @@ sweet:
         - nice
         - good
 
-    charity:
-      neuman_top_four:
-        - christian
-        - local
-        - muslim
-        - gratifying
-      correct: gratifying
-      gold:
-        - kind
-        - gratifying
-        - loving
-        - caring
-        - divine
-        - compassionate
-        - fortuitous
-        - satisfying
-        - good
-        - nice
-        - generous
+    #charity:
+    #  neuman_top_four:
+    #    - christian
+    #    - local
+    #    - muslim
+    #    - gratifying
+    #  correct: gratifying
+    #  gold:
+    #    - kind
+    #    - gratifying
+    #    - loving
+    #    - caring
+    #    - divine
+    #    - compassionate
+    #    - fortuitous
+    #    - satisfying
+    #    - good
+    #    - nice
+    #    - generous
     
     victory:
       neuman_top_four:
@@ -1137,22 +1137,22 @@ hard:
         - demanding
         - taxing
 
-    look: 
-      neuman_top_four:
-        - quick
-        - close
-        - firm
-        - dispassionate
-      correct: dispassionate
-      gold:
-        - glaring
-        - glowering
-        - fierce
-        - angry
-        - severe
-        - foreboding
-        - scrutinizing
-        - critical
+    #look: 
+    #  neuman_top_four:
+    #    - quick
+    #    - close
+    #    - firm
+    #    - dispassionate
+    #  correct: dispassionate
+    #  gold:
+    #    - glaring
+    #    - glowering
+    #    - fierce
+    #    - angry
+    #    - severe
+    #    - foreboding
+    #    - scrutinizing
+    #    - critical
 
     bargainer: 
       neuman_top_four:
