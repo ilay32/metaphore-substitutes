@@ -12,35 +12,69 @@ warm:
     - file
     - breath
     - wind
-  coca_syns:
-    - hot
-    - deep
-    - friendly
-    - tender
-    - passionate
-    - loving
-    - enthusiastic
-    - lively
-    - earnest
-    - cozy
-    - sincere
-    - cheerful
-    - fiery
-    - kind
-    - inviting
-    - welcoming
+  roget_syns:
+    - ablaze
+    - afire
     - ardent
+    - boiling-over
+    - burning
+    - calid
+    - cordial
+    - fervent
+    - fiery
+    - flaming
+    - friendly
+    - genial
+    - glowing
+    - hearty
+    - heated
+    - hot
+    - impassioned
+    - mild
+    - on-fire
+    - passionate
+    - red-hot
+    - thermal
+    - vehement
+    - warm
+    - warmhearted
+  coca_syns:
+    - affectionate
+    - amiable
+    - ardent
+    - balmy
+    - cheerful
+    - cheery
+    - congenial
+    - convivial
+    - cordial
+    - cozy
+    - deep
+    - earnest
+    - enthusiastic
+    - fiery
+    - friendly
+    - genial
+    - heartfelt
+    - hospitable
+    - hot
+    - inviting
+    - kind
+    - kindhearted
+    - kindly
+    - lively
+    - loving
+    - lukewarm
+    - passionate
+    - restful
+    - sincere
     - snug
     - temperate
-    - affectionate
-    - heartfelt
-    - cheery
-    - hospitable
-    - cordial
-    - lukewarm
-    - kindly
+    - tender
     - tepid
-    - amiable
+    - welcoming
+    - wholehearted
+    - zealous
   olprot:
     abstract:
       - word
@@ -74,7 +108,6 @@ warm:
       - glance
       - light
       - kiss
-  
   with:
     hug:
       neuman_top_four:
@@ -246,36 +279,87 @@ sweet:
     - scent
     - flavor
     - dessert
-  coca_syns:
-    - fresh
-    - musical
-    - pure
-    - friendly
-    - attractive
-    - gentle
-    - pleasant
-    - cute
-    - charming
-    - sympathetic
-    - thoughtful
-    - satisfying
-    - appealing
-    - kind
-    - fragrant
-    - engaging
-    - delightful
-    - enjoyable
-    - caring
-    - rewarding
-    - pleasing
+  roget_syns:
+    - admirable
     - adorable
-    - melodic
-    - harmonious
-    - wholesome
-    - gratifying
-    - agreeable
-    - pleasurable
+    - ambrosial
+    - aromatic
+    - balmy
+    - clear
+    - delicate
+    - dulcet
+    - fragrant
+    - likable
+    - likeable
     - lovable
+    - lovely
+    - lovesome
+    - mellow
+    - odoriferous
+    - perfumed
+    - perfumy
+    - pure
+    - redolent
+    - savory
+    - scented
+    - soft
+    - soft-colored
+    - softened
+    - subdued
+    - sweet-flowing
+    - sweet-scented
+    - sweet-smelling
+    - sweet-sounding
+    - tender
+    - winning
+    - winsome
+  coca_syns:
+    - accommodating
+    - adorable
+    - agreeable
+    - amiable
+    - appealing
+    - attractive
+    - caring
+    - charming
+    - considerate
+    - cute
+    - delightful
+    - engaging
+    - enjoyable
+    - fragrant
+    - fresh
+    - friendly
+    - gentle
+    - good
+    - gratifying
+    - harmonious
+    - honeyed
+    - kind
+    - lovable
+    - mellifluous
+    - melodic
+    - melodious
+    - musical
+    - obliging
+    - odorous
+    - perfumed
+    - pleasant
+    - pleasing
+    - pleasurable
+    - pure
+    - rewarding
+    - saccharine
+    - satisfying
+    - scented
+    - soft
+    - sugary
+    - sweetened
+    - sympathetic
+    - syrupy
+    - thoughtful
+    - tuneful
+    - wholesome
   olprot:
     abstract:
       - thing
@@ -525,35 +609,57 @@ deep:
     - skillet
     - sky
     - well
+  roget_syns:
+    - abstruse
+    - broad
+    - dark secret
+    - deep-colored
+    - deep-echoing
+    - deep-laid
+    - deep-pitched
+    - deep-set
+    - deep-sounding
+    - deep-toned
+    - deepmouthed
+    - grave
+    - heavy
+    - indelible
+    - profound
+    - sad
+    - serious
+    - wide 
   coca_syns:
+    - absorbed
+    - abysmal
+    - arcane
+    - booming
+    - bottomless
+    - cavernous
+    - concentrated
+    - entrenched
+    - hidden
+    - immersed
+    - inherent
+    - innate
+    - inscrutable
+    - intense
     - low
+    - meaningful
+    - multifaceted
+    - multilayered
+    - mysterious
+    - profound
+    - resonant
     - rich
+    - rumbling
     - secret
     - silent
-    - intense
-    - meaningful
-    - profound
-    - hidden
-    - mysterious
-    - inherent
-    - booming
-    - concentrated
-    - innate
-    - entrenched
-    - untold
-    - cavernous
-    - arcane
-    - resonant
-    - subterranean
-    - multifaceted
-    - bottomless
-    - inscrutable
-    - unfathomable
-    - abysmal
+    - sonorous
     - subconscious
+    - subterranean
+    - unfathomable
+    - untold
     - yawning
-    - absorbed
-    - rumbling
   olprot:
     abstract:
       - part
@@ -774,6 +880,60 @@ dark:
     - suit
     - cloud
     - horse
+  roget_syns:
+    - ableptical
+    - benighted
+    - bereft-of-light
+    - black
+    - blackish
+    - blind
+    - close
+    - confused
+    - dark
+    - dark-colored
+    - darkish
+    - darksome
+    - dim
+    - dreary
+    - eyeless
+    - faint
+    - feeble
+    - gloomy
+    - gray
+    - ill-defined
+    - ill-marked
+    - in-darkness
+    - in-the-dark
+    - in-the-shade
+    - indefinite
+    - indirect
+    - indistinct
+    - indistinguishable
+    - insidious
+    - obfuscated
+    - obscure
+    - out-of-focus
+    - pale
+    - rayless
+    - secrecy
+    - secretness
+    - shadowy
+    - shady
+    - sightless
+    - sinister
+    - somber
+    - uncertain
+    - unclear
+    - undefined
+    - undiscerning
+    - unobserving
+    - unperceiving
+    - unplain
+    - unrecognizable
+    - unseeing
+    - vague
+    - visionless
+    - weak
   coca_syns:
     - black
     - brown
@@ -1059,35 +1219,135 @@ hard:
     - cheese
     - sand
     - sole
-  coca_syns:
-    - difficult
-    - powerful
-    - tough
-    - solid
-    - violent
-    - severe
-    - intense
-    - fast
-    - firm
-    - harsh
-    - strict
-    - challenging
-    - stiff
-    - brutal
-    - awkward
-    - fierce
-    - cruel
-    - rigid
-    - tricky
-    - relentless
-    - durable
-    - demanding
-    - troublesome
-    - arduous
-    - grueling
+  roget_syns:
+    - alcoholic
+    - ardent
+    - as-hard-as-nails
+    - astringent
+    - austere
     - callous
-    - unkind
+    - calloused
+    - casehardened
+    - close
+    - closefisted
+    - closehanded
+    - crabbed
+    - cramp
+    - cruel
+    - difficult
+    - doughty
+    - dour
+    - energetic
+    - firm
+    - flinthearted
+    - formidable
+    - grave
+    - grim
+    - hale
+    - hard-of-heart
+    - hard-as-nails
+    - hard-bitted
+    - hard-bitten
+    - hard-boiled
+    - hard-to-understand
+    - hardened
+    - hardfisted
+    - hardheaded
+    - hardhearted
+    - hardmouthed
+    - hardset
+    - hardworking
+    - hardy
+    - harsh
+    - heavy
+    - hefty
+    - husky
+    - illiberal
+    - impervious
+    - inclement
+    - indurated
+    - inexorable
+    - inflexible
+    - inured
+    - laborious
+    - marblehearted
+    - mean
+    - near
+    - never-idle
+    - obdurate
+    - pachydermatous
+    - poignant
+    - proof against
+    - pungent
+    - relentless
+    - rigid
+    - rigorous
+    - rough
+    - rugged
+    - seared insensitive
+    - severe
+    - soft
+    - solid
+    - spirituous
+    - stalwart
+    - steeled against
+    - steep
+    - stern
+    - stiff
+    - stingy
+    - stonyhearted
+    - stout
+    - strapping
+    - strenuous
+    - stringent
+    - strong
+    - sturdy
+    - thick-skinned
+    - tight
+    - tightfisted
+    - tough
+    - unbending
+    - uncompromising
+    - ungenerous
+    - unrelenting
+    - unsparing
+    - unyielding
+    - wicked
+    - with-a-kick
+  coca_syns:
+    - arduous
+    - awkward
+    - brutal
+    - callous
+    - challenging
+    - cruel
+    - demanding
+    - difficult
+    - durable
+    - fast
+    - fierce
+    - firm
+    - grueling
+    - harsh
+    - intense
+    - pitiless
+    - powerful
+    - problematical
+    - relentless
+    - remorseless
+    - rigid
+    - severe
+    - solid
+    - stiff
+    - strict
+    - testing
+    - thick
+    - tough
+    - tricky
+    - troublesome
     - unbreakable
+    - unkind
+    - violent
   olprot:
     abstract:
       - labor
@@ -1170,6 +1430,7 @@ hard:
         - strong-minded
         - unwavering
         - unyielding
+        - stern
 
     wind: 
       neuman_top_four:
