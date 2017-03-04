@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk,math
 import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
@@ -115,15 +115,19 @@ class SingleWordData:
             return not obj.any() 
         if not obj:
             return True
-        if isinstance(obj,int) or  isinstance(obj,float):
-            return obj == 0
+        if isinstance(obj,int):
+            return False
+        if isinstance(obj,float):
+            return math.isnan(obj)
         if isinstance(obj,str):
             return obj.isspace() or obj == ""
         notempty = False
         try:
             iterator = iter(obj)
             for x in iterator:
-                notempty = not SingleWordData.empty(x)
+                if not SingleWordData.empty(x):
+                    notempty = True
+                    break
         except:
             print("can't determine emptiness of type",type(obj))
             return False
@@ -487,7 +491,6 @@ class RunData:
         out.write(time.ctime(self.timestamp))
         out.write(" "+self.typ+" "+self.note)
         out.write("\nNeuman Score: "+self.neuman_eval())
-        out.write("\nMRR: "+self.evaluate())
         return out.getvalue()
 
     def __repr__(self):
@@ -555,7 +558,10 @@ class RunData:
             print("\n")
     
     def evaluate(self):
-        return str(self.data['score'].mean())
+        return str(self.data['avprec'].mean())
+
+    def describe(self,*args):
+        self.data[list(args)].describe()
 
     def neuman_eval(self):
         frac = self.data['neuman_score'].sum()/self.howmany()
@@ -566,6 +572,13 @@ class SPVecs:
         self.dim = 300
         with open('nspvecs.pkl','rb') as t:
             self.table = pickle.load(t)
+        self.size = len(self.table.keys())
+        self.matrix = np.zeros((self.size,self.dim))
+        self.index = list(self.table.keys())
+        for i,p in enumerate(self.table.items()):
+            self.matrix[i,:] = p[1]
+        
+
     
     def __contains__(self,word):
         return word in self.table
@@ -581,6 +594,17 @@ class SPVecs:
         print("None in n_similarity")
         return
     
+    def most_similar(self,w,**kwargs):
+        topn = kwargs['topn']
+        allsims = np.dot(self.matrix,self.table[w])
+        ret = list()
+        for i in range(self.size):
+            word = self.index[i]
+            if word != w:
+                ret.append((self.index[i],allsims[i]))
+        ret.sort(key = lambda x: x[1],reverse=True)
+        return ret[:topn]
+         
     def check_two(v1,v2):
         return isinstance(v1,np.ndarray) and isinstance(v2,np.ndarray)
 
@@ -589,8 +613,7 @@ class SPVecs:
         v2 = self.get(w2)
         if SPVecs.check_two(v1,v2):
             return self.vec_similarity(v1,v2)
-        print("None in similarity")
-        return None
+        return 0
 
     def vec_similarity(self,v1,v2):
         return v1.dot(v2)/np.linalg.norm(v1)*np.linalg.norm(v2)

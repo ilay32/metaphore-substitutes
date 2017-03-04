@@ -1,8 +1,6 @@
 import yaml,random
 from metsub import *
 from dbutils import *
-pairsraw = yaml.load(open('adj_pairs.yml'))
-
 def cleanup():
     for objname in sorted(globals()):
         try:
@@ -17,23 +15,25 @@ def cleanup():
         except:
             None
 
-def pairblock(adj,noun,dat):
-    return {
+def pairblock(adj,noun,dat,is_dry=False):
+    return  {
         'pred' : adj,
         'noun' : noun,
-        'topfour' : dat['neuman_top_four'],
-        'correct' : dat['correct'],
+        'topfour' : dat.get('neuman_top_four'),
+        'correct' : dat.get('correct'),
         'gold' : dat['gold'],
-        'coca_syns' : pairsraw[adj]['coca_syns']
+        'coca_syns' : pairs[adj]['coca_syns'],
+        'roget_syns' : pairs[adj]['roget_syns'],
+        'dry_run' : is_dry
     }
 
-if __name__ ==  '__main__':
-    pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairsraw[adj]['with'].items()] for adj in pairsraw.keys()],[])
-    pairs.sort(key=lambda x: x['noun'])
-    pairs.sort(key=lambda x: x['pred'])
+if __name__ == '__main__':
+    processed_pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairs[adj]['with'].items()] for adj in pairs.keys()],[])
+    processed_pairs.sort(key=lambda x: x['noun'])
+    processed_pairs.sort(key=lambda x: x['pred'])
     print("adjective - object pairs:")
-    for i,p in enumerate(pairs):
-        print(str(i+1)+".",p['pred'],p['noun'])
+    for i,p in enumerate(processed_pairs,1):
+        print(str(i)+".",p['pred'],p['noun'])
     print("modes:")
     print("1. number -- pick a pair of the above")
     print("2. rnd n randomly pick n pairs")
@@ -46,42 +46,56 @@ if __name__ ==  '__main__':
         mode = input("choose mode: ")
     if mode == "1":
         pair = int(input("pick a pair by it's number on the list: ")) - 1
-        run.append(pairs[pair])
+        run.append(processed_pairs[pair])
     
     if mode == "2":
-        random.shuffle(pairs)
+        random.shuffle(processed_pairs)
         num = int(input("how many: "))
-        run = pairs[:num]
+        run = processed_pairs[:num]
     
     if mode == "3":
-        run = pairs
+        run = processed_pairs
     
     if mode == "4":
         adj = ""
-        while adj not in pairsraw:
+        while adj not in pairs:
             adj =  input("pick an adjective: ")
-        run = [b for b in pairs if b['pred'] == adj]
+        run = [b for b in processed_pairs if b['pred'] == adj]
     
     rundata = list()
     note = input("add a note about this run:")
+    conf.update({
+        'methods' : {
+            'candidates' : 'ngramcands(50)',
+            'rating' : 'by_coca_synonyms_of_pred(15)'
+        }
+    })
     for p in run:
         conf.update(p)
-        ms = NeumanAsIs(conf)
+        ms = AdjSubstitute(conf)
+        #cands = ms.get_candidates()
         subs = ms.find_substitutes()
         d = {
             "pred": p['pred'],
             "noun" : p['noun'],
-            "substitutes" : subs, 
-            "no_vector" : ms.no_vector, 
-            "no_abst" : ms.no_abst,
-            "too_far" : ms.too_far,
+            "substitutes" : subs,
             "neuman_score" : ms.neuman_eval(),
-            "score" : ms.mrr(),
+            "avprec" : ms.AP(),
             "correct" : ms.correct,
+            "strictprec" : ms.strictP(),
+            "spearmanr" : ms.spear(),
+            "overlap" : ms.overlap(),
+            "top_in_gold" : ms.lenient_acc(),
+            "none_in_gold" : ms.complete_miss(),
+            "cands_size" : len(subs)
         }
         rundata.append(d)
         print(ms,"\n====================\n")
-    
+        #ovl = overlap(cands,set(p['gold']))
+        #if ovl == 0:
+        #    print(p['pred'],p['noun'],printlist(cands,20),printlist(p['gold']))
+        #rundata.append({'oc': ovl ,'size' : len(cands)})
+    #data = pandas.DataFrame(rundata)
     rundata = RunData(pandas.DataFrame(rundata),note,ms.classname)
     print("wrapping up and saving stuff")
     if note != "discard":
