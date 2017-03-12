@@ -1,4 +1,4 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk,math
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib
 import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
@@ -14,7 +14,7 @@ def hereiam(fn):
     return inside
 
 def dberror(ret=None):
-    def wrap(fn): 
+    def wrap(fn):
         def inside(*args,**kwargs):
             try:
                 ans = fn(*args,**kwargs)
@@ -71,7 +71,7 @@ class DB:
                 c.execute(q)
                 if c.rownumber == 0:
                     timer.cancel()
-            except pymssql.DatabaseError as e: 
+            except pymssql.DatabaseError as e:
                 print("trying to execute ",q," got ",e)
                 timer.join()
                 timer.cancel()
@@ -81,7 +81,7 @@ class DB:
                     conn.close()
         else:
             print("tried",q,tries - 1,"times. giving up")
-        return c  
+        return c
         
     def destroy(self):
         if self.connected:
@@ -92,15 +92,12 @@ class SingleWordData:
     def __init__(self,db):
         self.db = db
         self.table_path = self.get_table_path()
-        self.empty_table = dict()
+        if not hasattr(self,'empty_table'):
+            self.empty_table = dict()
         self.table = self.get_table()
         self.table_changed = False
         self.notfound = set()
     
-    def searchval(self,val):
-        for w,v in self.table.items():
-            if v == val:
-                return w
     def has(self,word):
         word = word.replace("'","")
         if word not in self.notfound:
@@ -112,7 +109,7 @@ class SingleWordData:
     
     def empty(obj):
         if isinstance(obj,np.ndarray):
-            return not obj.any() 
+            return not obj.any()
         if not obj:
             return True
         if isinstance(obj,int):
@@ -151,26 +148,27 @@ class SingleWordData:
         else:
             return None
     
-        
+    
     def get_table_path(self):
         return os.path.join(SingleWordData.dbcache,self.search_table()+'.pkl')
-    
     def get_table(self):
-        if os.path.isfile(self.table_path): 
+        if os.path.isfile(self.table_path):
             table = pandas.read_pickle(self.table_path)
         else:
+            print(self.empty_table)
             table = self.empty_table
         return table
     
     def save_table(self):
-        if self.table_changed:
+        if self.table_changed or not os.path.isfile(self.table_path):
             print("saving",self.table_path)
             with open(self.table_path, 'wb') as f:
                 pickle.dump(self.table,f)
     
     def destroy(self):
         self.save_table()
-        self.db.destroy()
+        if self.db is not None:
+            self.db.destroy()
 
 
 class Abst(SingleWordData):
@@ -200,7 +198,7 @@ class Vecs(SingleWordData):
             return
         v1 = self.centroid(ws1) if len(ws1) > 1 else self.get(ws1[0])
         v2 = self.centroid(ws2) if len(ws2) > 1 else self.get(ws2[0])
-        try: 
+        try:
             ret = self.vec_similarity(v1,v2)
         except Exception as e:
             print(str(e))
@@ -220,7 +218,7 @@ class Vecs(SingleWordData):
         added = 1
         for word in cluster[1:]:
             u = self.get(word)
-            if SingleWordData.empty(u): 
+            if SingleWordData.empty(u):
                 print(word,"has an empty vector!")
                 continue
             else:
@@ -235,7 +233,7 @@ class Vecs(SingleWordData):
         for row in query:
             ret.update({row[2] : row[3]})
         return ret
-   
+    
     def vec_similarity(self,u,v):
         norms = Vecs.norm(u) * Vecs.norm(v)
         if norms == 0:
@@ -265,7 +263,7 @@ class Vecs(SingleWordData):
     def search_table(self):
         return 'vecs'
     
-    # u and v are not of equal length, so this norm is conditioned on shared coordinates (just like the inner product) 
+    # u and v are not of equal length, so this norm is conditioned on shared coordinates (just like the inner product)
     def norm(u):
         return math.sqrt(Vecs.dot(u,u))
 
@@ -285,7 +283,7 @@ class Vecs(SingleWordData):
         return Vecs.addition(u,Vecs.multiply(v,-1))
 
 class Lex(SingleWordData):
-    @dberror() 
+    @dberror()
     def handlequery(self,q):
         ret = tuple()
         for r in q:
@@ -327,7 +325,7 @@ class Ngram(SingleWordData):
         if self.db.connected:
             self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
         time.sleep(2)
-        return "GetNgrams "+query_base    
+        return "GetNgrams "+query_base
     
     @dberror()
     def handlequery(self,c):
@@ -335,7 +333,7 @@ class Ngram(SingleWordData):
         cur = 0
         rows = c.fetchall()
         while cur < min(self.global_limit,len(rows)):
-            freqs[rows[cur][self.lem_column]] = rows[cur][self.freq_column] 
+            freqs[rows[cur][self.lem_column]] = rows[cur][self.freq_column]
             cur += 1
         return nltk.FreqDist(freqs)
 
@@ -472,12 +470,12 @@ def explore_cache():
     return False
 
 class RunData:
-    datadir = "rundata" 
+    datadir = "rundata"
     def __enter__(self):
         return self
     
     def __exit__(self,typer, value, traceback):
-        print("done")    
+        print("done")
     
     def __init__(self,df,note,typ):
         self.data = df
@@ -496,21 +494,41 @@ class RunData:
     def __repr__(self):
         return "<{0}>".format(self.__class__)
     
-    def tofile(self,filename=None):
+    def _tofile(self,rowhandler,filename=None):
         if not filename:
             filename  = self.note.replace(' ','_')
         with open(os.path.join(filename+".txt"),"w") as f:
             d = self.data
             f.write(str(self)+"\n")
             for i,row in d.iterrows():
-                f.write(row.pred+" "+row.noun+" ("+self.typ+", expected "+row.correct+")")
-                f.write("\n=====================\n")
-                for sub in row['substitutes'][:self.params['number_of_candidates']]:
-                    f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
-                f.write("\n\n")
-            
-            
+                rowhandler(row,f)
     
+    def normalfile(self,row,f):
+        f.write(self.descline(row))
+        f.write("\n=====================\n")
+        for sub in row['substitutes'][:self.params['number_of_candidates']]:
+            f.write(sub[0]+" "+str(round(sub[1],5))+"\n")
+        f.write("\n\n")
+    
+    def tofile(self,name=None):
+        self._tofile(self.normalfile,name)
+    
+    def oot_line(self,r,f):
+        subs = [w[0] for w in r['substitutes']]
+        f.write("{0}.a {1} :: {2}\n".format(r['pred'],r['semid'],";".join(subs)))
+
+    
+    def toot_file(self):
+        self._tofile(self.oot_line,self.note.replace(' ','_') + "-oot")
+
+    
+    def descline(self,r):
+        l = r.pred+" "+r.noun+" ("+self.typ
+        if r['mode'] is not None:
+            l += ", mode: "+r['mode']
+        l += ")"
+        return l
+
     def save(self):
         with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
             pickle.dump(self,f)
@@ -551,9 +569,9 @@ class RunData:
             pairs = d[d.pred == pred]
         elif noun != None and pred == None:
             pairs =  d[d.noun == noun]
-                    
+        
         for i,row in pairs.iterrows():
-            print(row.pred," ",row.noun," (expected", row.correct,"):")
+            print(self.descline(row))
             printlist(row['substitutes'],len(row['substitutes']),False,"\n")
             print("\n")
     
@@ -637,6 +655,71 @@ class SPVecs:
         o = [(self.vec_similarity(self.get(word),cent)) for word in words if word in self]
         o.sort(key=lambda x: x[1])
         return o[0][0]
+
+class GoogleNgrams(SingleWordData):
+    qrl = "http://corpora.linguistik.uni-erlangen.de/demos/cgi-bin/Web1T5/Web1T5_freq.perl"
+    crl = pycurl.Curl()
+    qparams = {
+        "mode" : "XML",
+        "limit" : 1,
+        "threshold" : 40,
+        "optimize" : "on",
+        "wildcards" : "listed+normally",
+        "fixed" : "shown",
+        ".cgifields" : "optimize"
+    }
+    dig = re.compile("<hits>\d+<\/hits>")
+    def __init__(self):
+        self.empty_table = nltk.FreqDist()
+        super(GoogleNgrams,self).__init__(None)
+
+    def search_table(self):
+        return "1tgngrams"
+
+    def query_ngram(ngram):
+        print("getting ngram count:",ngram)
+        p = copy.copy(GoogleNgrams.qparams)
+        q = re.sub("\s+","+",ngram)
+        res = io.BytesIO()
+        url = GoogleNgrams.qrl + "?query="+ q + "&" + urllib.parse.urlencode(p)
+        c = GoogleNgrams.crl
+        c.setopt(c.URL,url)
+        c.setopt(c.WRITEFUNCTION,res.write)
+        c.perform()
+        hits = re.findall(GoogleNgrams.dig,res.getvalue().decode('UTF-8'))
+        if len(hits) == 1:
+            ans = int(hits[0].strip("</hits>"))
+        else:
+            ans = 0
+            if c.getinfo(pycurl.HTTP_CODE) == 200:
+                print("ngram not found:",ngram)
+            else:
+                print("failed query:",c.getinfo(pycurl.HTTP_CODE))
+        c.reset()
+        return ans
+    
+    # repeated here only because of the "'"
+    # strip in parent *has*
+    def has(self,ngram):
+        if ngram not in self.notfound:
+            self.get(ngram)
+            if ngram in self.table:
+                return True
+            self.notfound.add(ngram)
+        return False
+
+    def get(self,ngram):
+        if SingleWordData.empty(ngram):
+            return None
+        if ngram in self.notfound:
+            print(ngram,"is not in",self,"table")
+        if ngram in self.table:
+            return self.table[ngram]
+        else:
+            freq = GoogleNgrams.query_ngram(ngram)
+            self.table[ngram] = freq
+            self.table_changed = True
+            return freq
 
 
 if __name__ == '__main__':

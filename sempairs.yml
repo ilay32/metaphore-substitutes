@@ -64,6 +64,7 @@ dry:
     - teetotal
   with:
     account:
+      id: 402
       gold:
         - run-out
         - evaporate
@@ -71,6 +72,7 @@ dry:
         - become-empty
         - empty
     humor:
+      id: 404
       gold:
         - wry
         - low-key
@@ -79,6 +81,7 @@ dry:
         - understated
         - droll
     wit:
+      id: 407
       gold:
         - wry
         - deadpan
@@ -227,12 +230,14 @@ heavy:
     - jarring
   with:
     use:
+      id: 639
       gold:
         - excessive
         - extensive
         - abundant
         - frequent
     addict:
+      id: 640
       gold:
         - severe
         - serious
@@ -363,6 +368,7 @@ raw:
     - perishing
   with:
     anger:
+      id: 729
       gold:
         - crude
         - harsh
@@ -488,6 +494,7 @@ straight:
     - straight-talking
   with:
     answer:
+      id: 771
       gold:
         - honest
         - forthright
@@ -495,6 +502,7 @@ straight:
         - candid
         - accurate
     rap:
+      id: 772
       gold:
         - pure
         - standard
@@ -665,6 +673,7 @@ fresh:
     - garden-fresh
   with:
     book:
+      id: 955
       gold:
         - new
         - novel
@@ -672,6 +681,7 @@ fresh:
         - relevant
         - modern
     vision:
+      id: 957
       gold:
         - original
         - new
@@ -761,12 +771,14 @@ light:
     - unexacting
   with:
     breeze:
+      id: 994
       gold:
         - gentle
         - soft
         - slight
         - faint
     drinking:
+      id: 995
       gold:
         - small-amounts-of
         - slight
@@ -777,6 +789,7 @@ light:
         - casual
         - restricted
     snort:
+      id: 999
       gold:
         - gentle
         - soft
@@ -903,6 +916,7 @@ solid:
     - unmixed
   with:
     identity:
+      id: 1084
       gold:
         - firm
         - dependable
@@ -911,7 +925,8 @@ solid:
         - stable
         - reliable
     news-item:
-       gold:
+      id: 1088
+      gold:
         - dependable
         - strong
         - firm
@@ -920,6 +935,7 @@ solid:
         - sound
         - reliable
     test-suite:
+      id: 1089
       gold:
         - substantive
         - dependable
@@ -930,6 +946,7 @@ solid:
         - good
         - sound
     evidence:
+      id: 1090
       gold:
         - firm
         - dependable
@@ -1046,12 +1063,14 @@ clear:
     - apprehensible
   with:
     advantage:
+      id: 1243
       gold:
         - distinct
         - obvious
         - unambiguous
         - definite
     concept:
+      id: 1245
       gold:
         - obvious
         - plain
@@ -1140,6 +1159,7 @@ flat:
     - plane
   with:
     tax:
+      id: 1348
       gold:
         - uniform
         - even
@@ -1171,6 +1191,7 @@ inner:
     - innermost
   with:
     alienation:
+      id: 1408
       gold:
         - internal
         - private
@@ -1266,12 +1287,14 @@ open:
     - unspoilt
   with:
     border:
+      id: 1484
       gold:
         - unrestricted
         - unpoliced
         - free
         - unclosed
     access:
+      id: 1487
       gold:
         - unrestricted
         - free
@@ -1424,30 +1447,36 @@ soft:
     - squashy
   with:
     science:
+      id: 1611
       gold:
         - easy
         - weak
         - gentle
         - imprecise
     tone:
+      id: 1612
       gold:
         - quiet
         - feeble
         - faint
     music:
+      id: 1616
       gold:
         - gentle
         - quiet
         - restful
     drink:
+      id: 1617
       gold:
         - nonalcoholic
     accent:
+      id: 1618
       gold:
         - gentle
         - quiet
         - faint
     terms:
+      id: 1619
       gold:
         - easy
         - undemanding
@@ -1548,6 +1577,7 @@ stiff:
     - unbendable
   with:
     penalty:
+      id: 1648
       gold:
         - harsh
         - heavy
@@ -1628,6 +1658,7 @@ tender:
     - kindhearted
   with:
     care:
+      id: 1689
       gold:
         - loving
         - fond
@@ -1636,6 +1667,7 @@ tender:
         - affectionate
         - soft
     age:
+      id: 1690
       gold:
         - young
         - early
@@ -1766,6 +1798,7 @@ poor:
     - pitiable
   with:
     delivery:
+      id: 1911
       gold:
         - bad
         - weak
@@ -1773,6 +1806,7 @@ poor:
         - mediocre
         - inferior
     soil:
+      id: 1917
       gold:
         - inferior
         - weak

@@ -1,6 +1,6 @@
 #   imports
 #--------------------
-import random,copy,re
+import random,copy,re,nltk
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
@@ -9,10 +9,12 @@ from prygress import progress
 from ngraph import NeumanGraph
 from sklearn.cluster import KMeans as km
 from scipy.stats import spearmanr
+from lxml import etree
 
 
 #   globals
 #----------------------
+ggrams = GoogleNgrams()
 params = yaml.load(open('params.yml'))
 pairs = yaml.load(open(params['pairs_file']))
 nouncats = pickle.load(open('nclass.pkl','rb'))
@@ -20,6 +22,7 @@ ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
 lemmatizer = WordNetLemmatizer()
 vectormodel = conf['vectormodel']
+semevaltest = etree.parse('../semeval/lexsub_test.xml')
 if vectormodel == "LSA":
     vecs = Vecs(DB('LSA-ENG'))
 elif vectormodel == "SPVecs":
@@ -91,6 +94,8 @@ class MetaphorSubstitute:
         self.classname = self.__class__.__name__
         if not self.dry_run:
             self.resolve_methods()    
+        if params['pairs_file'] == 'sempairs.yml':
+            self.mode = self.gold[0]
     
     def resolve_methods(self):
         self.get_candidates = eval('self.'+self.methods['candidates'])
@@ -187,16 +192,17 @@ class MetaphorSubstitute:
     
     @preeval 
     def neuman_eval(self):
-        return int(self.substitute() == self.correct)
+        return int(self.substitute() == self.mode)
 
 
     #********************** 
     #   rating methods      
     #**********************
-    
+      
 
     #   miscelenia
     #----------------------
+        
     def noun_cluster(self,pred,rel):
         print("fetching "+rel+"s set for "+pred)
         clust = list()
@@ -216,6 +222,9 @@ class MetaphorSubstitute:
             'abstract' : clust[:self.noun_cluster_size],
             'concrete' : clust[-1*self.noun_cluster_size:]
         }  
+    
+            
+    
     
     #********************************
     #   predicate synonym methods
@@ -357,6 +366,12 @@ class AdjSubstitute(MetaphorSubstitute):
     #*******************************
     #   candidate fetch methods
     #*******************************
+    def roget_abstract_top(self,num):
+        def genlist():
+            arog = sorted(self.roget_syns,key = lambda x: abst.get(x),reverse=True)
+            return arog[:num]
+        return genlist
+
     def all_dictionaries(self,wnspread):
         def genlist():
             w = set(self.wncands(wnspread)())
@@ -438,7 +453,7 @@ class AdjSubstitute(MetaphorSubstitute):
             raw = AdjSubstitute.pred_candidates.get(self.noun).most_common(num)
             adjs = clearvecs(raw,0)
             random.shuffle(adjs)
-            cands =  adjs[:3] + [self.correct]
+            cands =  adjs[:3] + [self.mode]
             return cands
         return genlist
 
@@ -596,3 +611,73 @@ class AdjSubstitute(MetaphorSubstitute):
         else:
             print("no category found")
         return concrete_cats
+
+class Irst2(AdjSubstitute):
+
+    def __init__(self,options):
+        super(Irst2,self).__init__(options)
+        self.cand_scores = list()
+        self.target_grams = list()
+        self.context = self.get_semeval_context() 
+
+    def get_scores(self):
+        scores = dict()
+        for place,cand in enumerate(self.get_candidates()):
+            s = self.swaped_ngrams(cand)
+            for i in range(2,6):
+                if place == 0:
+                    scores[i] = list()
+                score = 0
+                grams = [g for g in s if len(g) == i]
+                for gram in grams:
+                    score += ggrams.get(" ".join(gram))
+                scores[i].append((cand,score,i))
+        self.cand_scores = scores
+        return scores
+
+    
+    def target_ngrams(self):
+        if not SingleWordData.empty(self.target_grams):
+            return self.target_grams
+        c = self.context
+        tar = self.pred
+        if tar not in c:
+            print("cant find target ngrams in contex")
+        ans = list()
+        for length in range(2,6):
+            grams = nltk.ngrams(c,length)
+            ans += [list(gram) for gram in grams if tar in gram]
+        self.target_grams = ans
+        return ans
+
+    def swaped_ngrams(self,cand):
+        grams = copy.deepcopy(self.target_ngrams())
+        ans = list()
+        for g in grams:
+            tind = g.index(self.pred)
+            g[tind] = cand
+            ans.append(g)
+        del grams
+        return ans
+    
+    def get_semeval_context(self):
+        semid = str(self.semid)
+        cont = semevaltest.xpath('//instance[@id="'+semid+'"]/context/text()')
+        if len(cont) == 2:
+            before,after = cont       
+        else:
+            c = cont[0]
+            after = c if c.strip().startswith(adj) else ""
+            before = c if after == "" else ""
+        return nltk.tokenize.word_tokenize(before+" "+self.pred+" "+after)
+
+
+    def find_substitutes(self):
+        scores = self.get_scores()
+        subs = list()
+        keys = list(scores.keys())
+        keys.reverse()
+        for k in keys:
+            subs +=  sorted([trip for trip in scores[k] if trip[1] > 0],key=lambda x: x[1],reverse=True)
+        self.substitutes = subs
+        return subs

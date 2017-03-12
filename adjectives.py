@@ -20,11 +20,12 @@ def pairblock(adj,noun,dat,is_dry=False):
         'pred' : adj,
         'noun' : noun,
         'topfour' : dat.get('neuman_top_four'),
-        'correct' : dat.get('correct'),
+        'mode' : dat.get('mode'),
         'gold' : dat['gold'],
         'coca_syns' : pairs[adj]['coca_syns'],
         'roget_syns' : pairs[adj]['roget_syns'],
-        'dry_run' : is_dry
+        'dry_run' : is_dry,
+        'semid' : dat['id'] 
     }
 
 if __name__ == '__main__':
@@ -81,13 +82,14 @@ if __name__ == '__main__':
             "substitutes" : subs,
             "neuman_score" : ms.neuman_eval(),
             "avprec" : ms.AP(),
-            "correct" : ms.correct,
+            "mode" : ms.mode,
             "strictprec" : ms.strictP(),
             "spearmanr" : ms.spear(),
             "overlap" : ms.overlap(),
             "top_in_gold" : ms.lenient_acc(),
             "none_in_gold" : ms.complete_miss(),
-            "cands_size" : len(subs)
+            "cands_size" : len(subs),
+            "semid" : ms.semid
         }
         rundata.append(d)
         print(ms,"\n====================\n")

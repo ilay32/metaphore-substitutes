@@ -14,7 +14,7 @@ class NeumanExp2:
         #self.options = pairs[adj]['coca_syns'] + [pairs[adj]['with'][noun]['correct']]
         self.options = self.get_options()
         self.results = {"in":"","out" : "","all" : ""}
-        self.correct = pairs[adj]['with'][noun]['correct']
+        self.correct = pairs[adj]['with'][noun]['mode']
         iadjs = [a for a in nounadjs.get(noun) if (abst.has(a) and vecs.has(a))]
         self.instance_adjs = sorted(iadjs,key=lambda x: abst.get(x),reverse=True)
     
@@ -26,7 +26,7 @@ class NeumanExp2:
     def get_options(self):
         return pairs[self.adj]['with'][self.noun]['neuman_top_four']
         raw = sorted([a for a in nounadjs.get(self.noun) if abst.has(a)][:100],key=lambda x: abst.get(x),reverse=True)[:10]
-        raw.append(pairs[self.adj]['with'][self.noun]['correct'])
+        raw.append(pairs[self.adj]['with'][self.noun]['mode'])
         return raw
 
     def get_synonyms(self):
