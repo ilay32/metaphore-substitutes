@@ -515,7 +515,7 @@ class RunData:
     
     def oot_line(self,r,f):
         subs = [w[0] for w in r['substitutes']]
-        f.write("{0}.a {1} :: {2}\n".format(r['pred'],r['semid'],";".join(subs)))
+        f.write("{0}.a {1} ::: {2}\n".format(r['pred'],r['semid'],";".join(subs)))
 
     
     def toot_file(self):
