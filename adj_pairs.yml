@@ -122,7 +122,10 @@ warm:
         - heart-felt
         - heartfelt
         - friendly
-    
+      context: "People greater than me have already eulogized you,
+      but no one knows the caress that you placed on my shoulder and the
+      warm hug that you saved only for us, and your smile, that always
+      told me so much, the same smile that is no longer there"
     relation:
       neuman_top_four:
         - tense
@@ -135,6 +138,10 @@ warm:
         - affectionate
         - friendly
         - intimate
+      context: "I think all they are trying to get out of this visit is
+      to show that there are at least some warm relations between these
+      two countries that has warmed up in recent years and that these
+      two leaders in particular are developing a rapport"
     
     welcome:
       neuman_top_four:
@@ -151,6 +158,9 @@ warm:
         - joyous
         - loving
         - hearty
+      context: "Ahmed found a house where one of the twin sisters was
+      living but instead of a warm welcome he had a run-in with her new
+      husband"
     
     feeling:
       neuman_top_four:
@@ -165,6 +175,7 @@ warm:
         - cozy
         - good
         - wonderful
+      context: "I'm sure he doesn't have warm feeling towards me"
         
     personality:
       neuman_top_four:
@@ -181,6 +192,8 @@ warm:
         - lively
         - nice
         - emotional
+      context: "He became a star on stage and television with his warm
+      personality and a powerful voice"
     
     greeting:
        neuman_top_four:
@@ -195,6 +208,8 @@ warm:
         - enthusiastic
         - loving
         - hearty
+       context: "And with that, I'd like all of you to give a warm
+      greeting as I invite Judge Sotomayor to say a few words"
     
     support:
        neuman_top_four:
@@ -209,6 +224,8 @@ warm:
         - strong
         - sincere
         - loving
+       context: "Inside the theater, there was warm support for the
+      president's immigration policy change"
     
     debate:
        neuman_top_four:
@@ -223,6 +240,9 @@ warm:
         - vigorous
         - fierce
         - intense
+       context: "So there we were, a roomful of putative enemies, engaged
+      in warm debate, deep rapprochement, and even some pretty funny
+      stories, some witty rejoinders"
      
     smile:
       neuman_top_four:
@@ -237,6 +257,8 @@ warm:
         - kindly
         - hearty
         - welcoming
+      context: "Then Manti Te'o extended his hand to the stranger with a
+      warm smile and soulful eyes"
     
     memory:
       neuman_top_four:
@@ -250,6 +272,7 @@ warm:
         - good
         - pleasant
         - nice
+      context: "Both have warm memories of growing up with Dad"
     
     applause:
       neuman_top_four:
@@ -264,6 +287,8 @@ warm:
         - excited
         - genuine
         - hearty
+      context: "Not one person on the panel confuted those allegations
+      and the allegations received warm applause from the audience"
 
 sweet:
   literal:
@@ -411,7 +436,9 @@ sweet:
        - wonderful
        - beautiful
        - pleasurable
-
+      context: "She could almost see the tiny figure that once occupied
+      it, cheeks rosy with sleep, a smile twitching the corner of her
+      mouth as a sweet dream danced through her mind"
     revenge:
       neuman_top_four:
         - political
@@ -427,6 +454,8 @@ sweet:
        - pleasing
        - enjoyable
        - delicious
+      context: "Now Florida of course, the Democrats would love to have
+      sweet revenge by taking Florida"
 
     smile:
       neuman_top_four:
@@ -446,8 +475,8 @@ sweet:
         - delightful
         - endearing
         - angelic
-        
-
+      context: "I will miss your bright eyes and sweet smile"
+    
     baby:
       neuman_top_four:
         - small
@@ -461,6 +490,8 @@ sweet:
         - nice
         - cherubic
         - angelic
+      context: "And next year you'll have this sweet baby that we're all
+      going to love so much"
     
     music:
       neuman_top_four:
@@ -478,6 +509,7 @@ sweet:
         - soothing
         - enchanting
         - beautiful
+      context: "He does write awfully sweet music for such a sour man"
 
     song:
       neuman_top_four:
@@ -494,6 +526,10 @@ sweet:
         - wonderful
         - delightful
         - lovely
+      context: "And on those beautiful December days, filled with sweet
+      song and crispy cookies, never had Burning Fog Isle seemed so
+      remote from the mainland. It was a world of mothers and fathers,
+      of being tucked in at night"
     
     child:
       neuman_top_four:
@@ -508,6 +544,9 @@ sweet:
         - lovable
         - adorable
         - charming
+      context: "This little girl, whose photo reveals a sweet child with
+      a forlorn expression, captured the hearts of this couple from New
+      York"
 
     deal:
       neuman_top_four:
@@ -526,6 +565,9 @@ sweet:
         - worthwhile
         - excellent
         - terrific
+      context: "And that plea was a sweet deal, and I think now, with
+      what he is accused of, the burden of proof is only by a
+      preponderance of the evidence"
 
     voice:
       neuman_top_four:
@@ -542,6 +584,8 @@ sweet:
         - beautiful
         - mellifluous
         - seraphic
+      context: "And he had a very gentle, sweet voice when talking about
+      his family and children and so on"
     
     memory:
       neuman_top_four:
@@ -555,6 +599,8 @@ sweet:
         - pleasant
         - nice
         - good
+      context: "achel's friends and family, whose sweet memories of her
+      compete with searing pain"
 
     #charity:
     #  neuman_top_four:
@@ -593,6 +639,8 @@ sweet:
         - pleasant
         - desired
         - fulfilling
+      context: "It was a sweet victory for Judy because even though she
+      was the only woman and number one in her undergrad law class"
 
 
 deep:
@@ -708,6 +756,8 @@ deep:
         - acute
         - grave
         - terrible
+      context: "I fell into a deep depression, bingeing on food and
+      watching mindless TV"
     
     sleep:
       neuman_top_four:
@@ -721,6 +771,9 @@ deep:
         - strong
         - restful
         - restorative
+      context: "But an hour later, they would be in such a deep sleep
+      that the sound of a.45 wouldn't wake them up, nor all the family
+      members and crime scene investigators who descended on the house"
 
     trouble:
       neuman_top_four:
@@ -737,6 +790,7 @@ deep:
         - overwhelming
         - great
         - considerable
+      context: "In 1995-96, people thought we were in deep trouble"
     
     understanding:
       neuman_top_four:
@@ -751,6 +805,7 @@ deep:
         - thorough
         - fundamental
         - comprehensive
+      context: "He had a deep understanding of literature and writing"
 
     sigh:
       neuman_top_four:
@@ -767,6 +822,8 @@ deep:
         - exasperated
         - sad
         - frustrated
+      context: "With a deep sigh, Chris pulled on his backpack and moved
+      to the edge of the loft"
 
     emotion:
       neuman_top_four:
@@ -781,6 +838,8 @@ deep:
         - wholehearted
         - intense
         - strong
+      context: "It seems to me that when you feel deep emotion, you're
+      having a really intense experience of one kind of another"
 
     thought:
       neuman_top_four:
@@ -795,6 +854,9 @@ deep:
         - insightful
         - penetrating
         - recondite
+      context: "There were moments of doubt, moments of hesitation and
+      deep thought, of course, but they never really coordinated their
+      attacks at one time"
     
     happiness:
       neuman_top_four:
@@ -808,6 +870,11 @@ deep:
         - genuine
         - profound
         - extreme
+      context: "This person instead exuded the serenity that one always
+      supposed a true Zen master would possess, smiled with a quality
+      the audience members had never or only rarely seen beforea true
+      and deep happiness so compelling that no one wanted to turn from
+      it"
         
     voice:
       neuman_top_four:
@@ -821,6 +888,8 @@ deep:
        - low-pitched
        - booming
        - baritone
+      context: "And after the interview, he pulled me to the side and in
+      that deep voice, he said, be careful about what you say"
 
     secret:
       neuman_top_four:
@@ -835,6 +904,8 @@ deep:
         - abstruse
         - fundamental
         - concealed
+      context: "In the midst of all the anguish, a dark cloud surfaced,
+      a deep secret pitting one family against another"
 
     theory:
       neuman_top_four:
@@ -850,6 +921,8 @@ deep:
         - fundamental
         - far-reaching
         - underlying
+      context: "one good place to start is to develop a deep theory of
+      strategy creation"
 
     lecture:
       neuman_top_four:
@@ -864,6 +937,8 @@ deep:
         - profound
         - thoughtful
         - comprehensive
+      context: "He doesn't want to go into a deep lecture at 8:30pm, but this
+      crowd obviously gets the basics"
 
 dark:
   literal:
@@ -1010,6 +1085,9 @@ dark:
         - cynical
         - grim
         - gruesome
+      context: "Although United States of Tara's creators emphasize that
+      the story is a dark comedy, not a documentary, they claim to have
+      consulted did patients and experts in developing the series"
 
     humor:
       neuman_top_four:
@@ -1027,6 +1105,8 @@ dark:
         - depraved
         - grim
         - cynical
+      context: "We do a lot of political satire and dark humor and
+      stuff that we probably shouldn't be"
 
     secret:
       neuman_top_four:
@@ -1044,6 +1124,9 @@ dark:
         - dreadful
         - shameful
         - nasty
+      context: "Although I would say, the parents saying, you were asked
+      this like by putting them on TV knowing they had this deep dark
+      secret in the past maybe not so innocent victims"
 
 
     thought:
@@ -1062,6 +1145,9 @@ dark:
         - evil
         - sinister
         - melancholy
+      context: "She shook her head to dismiss the dark thought and
+      stared at the snowglobe on her side table, on which she set her
+      ever-present cup of hot tea"
 
     purpose:
       neuman_top_four:
@@ -1080,6 +1166,7 @@ dark:
         - harmful
         - villainous
         - wicked
+      context: "I have a dark purpose for calling you here"
 
     vision: 
       neuman_top_four:
@@ -1095,7 +1182,9 @@ dark:
         - desolate
         - dismal
         - malicious
-        
+      context: "Ultimately, the only way to defeat the terrorists is to
+      defeat their dark vision of hatred and fear by offering the
+      hopeful alternative of political freedom and peaceful change"
     
     look:
       neuman_top_four:
@@ -1114,8 +1203,11 @@ dark:
         - ominous
         - hateful
         - malevolent
+      context: "and the Academy seems to have a terrific connection with
+      it, even though it is a rather dark look at contemporary Los
+      Angeles and our culture more generally"
 
-    deeds:
+    deed:
       neuman_top_four:
         - good
         - heroic
@@ -1132,6 +1224,9 @@ dark:
         - atrocious
         - terrible
         - abhorrent
+      context: "When we say something, we help to ensure that dark
+      deeds done in secret can no longer wreak havoc in the lives of the
+      innocent"
 
     angel:
       neuman_top_four:
@@ -1151,6 +1246,9 @@ dark:
         - infernal
         - wicked
         - fiendish
+      context: "Anything other than the unwelcome reminder of Cesare,
+      the not quite seventeen- year- old son of Il Cardinale, handsome
+      as a dark angel, dangerous as Satan"
 
     mood:
       neuman_top_four:
@@ -1174,6 +1272,8 @@ dark:
         - suicidal
         - sullen
         - glum
+      context: "Let me put something else on the table, Alex, which is
+      this dark mood in the country, the pessimism in the country"
     
     force:
       neuman_top_four:
@@ -1189,6 +1289,8 @@ dark:
         - sinister
         - pernicious
         - vile
+      context: "I can only describe like, like a really dark force of
+      horrible energy that hit me"
 
     magic:
       neuman_top_four:
@@ -1204,6 +1306,8 @@ dark:
         - sinister
         - pernicious
         - satanic
+      context: "he was born into a world filled with treachery, dark
+      magic, and unresolved war"
 
 hard:
   literal:
@@ -1396,6 +1500,8 @@ hard:
         - toilsome
         - demanding
         - taxing
+      context: "Look, the task is a hard task, and that's what was so
+      disappointing about the president's speech yesterday"
 
     #look:
     #  neuman_top_four:
@@ -1431,6 +1537,8 @@ hard:
         - unwavering
         - unyielding
         - stern
+      context: "He was a hard bargainer who refused to bend under
+      pressure"
 
     wind: 
       neuman_top_four:
@@ -1446,6 +1554,7 @@ hard:
         - violent
         - piercing
         - raging
+      context: "Well, we have had lots of wind, hard wind and rain"
 
     blow:
       neuman_top_four:
@@ -1462,6 +1571,8 @@ hard:
         - forceful
         - damaging
         - harmful
+      context: "So I think essentially this has got to be a hard blow
+      for the Baathist loyalists"
 
     liquor:
       neuman_top_four:
@@ -1477,6 +1588,8 @@ hard:
         - spirituous
         - vinous
         - strong
+      context: "By the way, this isn't just hard liquor, they're
+      against any alcohol"
 
     drinker:
       neuman_top_four:
@@ -1494,6 +1607,9 @@ hard:
         - voluminous
         - insatiable
         - dependent
+      context: "A street officer, for example, may recognize the
+      bloodshot eyes and boozy smell of a hard drinker, but maybe not
+      the slow response of a meth user's eyes to light"
     
     luck:
       neuman_top_four:
@@ -1501,13 +1617,15 @@ hard:
         - pure
         - random
         - tough
-      mode: tough #just as metaphoric + idiomatic
+      mode: bad
       gold:
         - bad
         - unfortunate
         - miserable
         - lousy
         - terrible
+      context: "But if they're just dissatisfied with the result, well,
+      sorry, but that's hard luck"
 
     feeling:
       neuman_top_four:
@@ -1528,6 +1646,11 @@ hard:
         - troubling
         - obnoxious
         - awful
+      context: "Moreover, her presence in Haiti will help to paper over
+      any hard feelings, you know, friction that may have occurred
+      between some people who were in charge of the airport in
+      Port-au-Prince and who now see that this is going into American
+      hands"
     
     evidence:
       neuman_top_four:
@@ -1545,24 +1668,27 @@ hard:
         - indisputable
         - decisive
         - clear-cut
+      context: "Pending forensic evidence, hard evidence from the crash
+      investigation itself"
 
-    time:
-      neuman_top_four:
-        - insufficient
-        - wasted
-        - tough
-        - difficult
-      mode: difficult
-      gold:
-        - difficult
-        - inopportune
-        - adverse
-        - bad
-        - taxing
-        - strenuous
-        - trying
-        - exacting
-
+    #time:
+    #  neuman_top_four:
+    #    - insufficient
+    #    - wasted
+    #    - tough
+    #    - difficult
+    #  mode: difficult
+    #  gold:
+    #    - difficult
+    #    - inopportune
+    #    - adverse
+    #    - bad
+    #    - taxing
+    #    - strenuous
+    #    - trying
+    #    - exacting
+    #  context: ""
+    
     work:
       neuman_top_four:
         - tough
@@ -1581,4 +1707,5 @@ hard:
         - demanding
         - effortful
         - challenging
-
+      context: "Obviously, it's a hard task and job, and the hard work
+      is only just beginning"
