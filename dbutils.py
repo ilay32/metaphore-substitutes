@@ -3,6 +3,7 @@ import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
+from getngrams import *
 conf = yaml.load(open('params.yml'))
 
 def hereiam(fn):
@@ -24,6 +25,14 @@ def dberror(ret=None):
             return ans
         return inside
     return wrap
+
+def checkana(sginst,word):
+    if not hasattr(sginst,'get'):
+        return
+    an = sginst.get("an "+word)
+    a = sginst.get("a "+word)
+    return "an" if an > a else "a"
+
 
 
 class DB:
@@ -92,12 +101,15 @@ class SingleWordData:
     def __init__(self,db):
         self.db = db
         self.table_path = self.get_table_path()
+        self.notfound_path = self.table_path.replace('.pkl','-notfound.pkl')
         if not hasattr(self,'empty_table'):
             self.empty_table = dict()
-        self.table = self.get_table()
+        if not hasattr(self,'notfound'):
+            self.notfound = set()
+        self.load_saved_data()
         self.table_changed = False
-        self.notfound = set()
-    
+        self.notfound_changed = False
+            
     def has(self,word):
         word = word.replace("'","")
         if word not in self.notfound:
@@ -105,6 +117,7 @@ class SingleWordData:
             if word in self.table:
                 return True
             self.notfound.add(word)
+            self.notfound_changed = True
         return False
     
     def empty(obj):
@@ -151,19 +164,24 @@ class SingleWordData:
     
     def get_table_path(self):
         return os.path.join(SingleWordData.dbcache,self.search_table()+'.pkl')
-    def get_table(self):
+    
+    def load_saved_data(self):
         if os.path.isfile(self.table_path):
-            table = pandas.read_pickle(self.table_path)
+            self.table = pandas.read_pickle(self.table_path)
         else:
-            print(self.empty_table)
-            table = self.empty_table
-        return table
+            self.table = self.empty_table
+        if os.path.isfile(self.notfound_path):
+            self.notfound = pandas.read_pickle(self.notfound_path)
     
     def save_table(self):
         if self.table_changed or not os.path.isfile(self.table_path):
             print("saving",self.table_path)
             with open(self.table_path, 'wb') as f:
                 pickle.dump(self.table,f)
+        if self.notfound_changed or not os.path.isfile(self.notfound_path):
+            print("saving",self.notfound_path)
+            with open(self.notfound_path,'wb') as nf:
+                pickle.dump(self.notfound,nf)
     
     def destroy(self):
         self.save_table()
@@ -514,12 +532,14 @@ class RunData:
         self._tofile(self.normalfile,name)
     
     def oot_line(self,r,f):
-        subs = [w[0] for w in r['substitutes']]
+        subs = [w[0] for w in r['substitutes'][:10]]
         f.write("{0}.a {1} ::: {2}\n".format(r['pred'],r['semid'],";".join(subs)))
 
     
-    def toot_file(self):
-        self._tofile(self.oot_line,self.note.replace(' ','_') + "-oot")
+    def toot_file(self,name=None):
+        if name is None:
+            name = self.note.replace(' ','_') + "-oot"
+        self._tofile(self.oot_line,name)
 
     
     def descline(self,r):
@@ -657,6 +677,25 @@ class SPVecs:
         return o[0][0]
 
 class GoogleNgrams(SingleWordData):
+    def __init__(self):
+        self.empty_table = nltk.FreqDist()
+        super(GoogleNgrams,self).__init__(None)
+    
+    def get(self,ngram):
+        if SingleWordData.empty(ngram):
+            return None
+        if ngram in self.notfound:
+            print(ngram,"is not in",self,"table")
+        if ngram in self.table:
+            return self.table[ngram]
+        else:
+            freq = self.query_ngram(ngram)
+            self.table[ngram] = freq
+            self.table_changed = True
+            return freq
+ 
+
+class Erlangen(GoogleNgrams):
     qrl = "http://corpora.linguistik.uni-erlangen.de/demos/cgi-bin/Web1T5/Web1T5_freq.perl"
     crl = pycurl.Curl()
     qparams = {
@@ -669,16 +708,12 @@ class GoogleNgrams(SingleWordData):
         ".cgifields" : "optimize"
     }
     dig = re.compile("<hits>\d+<\/hits>")
-    def __init__(self):
-        self.empty_table = nltk.FreqDist()
-        super(GoogleNgrams,self).__init__(None)
-
     def search_table(self):
         return "1tgngrams"
 
-    def query_ngram(ngram):
+    def query_ngram(self,ngram):
         print("getting ngram count:",ngram)
-        p = copy.copy(GoogleNgrams.qparams)
+        p = copy.deepcopy(GoogleNgrams.qparams)
         q = re.sub("\s+","+",ngram)
         res = io.BytesIO()
         url = GoogleNgrams.qrl + "?query="+ q + "&" + urllib.parse.urlencode(p)
@@ -691,36 +726,44 @@ class GoogleNgrams(SingleWordData):
             ans = int(hits[0].strip("</hits>"))
         else:
             ans = 0
-            if c.getinfo(pycurl.HTTP_CODE) == 200:
-                print("ngram not found:",ngram)
+            code =  c.getinfo(pycurl.HTTP_CODE) 
+            if code == 200:
+                print("ngram not found")
+                self.notfound.add(ngram)
+                self.notfound_changed = True
             else:
-                print("failed query:",c.getinfo(pycurl.HTTP_CODE))
+                print("failed query:",code)
         c.reset()
         return ans
     
     # repeated here only because of the "'"
     # strip in parent *has*
-    def has(self,ngram):
-        if ngram not in self.notfound:
-            self.get(ngram)
-            if ngram in self.table:
-                return True
-            self.notfound.add(ngram)
-        return False
+    #def has(self,ngram):
+    #    if ngram not in self.notfound:
+    #        self.get(ngram)
+    #        if ngram in self.table:
+    #            return True
+    #    return False
 
-    def get(self,ngram):
-        if SingleWordData.empty(ngram):
-            return None
-        if ngram in self.notfound:
-            print(ngram,"is not in",self,"table")
-        if ngram in self.table:
-            return self.table[ngram]
-        else:
-            freq = GoogleNgrams.query_ngram(ngram)
-            self.table[ngram] = freq
-            self.table_changed = True
-            return freq
+   
+class Econpy(GoogleNgrams):
+    def search_table(self):
+        return "pygngrams"
+    
+    def query_ngram(self,ngram):
+        print("getting ngram frequency:",ngram)
+        ans = 0.0
+        try:
+            u,q,d = getNgrams(ngram,'eng_2012',1974,2000,3,False)
+            freq = d[ngram].mean()
+            if isinstance(freq,float):
+                ans = freq
+            else:
+                print(freq)
+        except Exception as e:
+            print(str(e))
+        return ans
 
-
+        
 if __name__ == '__main__':
     print("to explore the cache type data=explore_cache()")

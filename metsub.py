@@ -1,6 +1,6 @@
 #   imports
 #--------------------
-import random,copy,re,nltk
+import random,copy,re,nltk,string
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
@@ -14,7 +14,7 @@ from lxml import etree
 
 #   globals
 #----------------------
-ggrams = GoogleNgrams()
+ggrams = Econpy()
 params = yaml.load(open('params.yml'))
 pairs = yaml.load(open(params['pairs_file']))
 nouncats = pickle.load(open('nclass.pkl','rb'))
@@ -325,7 +325,6 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def coca_abstract(self,num):
         touchstone = sorted(clearvecs(self.coca_syns),key=lambda x: abst.get(x),reverse=True)[:num]
-        printlist(touchstone)
         def rate(cand): 
             if cand not in vecs:
                 return 0
@@ -377,9 +376,31 @@ class AdjSubstitute(MetaphorSubstitute):
             w = set(self.wncands(wnspread)())
             c = set(self.coca_syns)
             r = set(self.roget_syns)
-            return clearvecs(list(w.union(c).union(r)))
+            return list(w.union(c).union(r))
         return genlist
 
+    def all_dictionaries_abst(self,wnspread):
+        def genlist():
+            raw = self.all_dictionaries(wnspread)()
+            return sorted(raw,key=lambda x: abst.get(x),reverse=True)[:15]
+        return genlist
+
+    def all_dicts_and_ngrams_filtered(self,wnspread,ngrams,radius):
+        def genlist():
+            touchstone = clearvecs(self.all_dictionaries_abst(1)())
+            allsyns = self.all_dictionaries(wnspread)()
+            mods = self.ngramcands(ngrams)()
+            al = clearvecs(list(set(mods + allsyns)))
+            #return [adj for adj in al if vecs.n_similarity(touchstone,[adj]) >= radius]
+            return squeeze(al,30)
+        return genlist
+    
+    def all_dictionaries_squeezed(self,wnspread,size):
+        def genlist():
+            al = self.all_dictionaries(wnspread)()
+            return squeeze(al,size)
+        return genlist
+    
     def synsormods(self,w,c,n,r2):
         def genlist():
             wnsyns = self.wncands(w)()
@@ -454,6 +475,14 @@ class AdjSubstitute(MetaphorSubstitute):
             adjs = clearvecs(raw,0)
             random.shuffle(adjs)
             cands =  adjs[:3] + [self.mode]
+            return cands
+        return genlist
+    
+    def rand3_synonyms(self,wnspread):
+        def genlist():
+            syns = clearvecs(self.all_dictionaries(wnspread)())
+            random.shuffle(syns)
+            cands = syns[:3] + [self.mode]
             return cands
         return genlist
 
@@ -618,7 +647,7 @@ class Irst2(AdjSubstitute):
         super(Irst2,self).__init__(options)
         self.cand_scores = list()
         self.target_grams = list()
-        self.context = self.get_semeval_context() 
+        self.context = self.get_context() 
 
     def get_scores(self):
         scores = dict()
@@ -656,6 +685,8 @@ class Irst2(AdjSubstitute):
         for g in grams:
             tind = g.index(self.pred)
             g[tind] = cand
+            if tind > 0 and (g[tind  - 1] == "an" or g[tind - 1] == "a"):
+                g[tind - 1] = checkana(ggrams,cand)
             ans.append(g)
         del grams
         return ans
@@ -667,11 +698,17 @@ class Irst2(AdjSubstitute):
             before,after = cont       
         else:
             c = cont[0]
-            after = c if c.strip().startswith(adj) else ""
+            after = c if c.strip().startswith(self.pred) else ""
             before = c if after == "" else ""
-        return nltk.tokenize.word_tokenize(before+" "+self.pred+" "+after)
+        return before+" "+self.pred+" "+after
 
-
+    def get_context(self):
+        if params['pairs_file'] == 'sempairs.yml':
+            cont = self.get_semeval_context()
+        else:
+            cont = pairs[self.pred]['with'][self.noun]['context']
+        return list(filter(lambda w: w not in string.punctuation,nltk.tokenize.word_tokenize(cont)))
+    
     def find_substitutes(self):
         scores = self.get_scores()
         subs = list()

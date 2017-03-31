@@ -25,7 +25,7 @@ def pairblock(adj,noun,dat,is_dry=False):
         'coca_syns' : pairs[adj]['coca_syns'],
         'roget_syns' : pairs[adj]['roget_syns'],
         'dry_run' : is_dry,
-        'semid' : dat['id'] 
+        'semid' : dat.get('id')
     }
 
 if __name__ == '__main__':

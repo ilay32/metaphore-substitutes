@@ -36,7 +36,6 @@ warm:
     - red-hot
     - thermal
     - vehement
-    - warm
     - warmhearted
   coca_syns:
     - affectionate
@@ -964,7 +963,6 @@ dark:
     - blind
     - close
     - confused
-    - dark
     - dark-colored
     - darkish
     - darksome
