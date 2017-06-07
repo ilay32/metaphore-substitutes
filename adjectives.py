@@ -67,13 +67,14 @@ if __name__ == '__main__':
     note = input("add a note about this run:")
     conf.update({
         'methods' : {
-            'candidates' : 'ngramcands(50)',
-            'rating' : 'by_coca_synonyms_of_pred(15)'
+            'candidates' : 'rand3(30)',
+            'rating' : 'coca_abstract(10)' #irrelevant for Irst2
         }
     })
+    #for i in range(50):
     for p in run:
         conf.update(p)
-        ms = AdjSubstitute(conf)
+        ms = Irst2(conf)
         #cands = ms.get_candidates()
         subs = ms.find_substitutes()
         d = {
