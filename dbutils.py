@@ -1,10 +1,18 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib
+import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,\
+six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib,subprocess \
+, importlib.machinery
+
+
+ROOT = os.path.realpath(os.path.dirname(__file__))
 import numpy as np
 import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
-from getngrams import *
-conf = yaml.load(open('params.yml'))
+#from getngrams import *
+loader = importlib.machinery.SourceFileLoader('getngrams', ROOT+'/google-ngrams/getngrams.py')
+getngrams = loader.load_module('getngrams')
+
+conf = yaml.load(open(ROOT+'/params.yml'))
 
 def hereiam(fn):
     def inside(*args,**kwargs):
@@ -37,7 +45,7 @@ def checkana(sginst,word):
 
 class DB:
     def __init__(self,catalog=None):
-        specs = yaml.load(open('db.yml'))
+        specs = yaml.load(open(ROOT+'/db.yml'))
         self.server_name = specs['server']
         self.user = specs['user']
         self.password = specs['pass']
@@ -163,7 +171,7 @@ class SingleWordData:
     
     
     def get_table_path(self):
-        return os.path.join(SingleWordData.dbcache,self.search_table()+'.pkl')
+        return os.path.join(ROOT,SingleWordData.dbcache,self.search_table()+'.pkl')
     
     def load_saved_data(self):
         if os.path.isfile(self.table_path):
@@ -550,7 +558,7 @@ class RunData:
         return l
 
     def save(self):
-        with open(os.path.join(RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
+        with open(os.path.join(ROOT,RunData.datadir,str(self.timestamp)+".pkl"),"wb") as f:
             pickle.dump(self,f)
 
     def when(self):
@@ -608,7 +616,7 @@ class RunData:
 class SPVecs:
     def __init__(self):
         self.dim = 300
-        with open('nspvecs.pkl','rb') as t:
+        with open(ROOT+'/nspvecs.pkl','rb') as t:
             self.table = pickle.load(t)
         self.size = len(self.table.keys())
         self.matrix = np.zeros((self.size,self.dim))
@@ -696,7 +704,7 @@ class GoogleNgrams(SingleWordData):
  
 
 class Erlangen(GoogleNgrams):
-    qrl = "http://corpora.linguistik.uni-erlangen.de/demos/cgi-bin/Web1T5/Web1T5_freq.perl"
+    qrl = "https://corpora.linguistik.uni-erlangen.de/cgi-bin/demos/Web1T5/Web1T5_freq.perl"
     crl = pycurl.Curl()
     qparams = {
         "mode" : "XML",
@@ -713,15 +721,15 @@ class Erlangen(GoogleNgrams):
 
     def query_ngram(self,ngram):
         print("getting ngram count:",ngram)
-        p = copy.deepcopy(GoogleNgrams.qparams)
+        p = copy.deepcopy(Erlangen.qparams)
         q = re.sub("\s+","+",ngram)
         res = io.BytesIO()
-        url = GoogleNgrams.qrl + "?query="+ q + "&" + urllib.parse.urlencode(p)
-        c = GoogleNgrams.crl
+        url = Erlangen.qrl + "?query="+ q + "&" + urllib.parse.urlencode(p)
+        c = Erlangen.crl
         c.setopt(c.URL,url)
         c.setopt(c.WRITEFUNCTION,res.write)
         c.perform()
-        hits = re.findall(GoogleNgrams.dig,res.getvalue().decode('UTF-8'))
+        hits = re.findall(Erlangen.dig,res.getvalue().decode('UTF-8'))
         if len(hits) == 1:
             ans = int(hits[0].strip("</hits>"))
         else:
@@ -754,7 +762,7 @@ class Econpy(GoogleNgrams):
         print("getting ngram frequency:",ngram)
         ans = 0.0
         try:
-            u,q,d = getNgrams(ngram,'eng_2012',1974,2000,3,False)
+            u,q,d = getngrams.getNgrams(ngram,'eng_2012',1974,2000,3,False)
             freq = d[ngram].mean()
             if isinstance(freq,float):
                 ans = freq
@@ -764,6 +772,36 @@ class Econpy(GoogleNgrams):
             print(str(e))
         return ans
 
+class LocalGgrams(GoogleNgrams):
+    filepref = 'googlebooks-eng-all-5gram-20120701-' 
+    def search_table(self):
+        return "localngrams"
+    
+    def query_ngram(self,ngram):
+        freq = 0
+        firstchar = ngram[0]
+        suff = firstchar
+        if not firstchar.isdigit():
+            suff += ngram[1]
+        elif firstchar in string.punctuation:
+            suff = "punctuation"
+        else:
+            suff =  "other"
+        hits = None
+        try:
+            hits = subprocess.check_output(['zgrep','-a',ngram+" *",LocalGgrams.filepref+suff+'.gz'])
+        except subprocess.CalledProcessError as e:
+            print(str(e))
+        if hits:
+            for line in str(hits).split("\\n"):
+                components = line.split("\\t")
+                if len(components) != 4:
+                    print(line)
+                else:
+                    freq += int(components[-2])
+        return freq
+
+            
         
 if __name__ == '__main__':
     print("to explore the cache type data=explore_cache()")

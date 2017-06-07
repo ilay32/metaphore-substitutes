@@ -1,6 +1,6 @@
 #   imports
 #--------------------
-import random,copy,re,nltk,string
+import random,copy,re,nltk,string,time
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
@@ -14,7 +14,7 @@ from lxml import etree
 
 #   globals
 #----------------------
-ggrams = Econpy()
+ggrams = Erlangen()
 params = yaml.load(open('params.yml'))
 pairs = yaml.load(open(params['pairs_file']))
 nouncats = pickle.load(open('nclass.pkl','rb'))
@@ -221,7 +221,7 @@ class MetaphorSubstitute:
         return {
             'abstract' : clust[:self.noun_cluster_size],
             'concrete' : clust[-1*self.noun_cluster_size:]
-        }  
+        } 
     
             
     
@@ -660,6 +660,7 @@ class Irst2(AdjSubstitute):
                 grams = [g for g in s if len(g) == i]
                 for gram in grams:
                     score += ggrams.get(" ".join(gram))
+                    time.sleep(10)
                 scores[i].append((cand,score,i))
         self.cand_scores = scores
         return scores
