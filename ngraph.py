@@ -6,9 +6,9 @@ ngrams = DB('NgramsCOCAAS')
 abst = Abst(ngrams)
 objects = AdjObjects(ngrams)
 class NeumanGraph:
-    #clust_size = 1000 # Theta_num using params.cluster_maxrows
-    #adj_window = 1 # Theta_c params.search_aobjects_right will be used
-    #mi = 3 # Theta_mi params.noun_min_MI will be used
+    clust_size = 1000 # Theta_num using params.cluster_maxrows
+    adj_window = 1 # Theta_c params.search_aobjects_right will be used
+    mi = 3 # Theta_mi params.noun_min_MI will be used
     top_n =  50 # Kappa
     nn_window = 3 # Theta_c2
     most_connected = 10 # Theta_top
@@ -30,8 +30,9 @@ class NeumanGraph:
     def get_master_list(self):
         adjnouns = objects.get(self.adj)
         if adjnouns:
-            adjnouns.sort(key = self.master_list_criterion())
-            return adjnouns[:min(len(adjnouns),NeumanGraph.top_n)]
+            nouns = [n[0] for n in adjnouns.most_common()]
+            nouns.sort(key = self.master_list_criterion())
+            return nouns[:min(len(nouns),NeumanGraph.top_n)]
         return False
 
     def master_list_criterion(self):
@@ -53,7 +54,7 @@ class NeumanGraph:
         for mn in m:
             print("getting",mn+"'s neighbours")
             try:
-                neighbors = sorted(self.nouns.get(mn),key=self.master_list_criterion())
+                neighbors = sorted([n[0] for n in self.nouns.get(mn).most_common],key=self.master_list_criterion())
                 print("found:",printlist(neighbors,10,True))
                 for n in neighbors[:min(len(neighbors),NeumanGraph.top_n)]:
                     if n in m and n != mn:
@@ -79,12 +80,20 @@ class NeumanGraph:
 
 if __name__ == '__main__':
     pairs = yaml.load(open('adj_pairs.yml'))
-    for d in pairs['dark']['with'].values():
-        for cand in d['neuman_top_four']:
-            g = NeumanGraph(cand,'abstract')
-            if not os.path.isfile(g.savefile):
-                if g.construct_graph() :
-                    g.compile_graph_data()
+    for adj in pairs:
+        print(adj)
+        for cond in ['abstract','concrete']:
+            tg = NeumanGraph(adj,cond)
+            if tg.construct_graph() :
+                tg.compile_graph_data()
+        
+        for d in pairs[adj]['with'].values():
+            for cand in d['neuman_top_four']:
+                print("\t",cand)
+                g = NeumanGraph(cand,'abstract')
+                if not os.path.isfile(g.savefile):
+                    if g.construct_graph() :
+                        g.compile_graph_data()
     abst.destroy()
     objects.destroy()
     print("done")

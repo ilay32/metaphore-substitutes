@@ -198,6 +198,7 @@ class SingleWordData:
 
 
 class Abst(SingleWordData):
+    
     def queryscheme(self,word):
         return "SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE='{0}'".format(word.lower())
     
