@@ -89,6 +89,8 @@ if __name__ == '__main__':
             "overlap" : ms.overlap(),
             "top_in_gold" : ms.lenient_acc(),
             "none_in_gold" : ms.complete_miss(),
+            "oot" : ms.oot(),
+            "best" : ms.best(),
             "cands_size" : len(subs),
             "semid" : ms.semid
         }
