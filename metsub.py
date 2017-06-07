@@ -141,6 +141,17 @@ class MetaphorSubstitute:
     #   evaluation methods           
     #*******************************
     @preeval
+    def oot(self):
+        gld = self.gold
+        return sum([1 for s in self.substitutes[:10] if s in gld])/len(gld)
+
+    @preeval
+    def best(self):
+        gld = self.gold
+        return sum([1 for s in self.substitutes if s in gld])/(len(gld)*len(self.substitutes))
+
+
+    @preeval
     def strictP(self):
         r = 0
         sampsize = min(len(self.gold),len(self.substitutes))
