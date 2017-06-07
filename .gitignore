@@ -68,4 +68,5 @@ graph-data/
 !verb_pairs.yml
 !adj_pairs.yml
 !sempairs.yml
+!nclass.pkl
 *.txt
