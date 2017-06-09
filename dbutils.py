@@ -733,12 +733,12 @@ class Erlangen(GoogleNgrams):
         c = Erlangen.crl
         c.setopt(c.URL,url)
         c.setopt(c.WRITEFUNCTION,res.write)
-        while not performed and limit < 0:
+        while not performed and limit < 5:
             try:
                 c.perform()
                 hits = re.findall(Erlangen.dig,res.getvalue().decode('UTF-8'))
                 if len(hits) == 1:
-                    ans = int(hits[0].strip("</hits>"))
+                    ret = int(hits[0].strip("</hits>"))
                     performed = True
                 else:
                     code =  c.getinfo(pycurl.HTTP_CODE) 
@@ -750,7 +750,6 @@ class Erlangen(GoogleNgrams):
                     else:
                         print("failed query:",code)
                 c.reset()
-                ret = ans
             except Exception as e:
                 print(str(e))
                 print("entering try", limit + 2)
