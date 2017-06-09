@@ -692,9 +692,10 @@ class GoogleNgrams(SingleWordData):
     
     def get(self,ngram):
         if SingleWordData.empty(ngram):
-            return None
+            return 0
         if ngram in self.notfound:
             print(ngram,"is not in",self,"table")
+            return 0
         if ngram in self.table:
             return self.table[ngram]
         else:
@@ -722,6 +723,9 @@ class Erlangen(GoogleNgrams):
 
     def query_ngram(self,ngram):
         print("getting ngram count:",ngram)
+        ret = 0 
+        performed = False
+        limit = 0
         p = copy.deepcopy(Erlangen.qparams)
         q = re.sub("\s+","+",ngram)
         res = io.BytesIO()
@@ -729,21 +733,31 @@ class Erlangen(GoogleNgrams):
         c = Erlangen.crl
         c.setopt(c.URL,url)
         c.setopt(c.WRITEFUNCTION,res.write)
-        c.perform()
-        hits = re.findall(Erlangen.dig,res.getvalue().decode('UTF-8'))
-        if len(hits) == 1:
-            ans = int(hits[0].strip("</hits>"))
-        else:
-            ans = 0
-            code =  c.getinfo(pycurl.HTTP_CODE) 
-            if code == 200:
-                print("ngram not found")
-                self.notfound.add(ngram)
-                self.notfound_changed = True
-            else:
-                print("failed query:",code)
-        c.reset()
-        return ans
+        while not performed and limit < 0:
+            try:
+                c.perform()
+                hits = re.findall(Erlangen.dig,res.getvalue().decode('UTF-8'))
+                if len(hits) == 1:
+                    ans = int(hits[0].strip("</hits>"))
+                    performed = True
+                else:
+                    code =  c.getinfo(pycurl.HTTP_CODE) 
+                    if code == 200:
+                        print("ngram not found")
+                        self.notfound.add(ngram)
+                        self.notfound_changed = True
+                        performed = True
+                    else:
+                        print("failed query:",code)
+                c.reset()
+                ret = ans
+            except Exception as e:
+                print(str(e))
+                print("entering try", limit + 2)
+            limit += 1
+        if limit == 5:
+            erlangenfailed.append(ngram)
+        return ret
     
     # repeated here only because of the "'"
     # strip in parent *has*
