@@ -151,10 +151,13 @@ class SingleWordData:
             return False
         return len(obj) ==  0 or not notempty
     
+    def preprocess(self,word):
+        return word.replace("'","")
+    
     def get(self,word):
         if SingleWordData.empty(word):
             return None
-        word = word.replace("'","")
+        word = self.preprocess(word)
         if word in self.notfound:
             print(word,"is not in",self,"table")
         if word in self.table:
@@ -718,6 +721,10 @@ class Erlangen(GoogleNgrams):
         ".cgifields" : "optimize"
     }
     dig = re.compile("<hits>\d+<\/hits>")
+    
+    def preprocess(self,ngram):
+        pass;
+
     def search_table(self):
         return "1tgngrams"
 
