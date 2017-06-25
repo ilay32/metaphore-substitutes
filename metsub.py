@@ -396,11 +396,11 @@ class AdjSubstitute(MetaphorSubstitute):
             return sorted(raw,key=lambda x: abst.get(x),reverse=True)[:15]
         return genlist
 
-    def all_dicts_and_ngrams_filtered(self,wnspread,ngrams,radius):
+    def all_dicts_and_ngrams_filtered(self,wnspread,numgrams,radius):
         def genlist():
             touchstone = clearvecs(self.all_dictionaries_abst(1)())
             allsyns = self.all_dictionaries(wnspread)()
-            mods = self.ngramcands(ngrams)()
+            mods = self.ngramcands(numgrams)()
             al = clearvecs(list(set(mods + allsyns)))
             #return [adj for adj in al if vecs.n_similarity(touchstone,[adj]) >= radius]
             return squeeze(al,30)
@@ -653,13 +653,15 @@ class AdjSubstitute(MetaphorSubstitute):
         return concrete_cats
 
 class Irst2(AdjSubstitute):
-
     def __init__(self,options):
         super(Irst2,self).__init__(options)
         self.cand_scores = list()
         self.target_grams = list()
         self.context = self.get_context() 
-
+    
+    def resolve_methods(self):
+        self.get_candidates = eval('self.'+self.methods['candidates'])
+    
     def get_scores(self):
         scores = dict()
         for place,cand in enumerate(self.get_candidates()):
