@@ -674,7 +674,9 @@ class Irst2(AdjSubstitute):
                 for gram in grams:
                     score += ggrams.get(" ".join(gram))
                     time.sleep(10)
+
                 scores[i].append((cand,score,i))
+        ggrams.save_table()
         self.cand_scores = scores
         return scores
 
