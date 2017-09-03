@@ -143,12 +143,12 @@ class MetaphorSubstitute:
     @preeval
     def oot(self):
         gld = self.gold
-        return sum([1 for s in self.substitutes[:10] if s in gld])/len(gld)
+        return sum([1 for s in self.substitutes[:10] if s[0] in gld])/len(gld)
 
     @preeval
     def best(self):
         gld = self.gold
-        return sum([1 for s in self.substitutes if s in gld])/(len(gld)*len(self.substitutes))
+        return sum([1 for s in self.substitutes if s[0] in gld])/(len(gld)*len(self.substitutes))
 
 
     @preeval
@@ -343,7 +343,7 @@ class AdjSubstitute(MetaphorSubstitute):
         return rate
     
     def neuman_orig(self,num):
-        touchstone = neuman_filtered_synoyms(self.pred)[:num] + [self.noun]
+        touchstone = self.neuman_filtered_synoyms()[:num] + [self.noun]
         def rate(cand):
             return vecs.n_similarity([cand],touchstone)
         return rate
@@ -563,7 +563,8 @@ class AdjSubstitute(MetaphorSubstitute):
         :param kind: concrete/abstract 
         :return: list of prototypical abstract/concrete nouns modified by adj
         """
-        crit = NeumanAsIs.ccriterion
+        #crit = NeumanAsIs.ccriterion
+        crit = 'all'
         data = pickle.load(open(os.path.join(NeumanGraph.datadir,self.pred+"-"+kind+".pkl"),'rb'))
         proto_nouns = [n[0] for n in data[crit].most_common() if n[0] in vecs][:NeumanGraph.most_connected]
         return proto_nouns
@@ -603,19 +604,19 @@ class AdjSubstitute(MetaphorSubstitute):
     def neuman_filtered_synoyms(self):
         if self.pred not in AdjSubstitute.adjdata:
             AdjSubstitute.adjdata[self.pred] = {
-                'concrete_nouns' : NeumanAsIs.get_graph_data(self.pred,'concrete'),
-                'abstract_nouns' : NeumanAsIs.get_graph_data(self.pred,'abstract'),
+                'concrete_nouns' : self.get_graph_data('concrete'),
+                'abstract_nouns' : self.get_graph_data('abstract'),
             }
 
-        if 'filtered_syns' in NeumanAsIs.adjdata[self.pred]:
-            return copy.copy(NeumanAsIs.adjdata[self.pred]['filtered_syns'])
+        if 'filtered_syns' in AdjSubstitute.adjdata[self.pred]:
+            return copy.copy(AdjSubstitute.adjdata[self.pred]['filtered_syns'])
         ret = list()
-        simcut =  self.params['thetacut']
-        n = self.params['thetanum']
+        simcut =  params['neuman_exp2']['thetacut']
+        n = params['neuman_exp2']['thetanum']
         syns = [a for a in pairs[self.pred]['coca_syns'] if a in vecs][:n]
         for s in syns:
-            sim_abst = vecs.n_similarity(NeumanAsIs.adjdata[self.pred]['abstract_nouns'], [s])
-            sim_conc = vecs.n_similarity(NeumanAsIs.adjdata[self.pred]['concrete_nouns'],[s])
+            sim_abst = vecs.n_similarity(AdjSubstitute.adjdata[self.pred]['abstract_nouns'], [s])
+            sim_conc = vecs.n_similarity(AdjSubstitute.adjdata[self.pred]['concrete_nouns'],[s])
             if sim_abst > simcut and sim_conc < simcut:
                 ret.append(s)
             else:
@@ -623,7 +624,7 @@ class AdjSubstitute(MetaphorSubstitute):
         print("in total ruled out for", self.pred+":",len(syns) - len(ret))
         # this was not clear in the paper, I'm assuming it makes sense
         ret.append(self.pred)
-        NeumanAsIs.adjdata[self.pred]['syns'] = ret
+        AdjSubstitute.adjdata[self.pred]['syns'] = ret
         return ret
 
     def detect(self,adj):
@@ -673,7 +674,7 @@ class Irst2(AdjSubstitute):
                 grams = [g for g in s if len(g) == i]
                 for gram in grams:
                     score += ggrams.get(" ".join(gram))
-                    time.sleep(10)
+                    #time.sleep(10)
 
                 scores[i].append((cand,score,i))
         ggrams.save_table()
