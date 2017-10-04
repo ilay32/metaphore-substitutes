@@ -755,3 +755,49 @@ class Irst2(AdjSubstitute):
             subs +=  sorted([trip for trip in scores[k] if trip[1] > 0],key=lambda x: x[1],reverse=True)
         self.substitutes = subs
         return subs
+
+class SemEvalSystem(AdjSubstitute):
+    datadir = "../semeval/systems"
+    def __init__(self,options):
+        if 'dry_run' not in options:
+            options['dry_run'] = True
+        super(AdjSubstitute,self).__init__(options)
+        self.oot_file = self.filepath('oot')
+        self.best_file = self.filepath('best')
+        self._mode = 'oot'
+        self.resultsfile = self.oot_file
+    
+    @property
+    def mode(self):
+        return self._mode
+        
+    @mode.setter
+    def mode(self,mode):
+        self._mode = mode
+        self.resultsfile = eval('self.'+mode+'_file')
+
+    def filepath(self,kind):
+        return os.path.join(SemEvalSystem.datadir,"{}.{}".format(self.system_name,kind))
+    
+    def hasresults(self):
+        return os.path.isfile(eval('self.'+self._mode+'_file'))
+
+    def find_substitutes(self):
+        subs = list()
+        results = self.parse_results_line() 
+        if results is not None:
+            for i,r in enumerate(results,1):
+                subs.append((r.strip("\n"),1/i))
+            self.substitutes = subs
+        return subs
+
+    def parse_results_line(self):
+        if not self.hasresults():
+            return None
+        # find the line by pred and noun
+        for l in open(self.resultsfile).readlines():
+            components = l.split(" ")
+            if components[0] == self.pred+".a" and int(components[1]) == int(self.semid):
+                return components[3].split(";")
+            
+        
