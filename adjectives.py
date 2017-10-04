@@ -16,22 +16,30 @@ def cleanup():
             None
 
 def pairblock(adj,noun,dat,is_dry=False):
+    print(noun)
+    if 'gold_freqs' in dat:
+        gldfrqs = dat['gold_freqs']
+    else:
+        gldfrqs = list(range(1,len(dat['gold'])+1))
+        gldfrqs.reverse()
     return  {
         'pred' : adj,
         'noun' : noun,
         'topfour' : dat.get('neuman_top_four'),
-        'mode' : dat.get('mode'),
+        'neuman_correct' : dat.get('neuman_correct'),
         'gold' : dat['gold'],
+        'gold_rates' : gldfrqs,    
         'coca_syns' : pairs[adj]['coca_syns'],
         'roget_syns' : pairs[adj]['roget_syns'],
         'dry_run' : is_dry,
         'semid' : dat.get('id')
     }
 
-if __name__ == '__main__':
-    processed_pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairs[adj]['with'].items()] for adj in pairs.keys()],[])
-    processed_pairs.sort(key=lambda x: x['noun'])
-    processed_pairs.sort(key=lambda x: x['pred'])
+processed_pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairs[adj]['with'].items()] for adj in pairs.keys()],[])
+processed_pairs.sort(key=lambda x: x['noun'])
+processed_pairs.sort(key=lambda x: x['pred'])
+
+def main(fetcher,rater,classname='AdjSubstitute'):
     print("adjective - object pairs:")
     for i,p in enumerate(processed_pairs,1):
         print(str(i)+".",p['pred'],p['noun'])
@@ -65,47 +73,25 @@ if __name__ == '__main__':
     
     rundata = list()
     note = input("add a note about this run:")
-    conf.update({
+    conf = {
         'methods' : {
-            'candidates' : 'rand3(30)',
-            'rating' : 'coca_abstract(10)' #irrelevant for Irst2
+            'candidates' : fetcher,
+            'rating' : rater #irrelevant for Irst2
         }
-    })
-    #for i in range(50):
+    }
     for p in run:
         conf.update(p)
-        ms = Irst2(conf)
-        #cands = ms.get_candidates()
-        subs = ms.find_substitutes()
-        d = {
-            "pred": p['pred'],
-            "noun" : p['noun'],
-            "substitutes" : subs,
-            "neuman_score" : ms.neuman_eval(),
-            "avprec" : ms.AP(),
-            "mode" : ms.mode,
-            "strictprec" : ms.strictP(),
-            "spearmanr" : ms.spear(),
-            "overlap" : ms.overlap(),
-            "top_in_gold" : ms.lenient_acc(),
-            "none_in_gold" : ms.complete_miss(),
-            "oot" : ms.oot(),
-            "best" : ms.best(),
-            "cands_size" : len(subs),
-            "semid" : ms.semid
-        }
-        rundata.append(d)
-        print(ms,"\n====================\n")
-        #ovl = overlap(cands,set(p['gold']))
-        #if ovl == 0:
-        #    print(p['pred'],p['noun'],printlist(cands,20),printlist(p['gold']))
-        #rundata.append({'oc': ovl ,'size' : len(cands)})
-    #data = pandas.DataFrame(rundata)
+        ms = eval(classname)(conf)
+        rundata.append(ms.export_data())
+        print("\n====================\n")
     rundata = RunData(pandas.DataFrame(rundata),note,ms.classname)
     print("wrapping up and saving stuff")
     if note != "discard":
         rundata.save()
     cleanup()
     print("\n\t\tHura!\n")
+    return rundata
 
 
+if __name__ == '__main__':
+    rundata = main('neumans_four()','neuman_orig()')

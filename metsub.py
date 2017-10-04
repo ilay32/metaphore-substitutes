@@ -137,6 +137,26 @@ class MetaphorSubstitute:
         else:
             return 'none'
     
+    def export_data(self):
+        subs = self.find_substitutes()
+        return {
+            "pred": self.pred,
+            "noun" : self.noun,
+            "substitutes" : subs,
+            "neuman_score" : self.neuman_eval(),
+            "neuman_correct" : pairs[self.pred]['with'][self.noun].get('neuman_correct'),
+            "avprec" : self.AP(),
+            "strictprec" : self.strictP(),
+            "gap" : self.GAP(),
+            "spearmanr" : self.spear(),
+            "overlap" : self.overlap(),
+            "top_in_gold" : self.lenient_acc(),
+            "none_in_gold" : self.complete_miss(),
+            "oot" : self.oot(),
+            "best" : self.best(),
+            "cands_size" : len(subs),
+            "semid" : self.semid
+        }
     #******************************* 
     #   evaluation methods           
     #*******************************
