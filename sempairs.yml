@@ -71,6 +71,8 @@ dry:
         - out
         - become-empty
         - empty
+      gold_freqs: [2,1,1,1,1]
+      gold_met: [0,1,0,1,1]
     humor:
       id: 404
       gold:
@@ -80,6 +82,8 @@ dry:
         - impassive
         - understated
         - droll
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [1,0,0,0,0,0]
     wit:
       id: 407
       gold:
@@ -89,6 +93,8 @@ dry:
         - understated
         - tongue-in-cheek
         - droll
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [1,0,0,0,1,0]
 heavy:
   roget_syns:
     - accented
@@ -235,6 +241,8 @@ heavy:
         - extensive
         - abundant
         - frequent
+      gold_freqs: [2,1,1,1]
+      gold_met: [0,0,0,0]
     addict:
       id: 640
       gold:
@@ -242,6 +250,8 @@ heavy:
         - serious
         - excessive
         - hard
+      gold_freqs: [2,2,1,1]
+      gold_met: [0,0,0,1]
 raw:
   roget_syns:
     - bald
@@ -374,6 +384,8 @@ raw:
         - immature
         - untaught
         - inexperienced
+      gold_freqs: [3,1,1,1,1]
+      gold_met: [0,0,0,0,0]
 straight:
   roget_syns:
     - absolute
@@ -500,6 +512,8 @@ straight:
         - direct
         - candid
         - accurate
+      gold_freqs: [4,1,1,1,1]
+      gold_met: [0,0,0,0,0]
     rap:
       id: 772
       gold:
@@ -510,6 +524,9 @@ straight:
         - genuine
         - 'true'
         - unadulterated
+      gold_freqs: [1,1,1,1,1,1,1]
+      gold_met: [1,0,0,1,0,0,0]
+
 fresh:
   roget_syns:
     - activestar
@@ -679,6 +696,8 @@ fresh:
         - original
         - relevant
         - modern
+      gold_freqs: [2,2,1,1,1]
+      gold_met: [0,0,0,0,0]
     vision:
       id: 957
       gold:
@@ -688,6 +707,16 @@ fresh:
         - different
         - refreshing
         - novel
+      gold_freqs: [2,2,1,1,1,1]
+      gold_met: [0,0,1,0,1,0]
+    uniform:
+      id: 958
+      gold:
+        - new
+        - clean
+        - another
+      gold_freqs: [3,2,1]
+      gold_met: [0,0,0]
 light:
   roget_syns:
     - barmy
@@ -776,6 +805,8 @@ light:
         - soft
         - slight
         - faint
+      gold_freqs: [3,3,1,1]
+      gold_met: [0,1,0,0]
     drinking:
       id: 995
       gold:
@@ -787,6 +818,8 @@ light:
         - mild
         - casual
         - restricted
+      gold_freqs: [1,1,1,1,1,1,1,1]
+      gold_met: [0,0,0,0,0,0,0,0]
     snort:
       id: 999
       gold:
@@ -795,6 +828,8 @@ light:
         - small
         - slight
         - faint
+      gold_freqs: [2,2,1,1,1]
+      gold_met: [0,1,1,0,0]
 solid:
   roget_syns:
     - A-Okay
@@ -923,6 +958,8 @@ solid:
         - strong
         - stable
         - reliable
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [1,0,1,0,1,0]
     news-item:
       id: 1088
       gold:
@@ -933,6 +970,8 @@ solid:
         - accurate
         - sound
         - reliable
+      gold_freqs: [1,1,1,1,1,1,1]
+      gold_met: [0,0,1,0,0,0,0]
     test-suite:
       id: 1089
       gold:
@@ -944,6 +983,8 @@ solid:
         - reliable
         - good
         - sound
+      gold_freqs: [1,1,1,1,1,1,1,1]
+      gold_met: [0,0,0,1,0,0,0,0]
     evidence:
       id: 1090
       gold:
@@ -953,6 +994,8 @@ solid:
         - convincing
         - accurate
         - reliable
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [1,0,0,0,0,0]
 clear:
   roget_syns:
     - apparent
@@ -1068,6 +1111,8 @@ clear:
         - obvious
         - unambiguous
         - definite
+      gold_freqs: [3,2,1,1]
+      gold_met: [0,1,0,0]
     concept:
       id: 1245
       gold:
@@ -1076,6 +1121,8 @@ clear:
         - unmistakable
         - evident
         - apparent
+      gold_freqs: [3,1,1,1,1]
+      gold_met: [1,0,0,0,0]
 flat:
   roget_syns:
     - beanless
@@ -1165,6 +1212,8 @@ flat:
         - invariable
         - fixed
         - fixed-rate
+      gold_freqs: [1,1,1,1,1]
+      gold_met: [0,1,0,0,0]
 inner:
   roget_syns:
     - inmost
@@ -1197,6 +1246,8 @@ inner:
         - mental
         - inward
         - spiritual
+      gold_freqs: [3,1,1,1,1]
+      gold_met: [1,0,0,1,0]
 open:
   roget_syns:
     - aboveboard
@@ -1292,11 +1343,15 @@ open:
         - unpoliced
         - free
         - unclosed
+      gold_freqs: [2,1,1,1]
+      gold_met: [0,0,0,1]
     access:
       id: 1487
       gold:
         - unrestricted
         - free
+      gold_freqs: [3,2]
+      gold_met: [0,0]
 soft:
   roget_syns:
     - adoring
@@ -1452,34 +1507,46 @@ soft:
         - weak
         - gentle
         - imprecise
+      gold_freqs: [2,1,1,1]
+      gold_met: [0,0,0,0]
     tone:
       id: 1612
       gold:
         - quiet
         - feeble
         - faint
+      gold_freqs: [4,1,1]
+      gold_met: [0,0,0]
     music:
       id: 1616
       gold:
         - gentle
         - quiet
         - restful
+      gold_freqs: [5,2,1]
+      gold_met: [0,0,0]
     drink:
       id: 1617
       gold:
         - nonalcoholic
+      gold_freqs: [2]
+      gold_met: [0]
     accent:
       id: 1618
       gold:
         - gentle
         - quiet
         - faint
+      gold_freqs: [4,2,1]
+      gold_met: [0,0,0]
     terms:
       id: 1619
       gold:
         - easy
         - undemanding
         - lenient
+      gold_freqs: [4,1,1]
+      gold_met: [0,0,0]
 stiff:
   roget_syns:
     - arduous
@@ -1583,6 +1650,8 @@ stiff:
         - severe
         - strong
         - rigid
+      gold_freqs: [2,2,1,1,1]
+      gold_met: [0,1,0,0,1]
 tender:
   roget_syns:
     - adoring
@@ -1665,6 +1734,8 @@ tender:
         - great
         - affectionate
         - soft
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [0,0,0,0,0,1]
     age:
       id: 1690
       gold:
@@ -1673,6 +1744,8 @@ tender:
         - immature
         - soft
         - inexperienced
+      gold_freqs: [3,1,1,1,1]
+      gold_met: [0,0,0,1,0]
 poor:
   roget_syns:
     - abject
@@ -1804,6 +1877,8 @@ poor:
         - incompetent
         - mediocre
         - inferior
+      gold_freqs: [2,2,1,1,1]
+      gold_met: [0,0,0,0,0]
     soil:
       id: 1917
       gold:
@@ -1813,3 +1888,65 @@ poor:
         - infertile
         - deficient
         - substandard
+      gold_freqs: [2,1,1,1,1,1]
+      gold_met: [0,0,0,0,0,0]
+tremendous:
+  roget_syns:
+    - awful
+    - colossal
+    - deadly
+    - divine
+    - dreadful
+    - enormous
+    - fearful
+    - frightful
+    - glorious
+    - horrible
+    - huge
+    - hugeous
+    - immense
+    - magnificent
+    - marvelous
+    - prodigious
+    - sensational
+    - stupendous
+    - terrible
+    - terrific
+    - vast
+    - wonderful
+  coca_syns:
+   - great
+   - huge
+   - wonderful
+   - massive
+   - vast
+   - enormous
+   - super
+   - remarkable
+   - incredible
+   - impressive
+   - terrific
+   - fantastic
+   - awesome
+   - fabulous
+   - magnificent
+   - immense
+   - superb
+   - marvelous
+   - sensational
+   - monstrous
+   - colossal
+   - humongous
+   - awe-inspiring
+  with:
+    promise:
+      id: 1714
+      gold: 
+        - great
+        - wonderful
+        - enormous
+        - terrific
+        - huge
+        - vast
+      gold_freqs: [3,1,1,1,1,1]
+      gold_met: [0,0,1,1,0,1]

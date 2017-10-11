@@ -113,25 +113,26 @@ warm:
         - hot
         - wet
         - affectionate
-        - quick
-      mode: affectionate
+        - brief
+      neuman_correct: affectionate
+      neuman_rates: [0.1,0.11,0.32,0]
       gold:
         - affectionate
         - loving
-        - heart-felt
         - heartfelt
         - friendly
       context: "People greater than me have already eulogized you,
       but no one knows the caress that you placed on my shoulder and the
       warm hug that you saved only for us, and your smile, that always
       told me so much, the same smile that is no longer there"
-    relation:
+    relations:
       neuman_top_four:
         - tense
         - public
         - amicable
         - loving
-      mode: loving
+      neuman_correct: loving
+      neuman_rates: [0.15,0.14,0.2,0.47]
       gold:
         - loving
         - affectionate
@@ -148,7 +149,8 @@ warm:
         - royal
         - tense
         - affectionate
-      mode: affectionate
+      neuman_correct: affectionate
+      neuman_rates: [0.2,0.09,0.15,0.31]
       gold:
         - affectionate
         - friendly
@@ -161,13 +163,14 @@ warm:
       living but instead of a warm welcome he had a run-in with her new
       husband"
     
-    feeling:
+    feelings:
       neuman_top_four:
         - comforting
         - funny
         - pleasant
         - mixed
-      mode: pleasant
+      neuman_correct: pleasant
+      neuman_rates: [0.25,0.2,0.21,0.12]
       gold:
         - nice
         - pleasant
@@ -182,7 +185,8 @@ warm:
         - strong
         - antisocial
         - friendly
-      mode: friendly
+      neuman_correct: friendly
+      neuman_rates: [0.09,0.22,0.13,0.41]
       gold:
         - friendly
         - amiable
@@ -200,7 +204,8 @@ warm:
         - traditional
         - usual
         - friendly
-       mode: friendly
+       neuman_correct: friendly
+       neuman_rates: [0.14,0.16,0.17,0.43]
        gold:
         - friendly
         - cheerful
@@ -216,7 +221,8 @@ warm:
         - social
         - financial
         - ardent
-       mode: ardent
+       neuman_correct: ardent
+       neuman_rates: [0.15,0.14,0.13,0.23]
        gold:
         - ardent
         - enthusiastic
@@ -232,7 +238,8 @@ warm:
         - current
         - big
         - lively
-       mode: lively
+       neuman_correct: lively
+       neuman_rates: [0.14,0.13,0.13,0.5]
        gold:
         - lively
         - passionate
@@ -249,7 +256,8 @@ warm:
         - sly
         - quick
         - friendly
-      mode: friendly
+      neuman_correct: friendly
+      neuman_rates: [0.14,0.17,0.13,0.42]
       gold:
         - friendly
         - loving
@@ -259,13 +267,14 @@ warm:
       context: "Then Manti Te'o extended his hand to the stranger with a
       warm smile and soulful eyes"
     
-    memory:
+    memories:
       neuman_top_four:
         - vivid
         - old
         - long
         - lovable
-      mode: lovable
+      neuman_correct: lovable
+      neuman_rates: [0.21,0.12,0.13,0.22]
       gold:
         - fond
         - good
@@ -279,7 +288,8 @@ warm:
         - quiet
         - mild
         - affectionate
-      mode: affectionate
+      neuman_correct: affectionate
+      neuman_rates: [0.26,0.21,0.13,0.32]
       gold:
         - enthusiastic
         - affectionate
@@ -425,7 +435,8 @@ sweet:
         - wonderful
         - vivid
         - good
-      mode: good
+      neuman_correct: good
+      neuman_rates: [0.12,0.25,0.2,0.2]
       gold:
        - delightful
        - enjoyable
@@ -444,7 +455,8 @@ sweet:
         - passionate
         - ultimate
         - gratifying
-      mode: gratifying
+      neuman_correct: gratifying
+      neuman_rates: [0.14,0.24,0.16,0.21]
       gold:
        - gratifying
        - satisfying
@@ -462,7 +474,8 @@ sweet:
         - sugary
         - strange
         - gentle
-      mode: gentle
+      neuman_correct: gentle
+      neuman_rates: [0.15,0.15,0.19,0.49]
       gold:
         - kind
         - nice
@@ -478,11 +491,12 @@ sweet:
     
     baby:
       neuman_top_four:
-        - small
+        - little
         - beautiful
         - honeyed
         - cute
-      mode: cute
+      neuman_correct: cute
+      neuman_rates: [0,0.24,0.14,0.44]
       gold:
         - cute
         - adorable
@@ -498,7 +512,8 @@ sweet:
         - loud
         - choral
         - pleasing
-      mode: pleasing
+      neuman_correct: pleasing
+      neuman_rates: [0.14,0.16,0.13,0.24]
       gold:
         - nice
         - pleasant
@@ -516,7 +531,8 @@ sweet:
         - popular
         - sad
         - pleasing
-      mode: pleasing
+      neuman_correct: pleasing
+      neuman_rates: [0.14,0.15,0.19,0.24]
       gold:
         - pleasant
         - nice
@@ -536,7 +552,8 @@ sweet:
         - sick
         - small
         - lovable
-      mode: lovable
+      neuman_correct: lovable
+      neuman_rates: [0.17,0.16,0.15,0.23]
       gold:
         - cute
         - nice
@@ -553,7 +570,8 @@ sweet:
         - bigger
         - new
         - satisfying
-      mode: satisfying
+      neuman_correct: satisfying
+      neuman_rates: [0.17,0.16,0.12,0.21]
       gold:
         - lucrative
         - good
@@ -572,9 +590,10 @@ sweet:
       neuman_top_four:
         - male
         - deep
-        - internal
+        - inner
         - melodic
-      mode: melodic
+      neuman_correct: melodic
+      neuman_rates: [0.12,0.17,0,0.2]
       gold:
         - pleasant
         - soothing
@@ -586,40 +605,42 @@ sweet:
       context: "And he had a very gentle, sweet voice when talking about
       his family and children and so on"
     
-    memory:
+    memories:
       neuman_top_four:
         - vivid
         - old
         - long
         - pleasant
-      mode: pleasant
+      neuman_correct: pleasant
+      neuman_rates: [0.2,0.13,0.14,0.44]
       gold:
         - fond
         - pleasant
         - nice
         - good
-      context: "achel's friends and family, whose sweet memories of her
+      context: "Rachel's friends and family, whose sweet memories of her
       compete with searing pain"
 
-    #charity:
-    #  neuman_top_four:
-    #    - christian
-    #    - local
-    #    - muslim
-    #    - gratifying
-    #  mode: gratifying
-    #  gold:
-    #    - kind
-    #    - gratifying
-    #    - loving
-    #    - caring
-    #    - divine
-    #    - compassionate
-    #    - fortuitous
-    #    - satisfying
-    #    - good
-    #    - nice
-    #    - generous
+    charity:
+      neuman_top_four:
+        - christian
+        - local
+        - muslim
+        - gratifying
+      neuman_correct: gratifying
+      neuman_rates: [0.13,0.12,0.13,0.21]
+      gold:
+        - kind
+        - gratifying
+        - loving
+        - caring
+        - divine
+        - compassionate
+        - fortuitous
+        - satisfying
+        - good
+        - nice
+        - generous
     
     victory:
       neuman_top_four:
@@ -627,7 +648,8 @@ sweet:
         - great
         - electoral
         - pleasant
-      mode: pleasant
+      neuman_correct: pleasant
+      neuman_rates: [0.17,0.19,0.08,0.4]
       gold:
         - satisfying
         - gratifying
@@ -747,7 +769,8 @@ deep:
         - recurrent
         - great
         - intense
-      mode: intense
+      neuman_correct: intense
+      neuman_rates: [0.21,0.13,0.18,0.5]
       gold:
         - severe
         - intense
@@ -764,7 +787,8 @@ deep:
         - archetypal
         - cold
         - profound
-      mode: profound
+      neuman_correct: profound
+      neuman_rates: [0.19,0.18,0.14,0.5]
       gold:
         - profound
         - strong
@@ -780,7 +804,8 @@ deep:
         - powerful
         - financial
         - serious
-      mode: serious
+      neuman_correct: serious
+      neuman_rates: [0.2,0.21,0.13,0.21]
       gold:
         - serious
         - severe
@@ -797,7 +822,8 @@ deep:
         - broad
         - collective
         - profound
-      mode: profound
+      neuman_correct: profound
+      neuman_rates: [0.19,0.18,0.18,0.51]
       gold:
         - profound
         - abstruse
@@ -812,7 +838,8 @@ deep:
         - small
         - audible
         - profound
-      mode: profound
+      neuman_correct: profound
+      neuman_rates: [0.17,0.13,0.16,0.49]
       gold:
         - exhaustive
         - heartfelt
@@ -830,7 +857,8 @@ deep:
         - human
         - real
         - strong
-      mode: strong
+      neuman_correct: strong
+      neuman_rates: [0.14,0.15,0.16,0.21]
       gold:
         - profound
         - heartfelt
@@ -840,13 +868,14 @@ deep:
       context: "It seems to me that when you feel deep emotion, you're
       having a really intense experience of one kind of another"
 
-    thought:
+    thoughts:
       neuman_top_four:
         - private
         - random
         - happy
         - profound
-      mode: profound
+      neuman_correct: profound
+      neuman_rates: [0.13,0.08,0.14,0.52]
       gold:
         - abstruse
         - profound
@@ -863,7 +892,8 @@ deep:
         - human
         - martial
         - intense
-      mode: intense
+      neuman_correct: intense
+      neuman_rates: [0.16,0.16,0.09,0.49]
       gold:
         - 'true'
         - genuine
@@ -881,7 +911,8 @@ deep:
         - human
         - male
         - low
-      mode: low
+      neuman_correct: low
+      neuman_rates: [0.11,0.14,0.1,0.1]
       gold:
        - bass
        - low-pitched
@@ -896,7 +927,8 @@ deep:
         - soviet
         - open
         - mysterious
-      mode: mysterious
+      neuman_correct: mysterious
+      neuman_rates: [0.15,0.13,0.11,0.49]
       gold:
         - arcane
         - profound
@@ -912,7 +944,8 @@ deep:
         - economic
         - cognitive
         - abstruse
-      mode: abstruse
+      neuman_correct: abstruse
+      neuman_rates: [0.1,0.15,0.16,0.19]
       gold:
         - abstruse
         - recondite
@@ -929,7 +962,8 @@ deep:
         - large
         - free
         - recondite
-      mode: recondite
+      neuman_correct: recondite
+      neuman_rates: [0.13,0.14,0.1,0.18]
       gold:
         - recondite
         - abstruse
@@ -1075,8 +1109,9 @@ dark:
         - broad
         - classic
         - black
-        - macabre
-      mode: macabre
+        - gallous
+      neuman_correct: gallous
+      neuman_rates: [0.1,0.1,0.13,0.12]
       gold:
         - macabre
         - morbid
@@ -1093,7 +1128,8 @@ dark:
         - jewish
         - ethnic
         - wicked
-      mode: wicked
+      neuman_correct: wicked
+      neuman_rates: [0.13,0.13,0.1,0.2]
       gold:
         - morbid
         - macabre
@@ -1108,11 +1144,12 @@ dark:
 
     secret:
       neuman_top_four:
-        - small
+        - little
         - soviet
         - open
         - concealed
-      mode: concealed
+      neuman_correct: concealed
+      neuman_rates: [0,0.12,0.09,0.17]
       gold:
         - horrid
         - hideous
@@ -1127,13 +1164,14 @@ dark:
       secret in the past maybe not so innocent victims"
 
 
-    thought:
+    thoughts:
       neuman_top_four:
         - intimate
         - romantic
         - intrusive
         - evil
-      mode: evil
+      neuman_correct: evil
+      neuman_rates: [0.15,0.12,0.14,0.57]
       gold:
         - despondent
         - bad
@@ -1153,7 +1191,8 @@ dark:
         - general
         - main
         - evil
-      mode: evil
+      neuman_correct: evil
+      neuman_rates: [0.09,0.11,0.07,0.54]
       gold:
         - evil
         - bad
@@ -1172,7 +1211,8 @@ dark:
         - personal
         - comic
         - pessimistic
-      mode: pessimistic
+      neuman_correct: pessimistic
+      neuman_rates: [0.1409,0.13,0.09,0.144]
       gold:
         - pessimistic
         - hopeless
@@ -1190,7 +1230,8 @@ dark:
         - fresh
         - curious
         - threatening
-      mode: threatening
+      neuman_correct: threatening
+      neuman_rates: [0.1,0.07,0.16,0.5]
       gold:
         - menacing
         - threatening
@@ -1205,13 +1246,14 @@ dark:
       it, even though it is a rather dark look at contemporary Los
       Angeles and our culture more generally"
 
-    deed:
+    deeds:
       neuman_top_four:
         - good
         - heroic
         - past
         - sinister
-      mode: sinister
+      neuman_correct: sinister
+      neuman_rates: [0.14,0.18,0.14,0.22]
       gold:
         - sinister
         - heinous
@@ -1232,7 +1274,8 @@ dark:
         - guardian
         - christmas
         - vicious
-      mode: vicious
+      neuman_correct: vicious
+      neuman_rates: [0.11,0.09,0.1,0.19]
       gold:
         - vicious
         - malicious
@@ -1254,7 +1297,8 @@ dark:
         - positive
         - public
         - gloomy
-      mode: gloomy
+      neuman_correct: gloomy
+      neuman_rates: [0.14,0.13,0.09,0.2]
       gold:
         - morose
         - somber
@@ -1273,13 +1317,14 @@ dark:
       context: "Let me put something else on the table, Alex, which is
       this dark mood in the country, the pessimism in the country"
     
-    force:
+    forces:
       neuman_top_four:
         - armed
         - social
         - economic
         - evil
-      mode: evil
+      neuman_correct: evil
+      neuman_rates: [0.12,0.09,0.1,0.57]
       gold:
         - evil
         - infernal
@@ -1296,7 +1341,8 @@ dark:
         - ancient
         - powerful
         - sinister
-      mode: sinister
+      neuman_correct: sinister
+      neuman_rates: [0.13,0.15,0.17,0.23]
       gold:
         - evil
         - malicious
@@ -1483,14 +1529,15 @@ hard:
       - object
       - shot
       - road
-  with: 
+  with:
     task:
       neuman_top_four:
         - solid
         - simple
         - joint
         - difficult
-      mode: difficult
+      neuman_correct: difficult
+      neuman_rates: [0.11,0.18,0.13,0.49]
       gold:
         - difficult
         - arduous
@@ -1501,30 +1548,32 @@ hard:
       context: "Look, the task is a hard task, and that's what was so
       disappointing about the president's speech yesterday"
 
-    #look:
-    #  neuman_top_four:
-    #    - quick
-    #    - close
-    #    - firm
-    #    - dispassionate
-    #  mode: dispassionate
-    #  gold:
-    #    - glaring
-    #    - glowering
-    #    - fierce
-    #    - angry
-    #    - severe
-    #    - foreboding
-    #    - scrutinizing
-    #    - critical
-
+    look:
+      neuman_top_four:
+        - brief
+        - close
+        - firm
+        - dispassionate
+      neuman_correct: dispassionate
+      neuman_rates: [0,0.17,0.1,0.16]
+      gold:
+        - glaring
+        - glowering
+        - fierce
+        - angry
+        - severe
+        - foreboding
+        - scrutinizing
+        - critical
+    
     bargainer:
       neuman_top_four:
         - dispassionate
         - solid
-        - stubborn
+        - good
         - trustworthy
-      mode: stubborn
+      neuman_correct: good
+      neuman_rates: [0.16,0.1,0.15,0.16]
       gold:
         - stubborn
         - dogged
@@ -1538,13 +1587,14 @@ hard:
       context: "He was a hard bargainer who refused to bend under
       pressure"
 
-    wind: 
+    winds: 
       neuman_top_four:
         - high
         - political
         - cold
         - strong
-      mode: strong
+      neuman_correct: strong
+      neuman_rates: [0.12,0.16,0.11,0.22]
       gold:
         - strong
         - harsh
@@ -1560,7 +1610,8 @@ hard:
         - low
         - single
         - strong
-      mode: strong
+      neuman_correct: strong
+      neuman_rates: [0.11,0.11,0.13,0.22]
       gold:
         - severe
         - strong
@@ -1572,13 +1623,14 @@ hard:
       context: "So I think essentially this has got to be a hard blow
       for the Baathist loyalists"
 
-    liquor:
+    liquors:
       neuman_top_four:
         - flavored
         - organic
         - exotic
         - strong
-      mode: strong
+      neuman_correct: strong
+      neuman_rates: [0,0.08,0.12,0.22]
       gold:
         - alcoholic
         - intoxicating
@@ -1595,7 +1647,8 @@ hard:
         - social
         - oldest
         - intemperate
-      mode: intemperate
+      neuman_correct: intemperate
+      neuman_rates: [0.13,0.14,0,0.16]
       gold:
         - intemperate
         - excessive
@@ -1615,7 +1668,8 @@ hard:
         - pure
         - random
         - tough
-      mode: bad
+      neuman_correct: tough
+      neuman_rates: [0.16,0.11,0.07,0.18]
       gold:
         - bad
         - unfortunate
@@ -1625,13 +1679,14 @@ hard:
       context: "But if they're just dissatisfied with the result, well,
       sorry, but that's hard luck"
 
-    feeling:
+    feelings:
       neuman_top_four:
         - raw
         - bad
         - awful
         - negative
-      mode: negative
+      neuman_correct: negative
+      neuman_rates: [0.09,0.13,0.16,0.17]
       gold:
         - unpleasant
         - offended
@@ -1656,7 +1711,8 @@ hard:
         - recent
         - criminal
         - convincing
-      mode: convincing
+      neuman_correct: convincing
+      neuman_rates: [0.14,0.17,0.17,0.2]
       gold:
         - conclusive
         - irrefutable
@@ -1669,23 +1725,24 @@ hard:
       context: "Pending forensic evidence, hard evidence from the crash
       investigation itself"
 
-    #time:
-    #  neuman_top_four:
-    #    - insufficient
-    #    - wasted
-    #    - tough
-    #    - difficult
-    #  mode: difficult
-    #  gold:
-    #    - difficult
-    #    - inopportune
-    #    - adverse
-    #    - bad
-    #    - taxing
-    #    - strenuous
-    #    - trying
-    #    - exacting
-    #  context: ""
+    time:
+      neuman_top_four:
+        - insufficient
+        - wasted
+        - tough
+        - difficult
+      neuman_correct: difficult
+      neuman_rates: [0.16,0.13,0.18,0.49]
+      gold:
+        - difficult
+        - inopportune
+        - adverse
+        - bad
+        - taxing
+        - strenuous
+        - trying
+        - exacting
+      context: ""
     
     work:
       neuman_top_four:
@@ -1693,7 +1750,8 @@ hard:
         - extra
         - diligent
         - difficult
-      mode: difficult
+      neuman_correct: difficult
+      neuman_rates: [0.18,0.09,0.17,0.48]
       gold:
         - arduous
         - laborious

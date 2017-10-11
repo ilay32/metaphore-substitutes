@@ -54,7 +54,7 @@ class NeumanGraph:
         for mn in m:
             print("getting",mn+"'s neighbours")
             try:
-                neighbors = sorted([n[0] for n in self.nouns.get(mn).most_common],key=self.master_list_criterion())
+                neighbors = sorted([n[0] for n in self.nouns.get(mn).most_common()],key=self.master_list_criterion())
                 print("found:",printlist(neighbors,10,True))
                 for n in neighbors[:min(len(neighbors),NeumanGraph.top_n)]:
                     if n in m and n != mn:
@@ -75,25 +75,27 @@ class NeumanGraph:
            d['in'][e[1]] += 1
            d['out'][e[0]] += 1
         with open(self.savefile,'wb') as p:
+            print("saving",self.savefile)
             pickle.dump(d,p)
         self.nouns.destroy()
 
 if __name__ == '__main__':
-    pairs = yaml.load(open('adj_pairs.yml'))
+    #pairs = yaml.load(open('adj_pairs.yml'))
+    pairs = yaml.load(open('sempairs.yml'))
     for adj in pairs:
         print(adj)
         for cond in ['abstract','concrete']:
             tg = NeumanGraph(adj,cond)
-            if tg.construct_graph() :
+            if (not os.path.isfile(tg.savefile)) and tg.construct_graph() :
                 tg.compile_graph_data()
         
-        for d in pairs[adj]['with'].values():
-            for cand in d['neuman_top_four']:
-                print("\t",cand)
-                g = NeumanGraph(cand,'abstract')
-                if not os.path.isfile(g.savefile):
-                    if g.construct_graph() :
-                        g.compile_graph_data()
+        #for d in pairs[adj]['with'].values():
+        #    for cand in d['neuman_top_four']:
+        #        print("\t",cand)
+        #        g = NeumanGraph(cand,'abstract')
+        #        if not os.path.isfile(g.savefile):
+        #            if g.construct_graph() :
+        #                g.compile_graph_data()
     abst.destroy()
     objects.destroy()
     print("done")

@@ -72,32 +72,35 @@ class DB:
     def query(self,q,tries=1):
         if not self.connected:
             return
-        if tries > 1:
-            conn = self.connect()
-        else:
-            conn = self.conn
-        c = conn.cursor()
-        c.setoutputsize(conf['cluster_maxrows'] + conf['candidates_maxrows'])
-        if tries < 6:
-            timer = threading.Timer(float(tries*3),self.query,[q,tries+1])
-            if(tries > 1):
-                print(q,"try",tries,"of 5")
-            timer.start()
-            try:
-                #timer.join(float(tries*3 + 1))
-                c.execute(q)
-                if c.rownumber == 0:
-                    timer.cancel()
-            except pymssql.DatabaseError as e:
-                print("trying to execute ",q," got ",e)
-                timer.join()
-                timer.cancel()
-            finally:
-                timer.cancel()
-                if conn != self.conn:
-                    conn.close()
-        else:
-            print("tried",q,tries - 1,"times. giving up")
+            
+        c = self.conn.cursor()
+        c.execute(q)
+        #if tries > 1:
+        #    conn = self.connect()
+        #else:
+        #    conn = self.conn
+        #c = conn.cursor()
+        #c.setoutputsize(conf['cluster_maxrows'] + conf['candidates_maxrows'])
+        #if tries < 6:
+        #    timer = threading.Timer(float(tries*3),self.query,[q,tries+1])
+        #    if(tries > 1):
+        #        print(q,"try",tries,"of 5")
+        #    timer.start()
+        #    try:
+        #        #timer.join(float(tries*3 + 1))
+        #        c.execute(q)
+        #        if c.rownumber == 0:
+        #            timer.cancel()
+        #    except pymssql.DatabaseError as e:
+        #        print("trying to execute ",q," got ",e)
+        #        timer.join()
+        #        timer.cancel()
+        #    finally:
+        #        timer.cancel()
+        #        if conn != self.conn:
+        #            conn.close()
+        #else:
+        #    print("tried",q,tries - 1,"times. giving up")
         return c
         
     def destroy(self):
@@ -353,8 +356,9 @@ class Ngram(SingleWordData):
             self.mi # minimal mutual information required for results
         )
         if self.db.connected:
-            self.db.conn.cursor().execute("IsNgramsReady "+query_base+",1")
-        time.sleep(2)
+            c = self.db.conn.cursor()
+            c.execute("IsNgramsReady "+query_base+",1")
+            #time.sleep(2)
         return "GetNgrams "+query_base
     
     @dberror()
@@ -556,8 +560,8 @@ class RunData:
     
     def descline(self,r):
         l = r.pred+" "+r.noun+" ("+self.typ
-        if r['mode'] is not None:
-            l += ", mode: "+r['mode']
+        if r['neuman_correct'] is not None:
+            l += ", neuman_correct: "+r['neuman_correct']
         l += ")"
         return l
 
@@ -720,6 +724,7 @@ class Erlangen(GoogleNgrams):
         "fixed" : "shown",
         ".cgifields" : "optimize"
     }
+    num = re.compile("[\d:]+\s*[apmAPM]{0,2}")
     dig = re.compile("<hits>\d+<\/hits>")
     
     def preprocess(self,ngram):
@@ -729,6 +734,7 @@ class Erlangen(GoogleNgrams):
         return "1tgngrams"
 
     def query_ngram(self,ngram):
+        ngram = re.sub(Erlangen.num,"NUM",ngram)
         print("getting ngram count:",ngram)
         ret = 0 
         performed = False
@@ -761,8 +767,8 @@ class Erlangen(GoogleNgrams):
                 print(str(e))
                 print("entering try", limit + 2)
             limit += 1
-        if limit == 5:
-            erlangenfailed.append(ngram)
+        #if limit == 5:
+        #    erlangenfailed.append(ngram)
         return ret
     
     # repeated here only because of the "'"
