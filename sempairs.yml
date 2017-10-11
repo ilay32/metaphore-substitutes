@@ -709,6 +709,14 @@ fresh:
         - novel
       gold_freqs: [2,2,1,1,1,1]
       gold_met: [0,0,1,0,1,0]
+    uniform:
+      id: 958
+      gold:
+        - new
+        - clean
+        - another
+      gold_freqs: [3,2,1]
+      gold_met: [0,0,0]
 light:
   roget_syns:
     - barmy
@@ -1882,3 +1890,63 @@ poor:
         - substandard
       gold_freqs: [2,1,1,1,1,1]
       gold_met: [0,0,0,0,0,0]
+tremendous:
+  roget_syns:
+    - awful
+    - colossal
+    - deadly
+    - divine
+    - dreadful
+    - enormous
+    - fearful
+    - frightful
+    - glorious
+    - horrible
+    - huge
+    - hugeous
+    - immense
+    - magnificent
+    - marvelous
+    - prodigious
+    - sensational
+    - stupendous
+    - terrible
+    - terrific
+    - vast
+    - wonderful
+  coca_syns:
+   - great
+   - huge
+   - wonderful
+   - massive
+   - vast
+   - enormous
+   - super
+   - remarkable
+   - incredible
+   - impressive
+   - terrific
+   - fantastic
+   - awesome
+   - fabulous
+   - magnificent
+   - immense
+   - superb
+   - marvelous
+   - sensational
+   - monstrous
+   - colossal
+   - humongous
+   - awe-inspiring
+  with:
+    promise:
+      id: 1714
+      gold: 
+        - great
+        - wonderful
+        - enormous
+        - terrific
+        - huge
+        - vast
+      gold_freqs: [3,1,1,1,1,1]
+      gold_met: [0,0,1,1,0,1]

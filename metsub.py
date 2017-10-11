@@ -1,6 +1,6 @@
 #   imports
 #--------------------
-import random,copy,re,nltk,string,time
+import random,copy,re,nltk,string,time,numpy,subprocess
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models.word2vec import Word2Vec
@@ -8,7 +8,7 @@ from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
 from sklearn.cluster import KMeans as km
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr,entropy
 from lxml import etree
 
 
@@ -91,11 +91,10 @@ class MetaphorSubstitute:
         self.no_abst = set()
         self.no_vector = set()
         self.too_far = set()
+        self.coverage = 0
         self.classname = self.__class__.__name__
         if not self.dry_run:
             self.resolve_methods()    
-        if params['pairs_file'] == 'sempairs.yml':
-            self.mode = self.gold[0]
     
     def resolve_methods(self):
         self.get_candidates = eval('self.'+self.methods['candidates'])
@@ -112,19 +111,19 @@ class MetaphorSubstitute:
         """
         Shell for the basic rating algorithm
 
-        *get_candidates* and *rank candidates*
+        *get_candidates* and *rate candidates*
         are specified as parameters to be sorted out by *resolve_methods*.
         this allows for maximal flexibility without a deep and branchy
         inheritance tree.
         """
         candidates = self.get_candidates()
+        if SingleWordData.empty(candidates):
+            return []
+        self.coverage = overlap(candidates,self.gold)
         subs = list()
         if not SingleWordData.empty(candidates):
             for pred in candidates:
-                if pred in vecs:
-                    subs.append((pred,self.candidate_rank(pred)))
-                else:
-                    subs.append((pred,-1))
+                subs.append((pred,self.candidate_rank(pred)))
             subs.sort(key=lambda t: t[1],reverse=True)
         self.substitutes = subs
         return subs
@@ -193,22 +192,34 @@ class MetaphorSubstitute:
         return ans/len(tst)
     
     @preeval
+    def GAP(self):
+        keyed = dict(zip(self.gold,self.gold_rates))         
+        tst = [s[0] for s in self.substitutes]
+        tstrates = [keyed.get(s) or 0 for s in tst]
+        numer = 0
+        for i,t in enumerate(tstrates,1):
+            if t != 0:
+                numer += sum([r for r in tstrates[:i]])/i
+        return numer/sum(self.gold_rates)
+
+    @preeval
     def spear(self):
-        ranks = list()
-        gld = self.gold
-        sampsize = min(len(gld),len(self.substitutes))
-        for sub in self.substitutes[:sampsize]:
-            if sub[0] in gld:
-                ranks.append(gld.index(sub[0]))
-        if len(ranks) > 1:
-            s = spearmanr(ranks,sorted(ranks))
-            return s.correlation
-        # a little patch for the cases where only one of the substitutes
-        # is a memeber of the gold set.
-        if len(ranks) == 1:
-            return 1 - ranks[0]/len(gld)
-        return 0
-    
+        acc = 0
+        tranks = list()
+        # this assumes the gold *ranks* are unique and the list is sorted
+        for s,r in self.substitutes:
+            if s in self.gold:
+                tranks.append(self.gold.index(s))
+        c = len(tranks)
+        if c > 2:
+            return 1 - (6 * acc)/(c**3 - c)
+        elif c > 1:
+            return np.corrcoef(np.arange(1,c+1),tranks)[0,1]
+        elif c == 1:
+            return 'undefined'
+        else:
+            return -1
+         
     @preeval
     def overlap(self):
         return overlap(self.gold,[ w[0] for w in self.substitutes])
@@ -223,7 +234,23 @@ class MetaphorSubstitute:
     
     @preeval 
     def neuman_eval(self):
-        return int(self.substitute() == self.mode)
+        return int(self.substitute() == self.neuman_correct)
+
+    @preeval
+    def corrcoef(self):
+        g,t = intersection_rates(gld,gldrnks,tst,tstrnks)
+        if len(g) == 1:
+            return 'undefined'
+        else:
+            g = np.array(g)
+            t = np.array(t)
+            if g.std() == 0 or t.std() == 0:
+                return 0
+        return np.corrcoef(g,t)[0,1]
+    
+    @preeval 
+    def KL(self):
+        return entropy(*self.intersection_rates())
 
 
     #********************** 
@@ -233,7 +260,16 @@ class MetaphorSubstitute:
 
     #   miscelenia
     #----------------------
-        
+    @preeval
+    def intersection_rates(self):
+        granks = list()
+        tranks = list()
+        for s in self.substitutes:
+            if s[0] in gld:
+                granks.append(self.gold_rates[self.gold.index(s[0])])
+                tranks.append(s[1])
+        return granks,tranks
+    
     def noun_cluster(self,pred,rel):
         print("fetching "+rel+"s set for "+pred)
         clust = list()
@@ -362,12 +398,29 @@ class AdjSubstitute(MetaphorSubstitute):
             return vecs.n_similarity([cand],touchstone)
         return rate
     
-    def neuman_orig(self,num):
-        touchstone = self.neuman_filtered_synoyms()[:num] + [self.noun]
+    def neuman_orig(self,include_noun=True):
+        touchstone = clearvecs(self.neuman_filtered_synoyms())
+        if include_noun and vecs.has(self.noun):
+            print("including noun")
+            touchstone.append(self.noun)
         def rate(cand):
-            return vecs.n_similarity([cand],touchstone)
+            if vecs.has(cand):
+                return vecs.n_similarity([cand],touchstone)
+            else:
+                print(cand)
+                return 0
         return rate
     
+    def neuman_no_filtering(self,include_noun=True):
+        touchstone = clearvecs(self.coca_syns)[:params['neuman_exp2']['thetanum']] + [self.pred]
+        if include_noun and vecs.has(self.noun):
+            touchstone.append(self.noun)
+        def rate(cand):
+            if vecs.has(cand):
+                return vecs.n_similarity([cand],touchstone)
+            return 0
+        return rate
+
     def adjtimesfreq(self,num):
         def rate(cand):
             factor1 = self.coca_asbtract(10)(cand)
@@ -387,8 +440,12 @@ class AdjSubstitute(MetaphorSubstitute):
             if cand not in vecs:
                 return 0
             env = vecs.most_similar(self.pred,topn=50)
-            env.sort(key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)
-            return vecs.n_similarity([cand],[w[0] for w in env[:num]])
+            if self.noun in vecs:
+                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)[:num] + [self.pred,self.noun] 
+            else:
+                print("instance noun not in vecs. Utsumi using all 50")
+                touchstone = env + [self.pred]
+            return vecs.n_similarity([cand],[w[0] for w in touchstone])
         return rate
 
 
@@ -396,6 +453,27 @@ class AdjSubstitute(MetaphorSubstitute):
     #*******************************
     #   candidate fetch methods
     #*******************************
+    def semgold(self):
+        def genlist():
+            with open("semgold-candidates.txt") as sg:
+                for l in sg.readlines():
+                    if l.startswith(self.pred+".a"):
+                        return l.split("::")[1].split(";")
+            return []
+        return genlist
+
+    def coinco(self):
+        def genlist():
+            l = subprocess.check_output(['sh','coincoline.sh',self.pred],universal_newlines=True).split("\n\n") 
+            ret = list()
+            for w in l:
+                if w != "" and w not in ret:
+                    ret.append(w)
+            print(ret)
+            return ret
+        return genlist
+            
+            
     def roget_abstract_top(self,num):
         def genlist():
             arog = sorted(self.roget_syns,key = lambda x: abst.get(x),reverse=True)
@@ -423,7 +501,8 @@ class AdjSubstitute(MetaphorSubstitute):
             mods = self.ngramcands(numgrams)()
             al = clearvecs(list(set(mods + allsyns)))
             #return [adj for adj in al if vecs.n_similarity(touchstone,[adj]) >= radius]
-            return squeeze(al,30)
+            #return squeeze(al,30)
+            return self.neuman_filtered_synoyms(al)
         return genlist
     
     def all_dictionaries_squeezed(self,wnspread,size):
@@ -453,7 +532,7 @@ class AdjSubstitute(MetaphorSubstitute):
         return genlist
                 
 
-    def neumans_four(self,num):
+    def neumans_four(self):
         def genlist():
             return self.topfour
         return genlist
@@ -505,7 +584,7 @@ class AdjSubstitute(MetaphorSubstitute):
             raw = AdjSubstitute.pred_candidates.get(self.noun).most_common(num)
             adjs = clearvecs(raw,0)
             random.shuffle(adjs)
-            cands =  adjs[:3] + [self.mode]
+            cands =  adjs[:3] + [self.neuman_correct]
             return cands
         return genlist
     
@@ -513,7 +592,7 @@ class AdjSubstitute(MetaphorSubstitute):
         def genlist():
             syns = clearvecs(self.all_dictionaries(wnspread)())
             random.shuffle(syns)
-            cands = syns[:3] + [self.mode]
+            cands = syns[:3] + [self.neuman_correct]
             return cands
         return genlist
 
@@ -621,7 +700,7 @@ class AdjSubstitute(MetaphorSubstitute):
 
     #   miscelenia
     #------------------------
-    def neuman_filtered_synoyms(self):
+    def neuman_filtered_synoyms(self,syns=None):
         if self.pred not in AdjSubstitute.adjdata:
             AdjSubstitute.adjdata[self.pred] = {
                 'concrete_nouns' : self.get_graph_data('concrete'),
@@ -633,10 +712,12 @@ class AdjSubstitute(MetaphorSubstitute):
         ret = list()
         simcut =  params['neuman_exp2']['thetacut']
         n = params['neuman_exp2']['thetanum']
-        syns = [a for a in pairs[self.pred]['coca_syns'] if a in vecs][:n]
+        if syns is None:
+            syns = clearvecs(self.coca_syns)[:n]
         for s in syns:
             sim_abst = vecs.n_similarity(AdjSubstitute.adjdata[self.pred]['abstract_nouns'], [s])
             sim_conc = vecs.n_similarity(AdjSubstitute.adjdata[self.pred]['concrete_nouns'],[s])
+            print(s,sim_abst,sim_conc)
             if sim_abst > simcut and sim_conc < simcut:
                 ret.append(s)
             else:
