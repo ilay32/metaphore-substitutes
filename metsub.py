@@ -3,7 +3,7 @@
 import random,copy,re,nltk,string,time,numpy,subprocess
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
-from gensim.models.word2vec import Word2Vec
+from gensim.models  import KeyedVectors
 from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
@@ -28,7 +28,7 @@ if vectormodel == "LSA":
 elif vectormodel == "SPVecs":
     vecs = SPVecs()
 else:
-    vecs = Word2Vec.load_word2vec_format(vectormodel,binary=True) 
+    vecs = KeyedVectors.load_word2vec_format(vectormodel,binary=True)
     vecs.has = lambda x: x in vecs
     vecs.get = lambda x: vecs[x]
     vecs.centroid = lambda l: vecs[vecs.most_similar(l,topn=1)[0][0]]
