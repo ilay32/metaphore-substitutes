@@ -23,6 +23,9 @@ abst = Abst(ngrams)
 lemmatizer = WordNetLemmatizer()
 vectormodel = conf['vectormodel']
 semevaltest = etree.parse('../semeval/lexsub_test.xml')
+#coinco = etree.parse('../coinco/coinco.xml')
+#cropper = etree.XSLT('../coinco/adjoptions.xsl')
+
 if vectormodel == "LSA":
     vecs = Vecs(DB('LSA-ENG'))
 elif vectormodel == "SPVecs":
@@ -43,6 +46,8 @@ def clearvecs(l,ind=None):
         y = x[ind] if ind is not None else x
         if y in vecs:
             ret.append(y)
+        else:
+            ly = lemmatizer.lemmatize(y)
     return ret
 
 def overlap(a,b):
@@ -86,7 +91,8 @@ class MetaphorSubstitute:
             self.__dict__[key] = options[key]
                
         #lemmatize the instance noun (?)
-        self.noun = lemmatizer.lemmatize(self.noun)
+        #self.noun = lemmatizer.lemmatize(self.noun)
+        self.lnoun = lemmatizer.lemmatize(self.noun)
         self.substitutes = list()
         self.no_abst = set()
         self.no_vector = set()
@@ -149,6 +155,7 @@ class MetaphorSubstitute:
             "gap" : self.GAP(),
             "spearmanr" : self.spear(),
             "overlap" : self.overlap(),
+            "coverage" : self.coverage,
             "top_in_gold" : self.lenient_acc(),
             "none_in_gold" : self.complete_miss(),
             "oot" : self.oot(),
@@ -161,14 +168,15 @@ class MetaphorSubstitute:
     #*******************************
     @preeval
     def oot(self):
-        gld = self.gold
-        return sum([1 for s in self.substitutes[:10] if s[0] in gld])/len(gld)
+        g,t = self.intersection_rates()
+        return sum(g)/sum(self.gold_rates)
 
     @preeval
-    def best(self):
-        gld = self.gold
-        return sum([1 for s in self.substitutes if s[0] in gld])/(len(gld)*len(self.substitutes))
-
+    def best(self,cutoff=1):
+        g,t = self.intersection_rates(cutoff)
+        if len(g) == 0:
+            return 0
+        return sum(g)/sum(self.gold_rates)*cutoff
 
     @preeval
     def strictP(self):
@@ -194,7 +202,7 @@ class MetaphorSubstitute:
     @preeval
     def GAP(self):
         keyed = dict(zip(self.gold,self.gold_rates))         
-        tst = [s[0] for s in self.substitutes]
+        tst = [s[0] for s in self.substitutes[:10]]
         tstrates = [keyed.get(s) or 0 for s in tst]
         numer = 0
         for i,t in enumerate(tstrates,1):
@@ -261,11 +269,12 @@ class MetaphorSubstitute:
     #   miscelenia
     #----------------------
     @preeval
-    def intersection_rates(self):
+    def intersection_rates(self,limit=None):
         granks = list()
         tranks = list()
-        for s in self.substitutes:
-            if s[0] in gld:
+        l = len(self.substitutes) if limit is None else limit
+        for s in self.substitutes[:l]:
+            if s[0] in self.gold:
                 granks.append(self.gold_rates[self.gold.index(s[0])])
                 tranks.append(s[1])
         return granks,tranks
@@ -440,8 +449,8 @@ class AdjSubstitute(MetaphorSubstitute):
             if cand not in vecs:
                 return 0
             env = vecs.most_similar(self.pred,topn=50)
-            if self.noun in vecs:
-                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)[:num] + [self.pred,self.noun] 
+            if self.lnoun in vecs:
+                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)[:num] + [self.pred,self.lnoun] 
             else:
                 print("instance noun not in vecs. Utsumi using all 50")
                 touchstone = env + [self.pred]
@@ -458,7 +467,9 @@ class AdjSubstitute(MetaphorSubstitute):
             with open("semgold-candidates.txt") as sg:
                 for l in sg.readlines():
                     if l.startswith(self.pred+".a"):
-                        return l.split("::")[1].split(";")
+                        cands = l.split("::")[1].split(";")
+                        cands[-1] = cands[-1].strip("\n")
+                        return cands
             return []
         return genlist
 
@@ -776,8 +787,8 @@ class Irst2(AdjSubstitute):
                 for gram in grams:
                     score += ggrams.get(" ".join(gram))
                     #time.sleep(10)
-
-                scores[i].append((cand,score,i))
+                if score > 0:
+                    scores[i].append((cand,score))
         ggrams.save_table()
         self.cand_scores = scores
         return scores
@@ -830,10 +841,14 @@ class Irst2(AdjSubstitute):
     def find_substitutes(self):
         scores = self.get_scores()
         subs = list()
+        done = set()
         keys = list(scores.keys())
         keys.reverse()
         for k in keys:
-            subs +=  sorted([trip for trip in scores[k] if trip[1] > 0],key=lambda x: x[1],reverse=True)
+            for cand,score in sorted([p for p in scores[k]],key=lambda x: x[1],reverse=True):
+                if cand not in done:
+                    subs.append((cand,score))
+                    done.add(cand)
         self.substitutes = subs
         return subs
 
