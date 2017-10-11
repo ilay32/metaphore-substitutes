@@ -1,10 +1,11 @@
-import pandas,sys,os,yaml,pymssql,math,copy,pickle,json,numbers,\
+import sys,os,yaml,pymssql,math,copy,pickle,json,numbers,\
 six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib,subprocess \
 , importlib.machinery
 
 
 ROOT = os.path.realpath(os.path.dirname(__file__))
 import numpy as np
+import pandas as pd
 import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
@@ -108,7 +109,7 @@ class DB:
             self.conn.close()
 
 class SingleWordData:
-    dbcache = 'newdbcache'
+    dbcache = 'dbcache'
     def __init__(self,db):
         self.db = db
         self.table_path = self.get_table_path()
@@ -178,11 +179,11 @@ class SingleWordData:
     
     def load_saved_data(self):
         if os.path.isfile(self.table_path):
-            self.table = pandas.read_pickle(self.table_path)
+            self.table = pd.read_pickle(self.table_path)
         else:
             self.table = self.empty_table
         if os.path.isfile(self.notfound_path):
-            self.notfound = pandas.read_pickle(self.notfound_path)
+            self.notfound = pd.read_pickle(self.notfound_path)
     
     def save_table(self):
         if self.table_changed or not os.path.isfile(self.table_path):
@@ -493,7 +494,7 @@ def explore_cache():
     cache = int(input("choose one of the above: "))
     path = os.path.join(dbcache,cached[cache-1])
     if os.path.isfile(path):
-        data = pandas.read_pickle(path)
+        data = pd.read_pickle(path)
         #ret = printdict(data)
         print("the "+cached[cache-1]+" basic dict is available as 'data'")
         return data

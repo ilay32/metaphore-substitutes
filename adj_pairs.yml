@@ -621,26 +621,26 @@ sweet:
       context: "Rachel's friends and family, whose sweet memories of her
       compete with searing pain"
 
-    charity:
-      neuman_top_four:
-        - christian
-        - local
-        - muslim
-        - gratifying
-      neuman_correct: gratifying
-      neuman_rates: [0.13,0.12,0.13,0.21]
-      gold:
-        - kind
-        - gratifying
-        - loving
-        - caring
-        - divine
-        - compassionate
-        - fortuitous
-        - satisfying
-        - good
-        - nice
-        - generous
+    #charity:
+    #  neuman_top_four:
+    #    - christian
+    #    - local
+    #    - muslim
+    #    - gratifying
+    #  neuman_correct: gratifying
+    #  neuman_rates: [0.13,0.12,0.13,0.21]
+    #  gold:
+    #    - kind
+    #    - gratifying
+    #    - loving
+    #    - caring
+    #    - divine
+    #    - compassionate
+    #    - fortuitous
+    #    - satisfying
+    #    - good
+    #    - nice
+    #    - generous
     
     victory:
       neuman_top_four:
@@ -1548,23 +1548,23 @@ hard:
       context: "Look, the task is a hard task, and that's what was so
       disappointing about the president's speech yesterday"
 
-    look:
-      neuman_top_four:
-        - brief
-        - close
-        - firm
-        - dispassionate
-      neuman_correct: dispassionate
-      neuman_rates: [0,0.17,0.1,0.16]
-      gold:
-        - glaring
-        - glowering
-        - fierce
-        - angry
-        - severe
-        - foreboding
-        - scrutinizing
-        - critical
+    #look:
+    #  neuman_top_four:
+    #    - brief
+    #    - close
+    #    - firm
+    #    - dispassionate
+    #  neuman_correct: dispassionate
+    #  neuman_rates: [0,0.17,0.1,0.16]
+    #  gold:
+    #    - glaring
+    #    - glowering
+    #    - fierce
+    #    - angry
+    #    - severe
+    #    - foreboding
+    #    - scrutinizing
+    #    - critical
     
     bargainer:
       neuman_top_four:

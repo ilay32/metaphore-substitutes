@@ -16,7 +16,6 @@ def cleanup():
             None
 
 def pairblock(adj,noun,dat,is_dry=False):
-    print(noun)
     if 'gold_freqs' in dat:
         gldfrqs = dat['gold_freqs']
     else:
@@ -82,16 +81,44 @@ def main(fetcher,rater,classname='AdjSubstitute'):
     for p in run:
         conf.update(p)
         ms = eval(classname)(conf)
+        ms.find_substitutes()
         rundata.append(ms.export_data())
         print("\n====================\n")
-    rundata = RunData(pandas.DataFrame(rundata),note,ms.classname)
+    rundata = RunData(pd.DataFrame(rundata),note,ms.classname)
     print("wrapping up and saving stuff")
     if note != "discard":
         rundata.save()
-    cleanup()
+    #cleanup()
     print("\n\t\tHura!\n")
     return rundata
 
+def mindat(d):
+    return [d['gap'],d['overlap']]
 
 if __name__ == '__main__':
-    rundata = main('neumans_four()','neuman_orig()')
+    norig = main('all_dicts_and_coca(2,15)','neuman_orig()')
+    imp = main('all_dicts_and_coca(2,15)','neuman_no_filtering()')
+    #ut = main('all_dicts_and_coca(2,15)','utsumi1cat(10)')
+    #irst = main('semgold()','neuman_orig()','Irst2')
+    #conf = {
+    #    'methods' : {
+    #        'candidates' : 'semgold()',
+    #    }
+    #}
+
+    #dat = pd.DataFrame(index=pd.MultiIndex.from_product([['SimpNeum','Irst2','Uts1Cat','Dagan'],[p['semid'] for p in processed_pairs]]),columns=['gap','coveragcoveragee'])
+    #for p in processed_pairs:
+    #    semid = p['semid']
+    #    conf.update(p)
+    #    conf['methods']['rating'] = 'neuman_no_filtering()'
+    #    ms = AdjSubstitute(conf)
+    #    dat.loc['SimpNeum',semid] = mindat(ms.export_data())
+    #    irst = Irst2(conf)
+    #    dat.loc['Irst2',semid] = mindat(irst.export_data())
+    #    conf['methods']['rating'] = 'utsumi1cat(10)'
+    #    uts = AdjSubstitute(conf)
+    #    dat.loc['Uts1Cat',semid] = mindat(uts.export_data())
+    #    conf['system_name'] = 'DF'
+    #    dag = SemEvalSystem(conf)
+    #    dat.loc['Dagan',semid] = mindat(dag.export_data())
+    #cleanup()
