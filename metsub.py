@@ -1,6 +1,6 @@
 #   imports
 #--------------------
-import random,copy,re,nltk,string,time,numpy,subprocess
+import random,copy,re,nltk,string,time,numpy,subprocess,regex
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from gensim.models  import KeyedVectors
@@ -268,6 +268,11 @@ class MetaphorSubstitute:
 
     #   miscelenia
     #----------------------
+    def erlangen_swaps(c):
+       c = regex.sub(r'\p{P}', ' PUN ',c)
+       c = re.sub(r'[0-9]+',' NUM ',c)
+       return c
+
     @preeval
     def intersection_rates(self,limit=None):
         granks = list()
@@ -323,10 +328,10 @@ class MetaphorSubstitute:
             cands = set()
             candidates = eval(self.classname).pred_candidates
             added = cur =  0
-            if not candidates.has(self.noun):
+            if not candidates.has(self.lnoun):
                 print("can't find typical preds for ",self.noun)
                 return None
-            cands_max = candidates.get(self.noun)
+            cands_max = candidates.get(self.lnoun)
             added = cur = 0
             while added < num and cur < len(cands_max):
                 while cands_max[cur] == self.pred:
@@ -387,20 +392,18 @@ class AdjSubstitute(MetaphorSubstitute):
                 return 0
         return rate
 
-    def by_coca_synonyms_of_pred(self,num):
+    def by_coca_synonyms_of_pred(self,num,withnoun=False):
         touchstone = clearvecs(self.coca_syns[:num],0)
+        if withnoun and self.lnoun in vecs:
+            touchstone.append(self.lnoun)
         def rate(cand):
             return vecs.n_similarity([cand],touchstone)
         return rate
     
-    def coca_with_noun(self,num):
-        touchstone =  clearvecs(self.coca_syns[:num],0) + [self.noun]
-        def rate(cand):
-            return vecs.n_similarity([cand],touchstone)
-        return rate
-    
-    def coca_abstract(self,num):
+    def coca_abstract(self,num,withnoun=False):
         touchstone = sorted(clearvecs(self.coca_syns),key=lambda x: abst.get(x),reverse=True)[:num]
+        if withnoun and self.lnoun in vecs:
+            touchstone.append(self.lnoun)
         def rate(cand): 
             if cand not in vecs:
                 return 0
@@ -409,9 +412,9 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def neuman_orig(self,include_noun=True):
         touchstone = clearvecs(self.neuman_filtered_synoyms())
-        if include_noun and vecs.has(self.noun):
+        if include_noun and vecs.has(self.lnoun):
             print("including noun")
-            touchstone.append(self.noun)
+            touchstone.append(self.lnoun)
         def rate(cand):
             if vecs.has(cand):
                 return vecs.n_similarity([cand],touchstone)
@@ -422,8 +425,8 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def neuman_no_filtering(self,include_noun=True):
         touchstone = clearvecs(self.coca_syns)[:params['neuman_exp2']['thetanum']] + [self.pred]
-        if include_noun and vecs.has(self.noun):
-            touchstone.append(self.noun)
+        if include_noun and vecs.has(self.lnoun):
+            touchstone.append(self.lnoun)
         def rate(cand):
             if vecs.has(cand):
                 return vecs.n_similarity([cand],touchstone)
@@ -450,7 +453,7 @@ class AdjSubstitute(MetaphorSubstitute):
                 return 0
             env = vecs.most_similar(self.pred,topn=50)
             if self.lnoun in vecs:
-                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.noun),reverse=True)[:num] + [self.pred,self.lnoun] 
+                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.lnoun),reverse=True)[:num] + [self.pred,self.lnoun] 
             else:
                 print("instance noun not in vecs. Utsumi using all 50")
                 touchstone = env + [self.pred]
@@ -522,7 +525,7 @@ class AdjSubstitute(MetaphorSubstitute):
             return squeeze(al,size)
         return genlist
     
-    def synsormods(self,w,c,n,r2):
+    def synsormods(self,w,c,n):
         def genlist():
             wnsyns = self.wncands(w)()
             cocsyns = self.cocands(c)()
@@ -568,7 +571,7 @@ class AdjSubstitute(MetaphorSubstitute):
         
     def ngramcands(self,num):
         def genlist():
-            bynoun = AdjSubstitute.pred_candidates.get(self.noun).most_common(num)
+            bynoun = AdjSubstitute.pred_candidates.get(self.lnoun).most_common(num)
             if bynoun is not None:
                 return [w[0] for w in bynoun if w[0] != self.pred]
             else:
@@ -592,7 +595,7 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def rand3(self,num):
         def genlist():
-            raw = AdjSubstitute.pred_candidates.get(self.noun).most_common(num)
+            raw = AdjSubstitute.pred_candidates.get(self.lnoun).most_common(num)
             adjs = clearvecs(raw,0)
             random.shuffle(adjs)
             cands =  adjs[:3] + [self.neuman_correct]
@@ -611,10 +614,10 @@ class AdjSubstitute(MetaphorSubstitute):
         def genlist():
             print("fetching candidate replacements for "+self.pred)
             cdatasource = eval(self.classname).pred_candidates
-            if not cdatasource.has(self.noun):
+            if not cdatasource.has(self.lnoun):
                 print("can't find typical preds for ",self.noun)
                 return None
-            cands_max = cdatasource.get(self.noun).most_common()
+            cands_max = cdatasource.get(self.lnoun).most_common()
             cands = set()
             syns = self.get_syns()
             syns.sort(key=lambda x: self.modifies_noun(x),reverse=True)
@@ -656,12 +659,12 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def modifies_noun1(self,adj):
         objs = AdjSubstitute.object_clusters.get(adj)
-        if self.noun in objs:
-            return objs.freq(self.noun)
+        if self.lnoun in objs:
+            return objs.freq(self.lnoun)
         return 0
     
     def modifies_noun2(self,adj):
-        adjs = AdjSubstitute.pred_candidates.get(self.noun)
+        adjs = AdjSubstitute.pred_candidates.get(self.lnoun)
         if adj in adjs:
             return adjs.freq(adj)/adjs.N()
         return 1/adjs.N()
@@ -748,8 +751,8 @@ class AdjSubstitute(MetaphorSubstitute):
         print("concrete:",printlist(concrete,5,True))
         categories = self.concrete_categories(concrete)
         for cat in categories:
-            if self.noun in nouncats[cat]:
-                print(self.noun,"is listed under",cat+".",adj,"--",self.noun,"is literal.")
+            if self.lnoun in nouncats[cat]:
+                print(self.lnoun,"is listed under",cat+".",adj,"--",self.lnoun,"is literal.")
                 return False #literal
         return True #metaphoric
         
@@ -800,7 +803,7 @@ class Irst2(AdjSubstitute):
         c = self.context
         tar = self.pred
         if tar not in c:
-            print("cant find target ngrams in contex")
+            print("cant find instance predicate in context")
         ans = list()
         for length in range(2,6):
             grams = nltk.ngrams(c,length)
@@ -836,7 +839,9 @@ class Irst2(AdjSubstitute):
             cont = self.get_semeval_context()
         else:
             cont = pairs[self.pred]['with'][self.noun]['context']
-        return list(filter(lambda w: w not in string.punctuation,nltk.tokenize.word_tokenize(cont)))
+        #return list(filter(lambda w: w not in string.punctuation,nltk.tokenize.word_tokenize(cont)))
+        return nltk.tokenize.word_tokenize(AdjSubstitute.erlangen_swaps(cont))
+
     
     def find_substitutes(self):
         scores = self.get_scores()
