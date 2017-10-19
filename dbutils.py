@@ -1,5 +1,5 @@
 import sys,os,yaml,pymssql,math,copy,pickle,json,numbers,\
-six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib,subprocess \
+six,io,time,threading,re,subprocess,nltk,math,pycurl,urllib \
 , importlib.machinery
 
 
@@ -10,8 +10,8 @@ import _thread as thread
 from scipy.spatial.distance import cosine
 from datetime import datetime
 #from getngrams import *
-loader = importlib.machinery.SourceFileLoader('getngrams', ROOT+'/google-ngrams/getngrams.py')
-getngrams = loader.load_module('getngrams')
+#loader = importlib.machinery.SourceFileLoader('getngrams', ROOT+'/google-ngrams/getngrams.py')
+#getngrams = loader.load_module('getngrams')
 
 conf = yaml.load(open(ROOT+'/params.yml'))
 
@@ -781,7 +781,53 @@ class Erlangen(GoogleNgrams):
     #            return True
     #    return False
 
-   
+class Erlangen2:  
+    qpat = "http://corpora.linguistik.uni-erlangen.de/cgi-bin/demos/Web1T5/Web1T5_assoc.perl?query={:s}&mode=CSV&limit=5000&method={:s}&threshold=40&fixed=hidden&.cgifields=debug"
+    csvdir = os.path.join(SingleWordData.dbcache,'erlangencsv')
+    def __init__(self,measure="t"):
+        self.measure = measure
+        if not os.path.isdir(Erlangen2.csvdir):
+            os.mkdir(Erlangen2.csvdir)
+
+    def query(self,ngram):
+        q = Erlangen2.qpat.format("+".join(ngram),self.measure)
+        r = subprocess.run(['curl','-o',Erlangen2.ngram2filename(ngram),q])
+        if r.returncode == 0:
+            print("ngram fetched")
+        else:
+            print("ngram failed:",r.returncode)
+    
+    def ngram2filename(ngram,justbase=False):
+        basename =  "_".join(ngram).replace("*","TARGET")
+        if justbase:
+            return basename
+        return os.path.join(Erlangen2.csvdir,basename+".csv")
+    
+    def get(self,word,ngram,repeated=False):
+        filename = Erlangen2.ngram2filename(ngram)
+        ans = None
+        if os.path.isfile(filename):
+            try:
+                d = pd.read_csv(filename)
+                row  = d[d['N-gram']==word]
+                if row.values.any():
+                    ans =  row
+                else:
+                    ans = 0
+                del(d)
+            except(pd.errors.ParserError):
+                if bytearray("internal error, got 0 values","utf-8") in open(filename,'rb').read():
+                    ans =  0
+                else:
+                    print("check",filename)
+                
+        elif not repeated:
+            self.query(ngram)
+            return self.get(word,ngram,True)
+        return ans 
+            
+    
+
 class Econpy(GoogleNgrams):
     def search_table(self):
         return "pygngrams"

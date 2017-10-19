@@ -107,6 +107,14 @@ warm:
       - glance
       - light
       - kiss
+  orign_touchstone:  
+    - affectionate
+    - amiable
+    - ardent
+    - cheerful
+    - deep
+    - earnest
+    - enthusiastic
   with:
     hug:
       neuman_top_four:
@@ -117,10 +125,11 @@ warm:
       neuman_correct: affectionate
       neuman_rates: [0.1,0.11,0.32,0]
       gold:
-        - affectionate
         - loving
+        - affectionate
         - heartfelt
         - friendly
+      gold_freqs: [5,4,3,2] 
       context: "People greater than me have already eulogized you,
       but no one knows the caress that you placed on my shoulder and the
       warm hug that you saved only for us, and your smile, that always
@@ -134,10 +143,11 @@ warm:
       neuman_correct: loving
       neuman_rates: [0.15,0.14,0.2,0.47]
       gold:
-        - loving
-        - affectionate
+        - good
         - friendly
-        - intimate
+        - affable
+        - genial
+      gold_freqs: [4,3,3,2]
       context: "I think all they are trying to get out of this visit is
       to show that there are at least some warm relations between these
       two countries that has warmed up in recent years and that these
@@ -152,13 +162,13 @@ warm:
       neuman_correct: affectionate
       neuman_rates: [0.2,0.09,0.15,0.31]
       gold:
-        - affectionate
         - friendly
-        - enthusiastic
+        - affectionate
         - cheerful
-        - joyous
-        - loving
         - hearty
+        - pleasant
+        - enthusiastic
+      gold_freqs: [5,4,4,4,2,1]
       context: "Ahmed found a house where one of the twin sisters was
       living but instead of a warm welcome he had a run-in with her new
       husband"
@@ -172,11 +182,12 @@ warm:
       neuman_correct: pleasant
       neuman_rates: [0.25,0.2,0.21,0.12]
       gold:
-        - nice
-        - pleasant
-        - cozy
-        - good
-        - wonderful
+        - loving
+        - affectionate
+        - amiable
+        - caring
+        - benevolent
+      gold_freqs: [4,4,3,3,1]
       context: "I'm sure he doesn't have warm feeling towards me"
         
     personality:
@@ -188,13 +199,15 @@ warm:
       neuman_correct: friendly
       neuman_rates: [0.09,0.22,0.13,0.41]
       gold:
-        - friendly
         - amiable
-        - caring
+        - friendly
         - loving
         - lively
         - nice
+        - cheerful
+        - empathic
         - emotional
+      gold_freqs: [4,3,3,2,2,2,2,1]
       context: "He became a star on stage and television with his warm
       personality and a powerful voice"
     
@@ -207,11 +220,12 @@ warm:
        neuman_correct: friendly
        neuman_rates: [0.14,0.16,0.17,0.43]
        gold:
-        - friendly
-        - cheerful
-        - enthusiastic
-        - loving
         - hearty
+        - enthusiastic
+        - cheerful
+        - loving
+        - friendly
+       gold_freqs: [4,3,2,2,1]
        context: "And with that, I'd like all of you to give a warm
       greeting as I invite Judge Sotomayor to say a few words"
     
@@ -228,7 +242,8 @@ warm:
         - enthusiastic
         - strong
         - sincere
-        - loving
+        - genuine
+       gold_freqs: [5,4,4,2,2]
        context: "Inside the theater, there was warm support for the
       president's immigration policy change"
     
@@ -244,8 +259,9 @@ warm:
         - lively
         - passionate
         - vigorous
-        - fierce
         - intense
+        - fierce
+       gold_freqs: [4,4,4,2,1]
        context: "So there we were, a roomful of putative enemies, engaged
       in warm debate, deep rapprochement, and even some pretty funny
       stories, some witty rejoinders"
@@ -259,11 +275,12 @@ warm:
       neuman_correct: friendly
       neuman_rates: [0.14,0.17,0.13,0.42]
       gold:
+        - kind
         - friendly
-        - loving
-        - kindly
-        - hearty
         - welcoming
+        - hearty
+        - loving
+      gold_freqs: [5,4,3,2,1]
       context: "Then Manti Te'o extended his hand to the stranger with a
       warm smile and soulful eyes"
     
@@ -280,6 +297,7 @@ warm:
         - good
         - pleasant
         - nice
+      gold_freqs: [5,4,4,4]
       context: "Both have warm memories of growing up with Dad"
     
     applause:
@@ -292,10 +310,11 @@ warm:
       neuman_rates: [0.26,0.21,0.13,0.32]
       gold:
         - enthusiastic
-        - affectionate
-        - excited
-        - genuine
+        - avid
+        - vigorous
+        - keen
         - hearty
+      gold_freqs: [5,3,3,2,2]
       context: "Not one person on the panel confuted those allegations
       and the allegations received warm applause from the audience"
 
@@ -427,6 +446,14 @@ sweet:
       - sound
       - voice
       - drink
+  orign_touchstone:
+    - agreeable
+    - amiable
+    - appealing
+    - attractive
+    - caring
+    - charming
+    - engaging
 
   with:
     dream:
@@ -446,6 +473,7 @@ sweet:
        - wonderful
        - beautiful
        - pleasurable
+      gold_freqs: [5,4,4,4,4,3,3,2]
       context: "She could almost see the tiny figure that once occupied
       it, cheeks rosy with sleep, a smile twitching the corner of her
       mouth as a sweet dream danced through her mind"
@@ -460,11 +488,12 @@ sweet:
       gold:
        - gratifying
        - satisfying
-       - delightful
-       - awaited
        - pleasing
-       - enjoyable
        - delicious
+       - delightful
+       - enjoyable
+       - awaited
+      gold_freqs: [5,4,3,3,3,2,2]
       context: "Now Florida of course, the Democrats would love to have
       sweet revenge by taking Florida"
 
@@ -477,16 +506,16 @@ sweet:
       neuman_correct: gentle
       neuman_rates: [0.15,0.15,0.19,0.49]
       gold:
-        - kind
-        - nice
-        - friendly
-        - gentle
-        - charming
-        - cherubic
-        - innocent
-        - delightful
         - endearing
+        - charming
+        - cute
+        - gentle
+        - kind
+        - innocent
+        - friendly
+        - delightful
         - angelic
+      gold_freqs: [4,3,2,1,1,1,1,1,1]
       context: "I will miss your bright eyes and sweet smile"
     
     baby:
@@ -503,6 +532,7 @@ sweet:
         - nice
         - cherubic
         - angelic
+      gold_freqs: [5,4,1,1,1]
       context: "And next year you'll have this sweet baby that we're all
       going to love so much"
     
@@ -515,14 +545,15 @@ sweet:
       neuman_correct: pleasing
       neuman_rates: [0.14,0.16,0.13,0.24]
       gold:
-        - nice
         - pleasant
-        - gentle
         - melodic
+        - gentle
         - pleasurable
         - soothing
-        - enchanting
         - beautiful
+        - nice
+        - enchanting
+      gold_freqs: [4,4,2,2,2,2,1,1]
       context: "He does write awfully sweet music for such a sour man"
 
     song:
@@ -535,12 +566,12 @@ sweet:
       neuman_rates: [0.14,0.15,0.19,0.24]
       gold:
         - pleasant
+        - lovely
         - nice
         - beautiful
-        - gentle
-        - wonderful
         - delightful
-        - lovely
+        - cheerful
+      gold_freqs: [3,3,3,2,2,2]
       context: "And on those beautiful December days, filled with sweet
       song and crispy cookies, never had Burning Fog Isle seemed so
       remote from the mainland. It was a world of mothers and fathers,
@@ -555,11 +586,11 @@ sweet:
       neuman_correct: lovable
       neuman_rates: [0.17,0.16,0.15,0.23]
       gold:
-        - cute
-        - nice
-        - lovable
-        - adorable
         - charming
+        - cute
+        - adorable
+        - lovable
+      gold_freqs: [3,3,3,1]
       context: "This little girl, whose photo reveals a sweet child with
       a forlorn expression, captured the hearts of this couple from New
       York"
@@ -573,15 +604,15 @@ sweet:
       neuman_correct: satisfying
       neuman_rates: [0.17,0.16,0.12,0.21]
       gold:
-        - lucrative
         - good
+        - excellent
         - favorable
-        - attractive
+        - terrific
         - advantageous
         - rewarding
-        - worthwhile
-        - excellent
-        - terrific
+        - attractive
+        - lucrative
+      gold_freqs: [5,4,3,3,2,2,1,1]
       context: "And that plea was a sweet deal, and I think now, with
       what he is accused of, the burden of proof is only by a
       preponderance of the evidence"
@@ -598,10 +629,10 @@ sweet:
         - pleasant
         - soothing
         - melodic
-        - gentle
         - beautiful
         - mellifluous
         - seraphic
+      gold_freqs: [5,3,3,3,3,1]
       context: "And he had a very gentle, sweet voice when talking about
       his family and children and so on"
     
@@ -614,10 +645,12 @@ sweet:
       neuman_correct: pleasant
       neuman_rates: [0.2,0.13,0.14,0.44]
       gold:
+        - loving
         - fond
         - pleasant
         - nice
         - good
+      gold_freqs: [5,4,3,3,2]
       context: "Rachel's friends and family, whose sweet memories of her
       compete with searing pain"
 
@@ -654,12 +687,13 @@ sweet:
         - satisfying
         - gratifying
         - rewarding
-        - awaited
+        - fulfilling
         - pleasing
         - delightful
         - pleasant
         - desired
-        - fulfilling
+        - awaited
+      gold_freqs: [5,4,4,3,3,3,3,2,2]
       context: "It was a sweet victory for Judy because even though she
       was the only woman and number one in her undergrad law class"
 
@@ -762,6 +796,11 @@ deep:
       - jungle
       - shade
       - patch
+  orign_touchstone: 
+    - abysmal
+    - arcane
+    - entrenched
+    - inherent
   with:
     depression:
       neuman_top_four:
@@ -773,11 +812,12 @@ deep:
       neuman_rates: [0.21,0.13,0.18,0.5]
       gold:
         - severe
-        - intense
-        - serious
         - acute
         - grave
+        - serious
         - terrible
+        - intense
+      gold_freqs: [5,4,4,3,1,1]
       context: "I fell into a deep depression, bingeing on food and
       watching mindless TV"
     
@@ -794,6 +834,7 @@ deep:
         - strong
         - restful
         - restorative
+      gold_freqs: [5,5,1,1]
       context: "But an hour later, they would be in such a deep sleep
       that the sound of a.45 wouldn't wake them up, nor all the family
       members and crime scene investigators who descended on the house"
@@ -814,7 +855,8 @@ deep:
         - overwhelming
         - great
         - considerable
-      context: "In 1995-96, people thought we were in deep trouble"
+      gold_freqs: [4,4,4,4,2,2,1]
+      context: "In 1995-96, people thought we were in deep trouble."
     
     understanding:
       neuman_top_four:
@@ -826,10 +868,10 @@ deep:
       neuman_rates: [0.19,0.18,0.18,0.51]
       gold:
         - profound
-        - abstruse
-        - thorough
         - fundamental
+        - thorough
         - comprehensive
+      gold_freqs: [5,4,3,2]
       context: "He had a deep understanding of literature and writing"
 
     sigh:
@@ -841,13 +883,14 @@ deep:
       neuman_correct: profound
       neuman_rates: [0.17,0.13,0.16,0.49]
       gold:
-        - exhaustive
-        - heartfelt
-        - prolonged
-        - desperate
         - exasperated
-        - sad
+        - prolonged
+        - heartfelt
+        - exhaustive
+        - indignant
         - frustrated
+        - sad
+      gold_freqs: [4,3,3,3,3,2,1]
       context: "With a deep sigh, Chris pulled on his backpack and moved
       to the edge of the loft"
 
@@ -861,12 +904,13 @@ deep:
       neuman_rates: [0.14,0.15,0.16,0.21]
       gold:
         - profound
-        - heartfelt
-        - wholehearted
         - intense
         - strong
+        - heartfelt
+        - wholehearted
+      gold_freqs: [4,4,3,2,2]
       context: "It seems to me that when you feel deep emotion, you're
-      having a really intense experience of one kind of another"
+      having a really intense experience of one kind or another"
 
     thoughts:
       neuman_top_four:
@@ -882,6 +926,7 @@ deep:
         - insightful
         - penetrating
         - recondite
+      gold_freqs: [5,5,4,4,2]
       context: "There were moments of doubt, moments of hesitation and
       deep thought, of course, but they never really coordinated their
       attacks at one time"
@@ -895,13 +940,14 @@ deep:
       neuman_correct: intense
       neuman_rates: [0.16,0.16,0.09,0.49]
       gold:
+        - profound
         - 'true'
         - genuine
-        - profound
-        - extreme
+        - sagely
+      gold_freqs: [5,3,3,3]
       context: "This person instead exuded the serenity that one always
       supposed a true Zen master would possess, smiled with a quality
-      the audience members had never or only rarely seen beforea true
+      the audience members had never or only rarely seen before, a true
       and deep happiness so compelling that no one wanted to turn from
       it"
         
@@ -918,6 +964,7 @@ deep:
        - low-pitched
        - booming
        - baritone
+      gold_freqs: [5,5,3,3]
       context: "And after the interview, he pulled me to the side and in
       that deep voice, he said, be careful about what you say"
 
@@ -930,11 +977,11 @@ deep:
       neuman_correct: mysterious
       neuman_rates: [0.15,0.13,0.11,0.49]
       gold:
-        - arcane
+        - rooted
         - profound
-        - abstruse
-        - fundamental
         - concealed
+        - fundamental
+      gold_freqs: [3,3,3,2]
       context: "In the midst of all the anguish, a dark cloud surfaced,
       a deep secret pitting one family against another"
 
@@ -947,12 +994,12 @@ deep:
       neuman_correct: abstruse
       neuman_rates: [0.1,0.15,0.16,0.19]
       gold:
-        - abstruse
-        - recondite
-        - profound
         - fundamental
-        - far-reaching
         - underlying
+        - profound
+        - far-reaching
+        - recondite
+      gold_freqs: [3,3,3,2,1]
       context: "one good place to start is to develop a deep theory of
       strategy creation"
 
@@ -965,13 +1012,13 @@ deep:
       neuman_correct: recondite
       neuman_rates: [0.13,0.14,0.1,0.18]
       gold:
-        - recondite
         - abstruse
         - profound
+        - recondite
         - thoughtful
         - comprehensive
-      context: "He doesn't want to go into a deep lecture at 8:30pm, but this
-      crowd obviously gets the basics"
+      gold_freqs: [5,5,5,1,1]
+      context: "He doesn't want to go into a deep lecture at 8:30pm, but this crowd obviously gets the basics"
 
 dark:
   literal:
@@ -1103,6 +1150,12 @@ dark:
       - dress
       - wall
       - stone
+  orign_touchstone:
+    - sad
+    - evil
+    - unhappy
+    - dim
+    - obscure
   with:
     comedy:
       neuman_top_four:
@@ -1113,11 +1166,12 @@ dark:
       neuman_correct: gallous
       neuman_rates: [0.1,0.1,0.13,0.12]
       gold:
-        - macabre
-        - morbid
         - cynical
         - grim
+        - macabre
+        - morbid
         - gruesome
+      gold_freqs: [2,2,2,2,1]
       context: "Although United States of Tara's creators emphasize that
       the story is a dark comedy, not a documentary, they claim to have
       consulted did patients and experts in developing the series"
@@ -1135,12 +1189,12 @@ dark:
         - macabre
         - cynical
         - wicked
-        - sardonic
         - depraved
+        - sardonic
         - grim
         - cynical
-      context: "We do a lot of political satire and dark humor and
-      stuff that we probably shouldn't be"
+      gold_freqs: [4,4,4,4,3,2,2,2]
+      context: "We do a lot of political satire and dark humor and stuff that we probably shouldn't be"
 
     secret:
       neuman_top_four:
@@ -1151,20 +1205,21 @@ dark:
       neuman_correct: concealed
       neuman_rates: [0,0.12,0.09,0.17]
       gold:
-        - horrid
-        - hideous
+        - shameful
         - horrible
+        - nasty
+        - dreadful
         - sinister
         - abominable
-        - dreadful
-        - shameful
-        - nasty
+        - horrid
+        - hideous
+      gold_freqs: [4,3,3,3,3,2,2,2]
       context: "Although I would say, the parents saying, you were asked
       this like by putting them on TV knowing they had this deep dark
       secret in the past maybe not so innocent victims"
 
 
-    thoughts:
+    thought:
       neuman_top_four:
         - intimate
         - romantic
@@ -1173,14 +1228,15 @@ dark:
       neuman_correct: evil
       neuman_rates: [0.15,0.12,0.14,0.57]
       gold:
+        - somber
+        - depressive
         - despondent
         - bad
-        - depressive
+        - melancholy
         - gloomy
-        - somber
         - evil
         - sinister
-        - melancholy
+      gold_freqs: [3,3,3,3,3,3,2,2]
       context: "She shook her head to dismiss the dark thought and
       stared at the snowglobe on her side table, on which she set her
       ever-present cup of hot tea"
@@ -1194,15 +1250,16 @@ dark:
       neuman_correct: evil
       neuman_rates: [0.09,0.11,0.07,0.54]
       gold:
-        - evil
+        - harmful
+        - unkind
         - bad
         - sinister
-        - malevolent
-        - unkind
-        - atrocious
-        - harmful
-        - villainous
         - wicked
+        - surrepitious
+        - covert
+        - malevolent
+        - evil
+      gold_freqs: [3,3,3,3,3,3,3,2,2]
       context: "I have a dark purpose for calling you here"
 
     vision: 
@@ -1214,12 +1271,13 @@ dark:
       neuman_correct: pessimistic
       neuman_rates: [0.1409,0.13,0.09,0.144]
       gold:
-        - pessimistic
         - hopeless
         - despondent
+        - pessimistic
         - desolate
         - dismal
         - malicious
+      gold_freqs: [4,4,4,3,3,1]
       context: "Ultimately, the only way to defeat the terrorists is to
       defeat their dark vision of hatred and fear by offering the
       hopeful alternative of political freedom and peaceful change"
@@ -1233,18 +1291,19 @@ dark:
       neuman_correct: threatening
       neuman_rates: [0.1,0.07,0.16,0.5]
       gold:
-        - menacing
-        - threatening
-        - serious
         - glowering
+        - menacing
+        - hateful
+        - threatening
         - sinister
         - maleficent
         - ominous
-        - hateful
-        - malevolent
-      context: "and the Academy seems to have a terrific connection with
-      it, even though it is a rather dark look at contemporary Los
-      Angeles and our culture more generally"
+        - serious
+      gold_freqs: [4,4,4,3,3,3,3,3]
+      context: "Del gives him a dark look and lets the statement hang between them"
+      #and the Academy seems to have a terrific connection with
+      #it, even though it is a rather dark look at contemporary Los
+      #Angeles and our culture more generally"
 
     deeds:
       neuman_top_four:
@@ -1256,14 +1315,15 @@ dark:
       neuman_rates: [0.14,0.18,0.14,0.22]
       gold:
         - sinister
-        - heinous
         - bad
         - evil
         - shameful
+        - heinous
+        - abhorrent
         - appalling
         - atrocious
         - terrible
-        - abhorrent
+      gold_freqs: [5,5,5,3,3,3,3,3,2]
       context: "When we say something, we help to ensure that dark
       deeds done in secret can no longer wreak havoc in the lives of the
       innocent"
@@ -1279,14 +1339,14 @@ dark:
       gold:
         - vicious
         - malicious
-        - menacing
         - evil
-        - bad
+        - menacing
         - demonic
         - diabolic
         - infernal
         - wicked
         - fiendish
+      gold_freqs: [3,3,3,3,3,3,3,2,2]
       context: "Anything other than the unwelcome reminder of Cesare,
       the not quite seventeen- year- old son of Il Cardinale, handsome
       as a dark angel, dangerous as Satan"
@@ -1301,19 +1361,17 @@ dark:
       neuman_rates: [0.14,0.13,0.09,0.2]
       gold:
         - morose
-        - somber
-        - bad
+        - despaired
         - dismal
         - cheerless
         - melancholy
-        - sinister
+        - bad
         - sad
-        - despaired
-        - mournful
+        - somber
         - unhappy
-        - suicidal
         - sullen
         - glum
+      gold_freqs: [4,4,4,3,3,3,3,3,3,3,3]
       context: "Let me put something else on the table, Alex, which is
       this dark mood in the country, the pessimism in the country"
     
@@ -1332,6 +1390,7 @@ dark:
         - sinister
         - pernicious
         - vile
+      gold_freqs: [4,4,4,4,4,2]
       context: "I can only describe like, like a really dark force of
       horrible energy that hit me"
 
@@ -1350,6 +1409,7 @@ dark:
         - sinister
         - pernicious
         - satanic
+      gold_freqs: [2,2,2,2,2,2]
       context: "he was born into a world filled with treachery, dark
       magic, and unresolved war"
 
@@ -1529,6 +1589,15 @@ hard:
       - object
       - shot
       - road
+  orign_touchstone:
+    - arduous
+    - awkward
+    - brutal
+    - callous
+    - challenging
+    - cruel
+    - demanding
+    - difficult
   with:
     task:
       neuman_top_four:
@@ -1540,32 +1609,39 @@ hard:
       neuman_rates: [0.11,0.18,0.13,0.49]
       gold:
         - difficult
+        - demanding
+        - taxing
         - arduous
         - grueling
         - toilsome
-        - demanding
-        - taxing
+      gold_freqs: [5,4,3,3,1,1]
       context: "Look, the task is a hard task, and that's what was so
       disappointing about the president's speech yesterday"
 
-    #look:
-    #  neuman_top_four:
-    #    - brief
-    #    - close
-    #    - firm
-    #    - dispassionate
-    #  neuman_correct: dispassionate
-    #  neuman_rates: [0,0.17,0.1,0.16]
-    #  gold:
-    #    - glaring
-    #    - glowering
-    #    - fierce
-    #    - angry
-    #    - severe
-    #    - foreboding
-    #    - scrutinizing
-    #    - critical
-    
+    look:
+      neuman_top_four:
+        - brief
+        - close
+        - firm
+        - dispassionate
+      neuman_correct: dispassionate
+      neuman_rates: [0,0.17,0.1,0.16]
+      #gold:
+      #  - glaring
+      #  - glowering
+      #  - fierce
+      #  - angry
+      #  - severe
+      #  - foreboding
+      #  - scrutinizing
+      #  - critical
+      gold:
+        - scrutinizing
+        - critical
+        - discerning
+        - judicious
+      gold_freqs: [4,4,3,3]
+      context: "And everyone can take a hard look at themselves and learn from that"
     bargainer:
       neuman_top_four:
         - dispassionate
@@ -1575,15 +1651,16 @@ hard:
       neuman_correct: good
       neuman_rates: [0.16,0.1,0.15,0.16]
       gold:
-        - stubborn
         - dogged
         - adamant
         - intractable
-        - determined
         - strong-minded
         - unwavering
         - unyielding
         - stern
+        - stubborn
+        - determined
+      gold_freqs: [5,5,5,5,5,5,5,3,2]
       context: "He was a hard bargainer who refused to bend under
       pressure"
 
@@ -1597,13 +1674,13 @@ hard:
       neuman_rates: [0.12,0.16,0.11,0.22]
       gold:
         - strong
+        - raging
         - harsh
         - fierce
         - violent
         - piercing
-        - raging
+      gold_freqs: [5,4,3,3,3,3]
       context: "Well, we have had lots of wind, hard wind and rain"
-
     blow:
       neuman_top_four:
         - firm
@@ -1615,13 +1692,11 @@ hard:
       gold:
         - severe
         - strong
-        - brutal
-        - crippling
-        - forceful
         - damaging
         - harmful
-      context: "So I think essentially this has got to be a hard blow
-      for the Baathist loyalists"
+        - brutal
+      gold_freqs: [5,5,4,4,3]
+      context: "So I think essentially this has got to be a hard blow for the Baathist loyalists"
 
     liquors:
       neuman_top_four:
@@ -1632,12 +1707,13 @@ hard:
       neuman_correct: strong
       neuman_rates: [0,0.08,0.12,0.22]
       gold:
+        - spirituous
+        - strong
         - alcoholic
         - intoxicating
         - inebriate
-        - spirituous
         - vinous
-        - strong
+      gold_freqs: [5,3,3,3,3,1]
       context: "By the way, this isn't just hard liquor, they're
       against any alcohol"
 
@@ -1650,17 +1726,15 @@ hard:
       neuman_correct: intemperate
       neuman_rates: [0.13,0.14,0,0.16]
       gold:
+        - abusive
         - intemperate
         - excessive
-        - abusive
-        - overly-frequent
         - extreme
         - voluminous
         - insatiable
         - dependent
-      context: "A street officer, for example, may recognize the
-      bloodshot eyes and boozy smell of a hard drinker, but maybe not
-      the slow response of a meth user's eyes to light"
+      gold_freqs: [4,3,3,2,2,1,1]
+      context: "A street officer, for example, may recognize the bloodshot eyes and boozy smell of a hard drinker, but maybe not the slow response of a meth user's eyes to light"
     
     luck:
       neuman_top_four:
@@ -1676,6 +1750,7 @@ hard:
         - miserable
         - lousy
         - terrible
+      gold_freqs: [5,5,3,3,2]
       context: "But if they're just dissatisfied with the result, well,
       sorry, but that's hard luck"
 
@@ -1691,14 +1766,14 @@ hard:
         - unpleasant
         - offended
         - rancorous
+        - belligerent
         - bad
         - uneasy
         - negative
         - awkward
         - upsetting
         - troubling
-        - obnoxious
-        - awful
+      gold_freqs: [4,4,4,4,4,3,3,2,2,1]
       context: "Moreover, her presence in Haiti will help to paper over
       any hard feelings, you know, friction that may have occurred
       between some people who were in charge of the airport in
@@ -1715,13 +1790,13 @@ hard:
       neuman_rates: [0.14,0.17,0.17,0.2]
       gold:
         - conclusive
+        - decisive
         - irrefutable
+        - indisputable
         - convincing
         - compelling
         - credible
-        - indisputable
-        - decisive
-        - clear-cut
+      gold_freqs: [5,4,4,4,4,3,3]
       context: "Pending forensic evidence, hard evidence from the crash
       investigation itself"
 
@@ -1738,11 +1813,13 @@ hard:
         - inopportune
         - adverse
         - bad
+        - trying
         - taxing
         - strenuous
-        - trying
         - exacting
-      context: ""
+      gold_freqs: [5,5,5,5,4,4,4,4]
+      context: "It has been and still is, a hard time for many."
+
     
     work:
       neuman_top_four:
@@ -1753,15 +1830,16 @@ hard:
       neuman_correct: difficult
       neuman_rates: [0.18,0.09,0.17,0.48]
       gold:
+        - difficult
+        - challenging
+        - demanding
+        - effortful
         - arduous
         - laborious
-        - difficult
         - tedious
         - exhausting
         - toilsome
         - excruciating
-        - demanding
-        - effortful
-        - challenging
+      gold_freqs: [5,4,4,4,3,3,3,3,1,1]
       context: "Obviously, it's a hard task and job, and the hard work
       is only just beginning"
