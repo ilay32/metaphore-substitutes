@@ -802,29 +802,32 @@ class Erlangen2:
         if justbase:
             return basename
         return os.path.join(Erlangen2.csvdir,basename+".csv")
-    
+     
     def get(self,word,ngram,repeated=False):
         filename = Erlangen2.ngram2filename(ngram)
         ans = None
+        maxi = None
         if os.path.isfile(filename):
             try:
                 d = pd.read_csv(filename)
                 row  = d[d['N-gram']==word]
                 if row.values.any():
-                    ans =  row
+                    ans = row
+                    maxi = d['frequency'].max()
                 else:
                     ans = 0
                 del(d)
             except(pd.errors.ParserError):
                 if bytearray("internal error, got 0 values","utf-8") in open(filename,'rb').read():
                     ans =  0
+                    maxi = 0
                 else:
                     print("check",filename)
                 
         elif not repeated:
             self.query(ngram)
             return self.get(word,ngram,True)
-        return ans 
+        return ans,maxi
             
     
 
