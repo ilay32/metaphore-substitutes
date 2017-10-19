@@ -8,13 +8,14 @@ from dbutils import *
 from prygress import progress
 from ngraph import NeumanGraph
 from sklearn.cluster import KMeans as km
-from scipy.stats import spearmanr,entropy
+from scipy.stats import spearmanr,entropy,percentileofscore
 from lxml import etree
 
 
 #   globals
 #----------------------
 ggrams = Erlangen()
+ggrams2 = Erlangen2()
 params = yaml.load(open('params.yml'))
 pairs = yaml.load(open(params['pairs_file']))
 nouncats = pickle.load(open('nclass.pkl','rb'))
@@ -25,11 +26,12 @@ vectormodel = conf['vectormodel']
 semevaltest = etree.parse('../semeval/lexsub_test.xml')
 #coinco = etree.parse('../coinco/coinco.xml')
 #cropper = etree.XSLT('../coinco/adjoptions.xsl')
-
 if vectormodel == "LSA":
     vecs = Vecs(DB('LSA-ENG'))
 elif vectormodel == "SPVecs":
     vecs = SPVecs()
+    vecs.has = lambda x: x in vecs
+    
 else:
     vecs = KeyedVectors.load_word2vec_format(vectormodel,binary=True)
     vecs.has = lambda x: x in vecs
@@ -40,6 +42,14 @@ else:
 
 #   helpers
 #-----------------
+def antonyms(target_word,pos=None):
+    synsets = wn.synsets(target_word,pos)
+    ants = set()
+    for s in synsets:
+        for l in s.lemmas():
+            ants = ants.union(set([ant.name() for ant in l.antonyms()]))
+    return ants
+
 def clearvecs(l,ind=None):
     ret = list()
     for x in l:
@@ -122,7 +132,9 @@ class MetaphorSubstitute:
         this allows for maximal flexibility without a deep and branchy
         inheritance tree.
         """
-        candidates = self.get_candidates()
+        ants = self.pred_antonyms()
+        candidates = [c for c in self.get_candidates() if c not in ants]
+        
         if SingleWordData.empty(candidates):
             return []
         self.coverage = overlap(candidates,self.gold)
@@ -161,7 +173,9 @@ class MetaphorSubstitute:
             "oot" : self.oot(),
             "best" : self.best(),
             "cands_size" : len(subs),
-            "semid" : self.semid
+            "semid" : self.semid,
+            "KL" : self.KL(),
+            "isnovel" : 1 -  self.self_rrep()
         }
     #******************************* 
     #   evaluation methods           
@@ -215,9 +229,11 @@ class MetaphorSubstitute:
         acc = 0
         tranks = list()
         # this assumes the gold *ranks* are unique and the list is sorted
-        for s,r in self.substitutes:
-            if s in self.gold:
-                tranks.append(self.gold.index(s))
+        for i,s in enumerate(self.substitutes):
+            if s[0] in self.gold:
+                gi = self.gold.index(s[0])
+                tranks.append(gi)
+                acc += (gi - i)**2
         c = len(tranks)
         if c > 2:
             return 1 - (6 * acc)/(c**3 - c)
@@ -268,13 +284,21 @@ class MetaphorSubstitute:
 
     #   miscelenia
     #----------------------
+    def isnovel(self,spread=1,n=20):
+        #wnsyns = set(self.wncands(spread)())
+        #cocsyns = self.cocands(c)()
+        syns = set(self.roget_syns)
+        mods = set(self.ngramcands(n)())
+        return len(syns.intersection(mods)) == 0
+
+
     def erlangen_swaps(c):
        c = regex.sub(r'\p{P}', ' PUN ',c)
        c = re.sub(r'[0-9]+',' NUM ',c)
        return c
 
     @preeval
-    def intersection_rates(self,limit=None):
+    def intersection_rates(self,limit=10):
         granks = list()
         tranks = list()
         l = len(self.substitutes) if limit is None else limit
@@ -378,30 +402,49 @@ class AdjSubstitute(MetaphorSubstitute):
         self.wordnet_class = wn.ADJ
         self.strong_syns = list()
         super(AdjSubstitute,self).__init__(options)
+        self.isnovel = self.isnovel()
             
         
         
     #******************************
     #   rating methods
     #******************************
-    def simpleadj(self,num):
+    def pseudoneum(self):
+        touchstone = clearvecs(self.orign_touchstone)
         def rate(cand):
             if cand in vecs:
+                return vecs.n_similarity([cand],touchstone)
+            return 0
+        return rate
+
+    def simpleadj(self,withnoun=False):
+        def rate(cand):
+            if cand in vecs:
+                if self.lnoun in vecs and withnoun:
+                    return vecs.n_similarity([cand],[self.pred,self.lnoun])
                 return vecs.similarity(cand,self.pred)
             else:
                 return 0
         return rate
 
+    def adjabst(self,withnoun=False):
+        def rate(cand):
+            a = abst.get(cand) or 0.5
+            return a * self.simpleadj(withnoun)(cand)
+        return rate
+
     def by_coca_synonyms_of_pred(self,num,withnoun=False):
-        touchstone = clearvecs(self.coca_syns[:num],0)
+        touchstone = clearvecs(self.coca_syns[:num])
         if withnoun and self.lnoun in vecs:
             touchstone.append(self.lnoun)
         def rate(cand):
+            if cand not in vecs:
+                return 0
             return vecs.n_similarity([cand],touchstone)
         return rate
     
-    def coca_abstract(self,num,withnoun=False):
-        touchstone = sorted(clearvecs(self.coca_syns),key=lambda x: abst.get(x),reverse=True)[:num]
+    def coca_abstract(self,pool,num,withnoun=False):
+        touchstone = sorted(clearvecs(self.coca_syns[:pool]),key=lambda x: abst.get(x),reverse=True)[:num]
         if withnoun and self.lnoun in vecs:
             touchstone.append(self.lnoun)
         def rate(cand): 
@@ -419,7 +462,7 @@ class AdjSubstitute(MetaphorSubstitute):
             if vecs.has(cand):
                 return vecs.n_similarity([cand],touchstone)
             else:
-                print(cand)
+                print("not in vecs:",cand)
                 return 0
         return rate
     
@@ -447,24 +490,62 @@ class AdjSubstitute(MetaphorSubstitute):
             return factor1 + factor2
         return rate
     
-    def utsumi1cat(self,num):
+        
+    def utsumi_comparison(self,evalmethod,basetype='simplified'):
+        k = params['utsumi'][evalmethod]['comp']
+        if basetype == 'original':
+            base = self.utsumi_comparison_base1(k,300)
+        elif basetype == 'simplified':
+            base = self.utsumi_comparison_base2(k)
         def rate(cand):
-            if cand not in vecs:
-                return 0
-            env = vecs.most_similar(self.pred,topn=50)
-            if self.lnoun in vecs:
-                touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.lnoun),reverse=True)[:num] + [self.pred,self.lnoun] 
-            else:
-                print("instance noun not in vecs. Utsumi using all 50")
-                touchstone = env + [self.pred]
-            return vecs.n_similarity([cand],[w[0] for w in touchstone])
+            if cand in vecs:
+                return vecs.n_similarity([cand],base)
+            return 0
         return rate
 
 
+    def utsumi1cat(self,evalmethod):
+        m,k = params['utsumi'][evalmethod]['onecat']
+        env = vecs.most_similar(self.pred,topn=m)
+        T = self.utsumi_base(env)
+        def rate(cand):
+            if cand not in vecs:
+                return 0
+            return vecs.n_similarity([cand],[w[0] for w in T[:k]])
+        return rate
+
+
+    def utsumi2cat(self,evalmethod):
+        m1,k,m2 = params['utsumi'][evalmethod]['twocat']
+        env = vecs.most_similar(self.pred,topn=m1)
+        T1 = self.utsumi_base(env)[:k]
+        T1C = np.sum(vecs[w] for w,s in T1)/k
+        T2 = [w[0] for w in vecs.similar_by_vector(T1C,topn=m2)]
+        if self.lnoun in vecs:
+            T2.append(self.lnoun)
+        T2.append(self.pred)
+        def rate(cand):
+            if cand not in vecs:
+                return 0
+            return vecs.n_similarity([cand],T2)
+        return rate
 
     #*******************************
     #   candidate fetch methods
     #*******************************
+    def selfgold(self):
+        def genlist():
+            return self.gold
+        return genlist
+
+    def goldcands(self):
+        def genlist():
+            ret = set()
+            for noun,dat in pairs[self.pred]['with'].items():
+                ret = ret.union(set(dat['gold']))
+            return list(ret)
+        return genlist
+
     def semgold(self):
         def genlist():
             with open("semgold-candidates.txt") as sg:
@@ -527,20 +608,16 @@ class AdjSubstitute(MetaphorSubstitute):
     
     def synsormods(self,w,c,n):
         def genlist():
-            wnsyns = self.wncands(w)()
-            cocsyns = self.cocands(c)()
-            syns = set(wnsyns + cocsyns)
-            mods = set(self.ngramcands(n)())
-            applicable_synonyms = syns.intersection(mods)
-            ret = None
-            if len(applicable_synonyms) > 0:
-                self.candidate_rank = self.simpleadj(1)
+            if not self.isnovel:
+                print("conventional")
+                #self.candidate_rank = self.simpleadj(1)
                 if len(applicable_synonyms) > 3: 
                     ret = list(applicable_synonyms)
                 else:
                     ret = list(applicable_synonyms) #+ list(mods)[:(10 - len(applicable_synonyms))]
             else:
-                self.candidate_rank = self.adjplusfreq(15)
+                print("novel")
+                #self.candidate_rank = self.coca_abstract(12)
                 ret =  list(mods)
             return ret
         return genlist
@@ -571,9 +648,9 @@ class AdjSubstitute(MetaphorSubstitute):
         
     def ngramcands(self,num):
         def genlist():
-            bynoun = AdjSubstitute.pred_candidates.get(self.lnoun).most_common(num)
+            bynoun = AdjSubstitute.pred_candidates.get(self.lnoun)
             if bynoun is not None:
-                return [w[0] for w in bynoun if w[0] != self.pred]
+                return [w[0] for w in  bynoun.most_common(num) if w[0] != self.pred]
             else:
                 return []
         return genlist 
@@ -656,7 +733,34 @@ class AdjSubstitute(MetaphorSubstitute):
 
     #   helpers
     #-----------------------
+    def utsumi_base(self,env):
+        touchstone = env
+        if self.lnoun in vecs:
+            touchstone = sorted(env,key=lambda x: vecs.similarity(x[0],self.lnoun),reverse=True)
+        else:
+            print("instance noun not in vecs, using",len(env),"closest to",self.pred)
+        return touchstone
+
+
+    def utsumi_comparison_base1(self,k,samp):
+        if self.lnoun not in vecs:
+            return [w for w,s in vecs.most_similar(self.pred,topn=k)]
+        base = list()
+        adjenv = [w[0] for w in vecs.most_similar(self.pred,topn=samp)]
+        nounenv = [w[0] for w in vecs.most_similar(self.lnoun,topn=samp)]
+        for i in range(samp):
+            inter = set([w for w in nounenv[:i]]).intersection([w for w in adjenv[:i]])
+            if len(inter) >= k:
+                return list(inter)
+        print("entering recursion",2*samp)
+        return self.utsumi_comparison_base1(k,2*samp)
     
+    def utsumi_comparison_base2(self,k):
+        if self.lnoun not in vecs:
+            return [w[0] for w in vecs.most_similar(self.pred,topn=k)]
+        instance_c = (vecs[self.lnoun] + vecs[self.pred])/2
+        return [w for w,s in vecs.similar_by_vector(instance_c,topn=k)]
+
     def modifies_noun1(self,adj):
         objs = AdjSubstitute.object_clusters.get(adj)
         if self.lnoun in objs:
@@ -667,7 +771,9 @@ class AdjSubstitute(MetaphorSubstitute):
         adjs = AdjSubstitute.pred_candidates.get(self.lnoun)
         if adj in adjs:
             return adjs.freq(adj)/adjs.N()
-        return 1/adjs.N()
+        if adjs.N() > 0:
+            return 1/adjs.N()
+        return 0
     
     def get_graph_data(self,kind):
         """
@@ -684,36 +790,43 @@ class AdjSubstitute(MetaphorSubstitute):
     
 
     def filter_antonyms(self,words):
-        print("filtering antonyms")
-        rem = list()
-        for word in words:
-            synsts = wn.synsets(word,wn.ADJ)
-            syns = self.get_syns()[:10]
-            for snset in synsts:
-                for lem in snset.lemmas():
-                    ants = lem.antonyms()
-                    for ant in [a.name() for a in ants if a.name() in vecs]:
-                        remove  = ""
-                        add = ""
-                        print("checking",ant,"against",word)
-                        dis1 = vecs.n_similarity([word],syns)
-                        dis2 = vecs.n_similarity([ant],syns)
-                        if dis1 > dis2:
-                            remove = ant
-                        elif dis2 > dis1:
-                            remove = word
-                            add = ant
-                        if add in vecs and add not in words:
-                            print("adding",add)
-                            #words.append(add)
-                        if remove not in rem and remove in words:
-                            print("removing",remove)
-                            words.remove(remove)
-                            rem.append(remove)
-        return words
+        pass;
+        #print("filtering antonyms")
+        #rem = list()
+        #for word in words:
+        #    synsts = wn.synsets(word,self.wordnet_class)
+        #    syns = clearvecs(self.wordnet_closure(word,None))
+        #    for snset in synsts:
+        #        for lem in snset.lemmas():
+        #            ants = lem.antonyms()
+        #            for ant in [a.name() for a in ants if a.name() in vecs]:
+        #                remove  = ""
+        #                add = ""
+        #                print("checking",ant,"against",word)
+        #                dis1 = vecs.n_similarity([word],syns)
+        #                dis2 = vecs.n_similarity([ant],syns)
+        #                if dis1 > dis2:
+        #                    remove = ant
+        #                elif dis2 > dis1:
+        #                    remove = word
+        #                    add = ant
+        #                if add in vecs and add not in words:
+        #                    print("adding",add)
+        #                    #words.append(add)
+        #                if remove not in rem and remove in words:
+        #                    print("removing",remove)
+        #                    words.remove(remove)
+        #                    rem.append(remove)
+        #return words
 
     #   miscelenia
     #------------------------
+    def pred_antonyms(self):
+        base = antonyms(self.pred)
+        for ant in base:
+            base = base.union(self.wordnet_closure(ant,self.wordnet_class))
+        return base
+
     def neuman_filtered_synoyms(self,syns=None):
         if self.pred not in AdjSubstitute.adjdata:
             AdjSubstitute.adjdata[self.pred] = {
@@ -770,17 +883,22 @@ class AdjSubstitute(MetaphorSubstitute):
 
 class Irst2(AdjSubstitute):
     def __init__(self,options):
-        super(Irst2,self).__init__(options)
         self.cand_scores = list()
         self.target_grams = list()
+        self.pred = options['pred']
+        self.noun = options['noun']
+        self.semid = options['semid']
         self.context = self.get_context() 
+        super(Irst2,self).__init__(options)
     
     def resolve_methods(self):
         self.get_candidates = eval('self.'+self.methods['candidates'])
     
     def get_scores(self):
         scores = dict()
-        for place,cand in enumerate(self.get_candidates()):
+        cands = self.get_candidates()
+        self.coverage = overlap(self.gold,cands)
+        for place,cand in enumerate(cands):
             s = self.swaped_ngrams(cand)
             for i in range(2,6):
                 if place == 0:
@@ -796,7 +914,18 @@ class Irst2(AdjSubstitute):
         self.cand_scores = scores
         return scores
 
-    
+    def self_replaceability(self):
+        grams = self.target_ngrams()
+        counts = list()
+        ans = 0
+        for g in grams:
+            count = ggrams.get(" ".join(g))
+            counts.append((len(g),count))
+        for i in range(2,6):
+            iscore = sum([x[1] for x in counts if x[0] == i])
+            ans += i*iscore
+        return ans
+
     def target_ngrams(self):
         if not SingleWordData.empty(self.target_grams):
             return self.target_grams
@@ -857,11 +986,154 @@ class Irst2(AdjSubstitute):
         self.substitutes = subs
         return subs
 
+class Irst22(Irst2):
+    stashfile = os.path.join(SingleWordData.dbcache,'erlangenstash.pkl')
+    def __init__(self,options):
+        super(Irst22,self).__init__(options)
+        if os.path.isfile(Irst22.stashfile):
+            self.stash = pickle.load(open(Irst22.stashfile,'rb'))
+        else:
+            self.stash = dict()
+        self.measure = 'frequency'
+    
+    def target_ngrams(self):
+        grams = super(Irst22,self).target_ngrams()
+        ret = list()
+        for g in grams:
+            gbar = copy.deepcopy(g)
+            for i,w in enumerate(g):
+                if g[i] == self.pred:
+                    if g[i-1] in ('a','an','A','An'):
+                        gbarbar = copy.deepcopy(g)
+                        gbarbar[i-1] = g[i-1].strip('n') if 'n' in g[i-1] else gbar[i-1]+'n'
+                        gbarbar[i] = "*"
+                        ret.append(gbarbar)
+                    gbar[i] = "*"
+                    ret.append(gbar)
+        return ret    
+    
+    def get_scores(self):
+        scores = dict()
+        cands = self.get_candidates()
+        self.coverage = overlap(self.gold,cands)
+        tgrams = self.target_ngrams()
+        for place,cand in enumerate(cands):
+            if cand in self.stash and self.semid in self.stash[cand]:
+                print(cand,"scores from stash")
+                for i in range(2,6):
+                    if place == 0:
+                        scores[i] = list()
+                    s = self.stash[cand][self.semid][self.measure][i]
+                    if s > 0:
+                        scores[i].append((cand,s))
+            else:
+                candscores = np.zeros(6)
+                for i in range(2,6):
+                    if place == 0:
+                        scores[i] = list()
+                    score = 0
+                    grams = [g for g in tgrams if len(g) == i]
+                    for gram in grams:
+                        r = ggrams2.get(cand,gram)
+                        if type(r) == int and r  == 0:
+                            print(cand,"not found",gram) 
+                            continue 
+                        else:
+                            s = r[self.measure].values[0]
+                            score += s
+
+                    if score > 0:
+                        candscores[i] = score 
+                        scores[i].append((cand,score))
+                if cand not in self.stash and self.semid is not None:
+                    self.stash[cand] = {
+                        self.semid : {
+                            self.measure: candscores
+                        }
+                    }
+        self.cand_scores = scores
+        with open(Irst22.stashfile,'wb') as f:
+            pickle.dump(self.stash,f)
+        print(scores)
+        return scores
+    
+    def replaceability(self,word=None):
+        if word is None:
+            word = self.pred
+        ans = 0
+        for g in self.target_ngrams():
+            r = ggrams2.get(word,g)
+            if type(r) != int and r.values.any():
+                ans += r['t-score'].values[0]*len(g)
+        return ans
+        
+
+    def self_rrep(self):
+        return self.replaceability()
+
+class Irst3(Irst2):
+    def find_substitutes(self):
+        return super(Irst2,self).find_substitutes()
+    
+    def resolve_methods(self):
+        super(Irst2,self).resolve_methods()
+    
+    # candidate rating #
+    #------------------#
+    def rep(self):
+        scores = self.get_scores()
+        #sums = dict((i,sum([t[1] for t in scores[i]])) for i in scores.keys())
+        sums = dict()
+        for k in scores.keys():
+            sums[k] = nltk.MLEProbDist(nltk.FreqDist(dict(scores[k])))
+        def rate(cand):
+            r = 0
+            for ngramlength,dat in scores.items():
+                for c,s  in dat:
+                    if c == cand:
+                        r += ngramlength*sums[ngramlength].prob(c)
+            return r
+        return rate
+    
+    def simplerep(self):
+        scores = self.get_scores()
+        def rate(cand):
+            ans = 0
+            for i in range(2,6):
+                iscore = sum([x[1] for x in scores[i] if x[0] == cand])
+                ans += i*iscore
+            return ans
+        return rate
+    
+    def self_rrep(self):
+        r = super(Irst3,self).self_replaceability()
+        rep = self.simplerep()
+        rs = [rep(c) for c in self.get_candidates()]
+        return percentileofscore(rs,r)/100
+
+    def repsim(self):
+        r = self.rep()
+        sim = self.coca_sbstract(30,12)
+        def rate(cand):
+            return r(cand) * sim(cand)
+        return rate
+    
+    def origrepsim(self):
+        subs = [w for w,r in super(Irst3,self).find_substitutes()]
+        #sim = self.coca_abstract(30,12)
+        #sim = self.by_coca_synonyms_of_pred(12)
+        sim = self.adjabst()
+        sr = self.self_rrep()
+        def rate(cand):
+            if cand not in subs:
+                return sim(cand)
+            return sim(cand) + 1/(subs.index(cand)+1)
+        return rate
+
 class SemEvalSystem(AdjSubstitute):
     datadir = "../semeval/systems"
     def __init__(self,options):
-        if 'dry_run' not in options:
-            options['dry_run'] = True
+        options['dry_run'] = True
         super(AdjSubstitute,self).__init__(options)
         self.oot_file = self.filepath('oot')
         self.best_file = self.filepath('best')
@@ -882,7 +1154,7 @@ class SemEvalSystem(AdjSubstitute):
     
     def hasresults(self):
         return os.path.isfile(eval('self.'+self._mode+'_file'))
-
+    
     def find_substitutes(self):
         subs = list()
         results = self.parse_results_line() 
@@ -891,7 +1163,7 @@ class SemEvalSystem(AdjSubstitute):
                 subs.append((r.strip("\n"),1/i))
             self.substitutes = subs
         return subs
-
+    
     def parse_results_line(self):
         if not self.hasresults():
             return None

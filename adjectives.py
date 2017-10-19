@@ -1,4 +1,4 @@
-import yaml,random
+import yaml,random,itertools,copy
 from metsub import *
 from dbutils import *
 def cleanup():
@@ -31,14 +31,15 @@ def pairblock(adj,noun,dat,is_dry=False):
         'coca_syns' : pairs[adj]['coca_syns'],
         'roget_syns' : pairs[adj]['roget_syns'],
         'dry_run' : is_dry,
-        'semid' : dat.get('id')
+        'semid' : dat.get('id'),
+        'orign_touchstone' : pairs[adj].get('orign_touchstone')
     }
 
 processed_pairs = sum([[pairblock(adj,noun,ndata) for noun,ndata in pairs[adj]['with'].items()] for adj in pairs.keys()],[])
 processed_pairs.sort(key=lambda x: x['noun'])
 processed_pairs.sort(key=lambda x: x['pred'])
 
-def main(fetcher,rater,classname='AdjSubstitute'):
+def main(fetcher,rater,classname='AdjSubstitute',system_name=None):
     print("adjective - object pairs:")
     for i,p in enumerate(processed_pairs,1):
         print(str(i)+".",p['pred'],p['noun'])
@@ -78,10 +79,16 @@ def main(fetcher,rater,classname='AdjSubstitute'):
             'rating' : rater #irrelevant for Irst2
         }
     }
+    if classname == 'SemEvalSystem': 
+        if  system_name is None:
+            print("SemEvalSystem requires a system name")
+            quit()
+        else:
+            conf['system_name'] = system_name
+
     for p in run:
         conf.update(p)
         ms = eval(classname)(conf)
-        ms.find_substitutes()
         rundata.append(ms.export_data())
         print("\n====================\n")
     rundata = RunData(pd.DataFrame(rundata),note,ms.classname)
