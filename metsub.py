@@ -174,8 +174,8 @@ class MetaphorSubstitute:
             "best" : self.best(),
             "cands_size" : len(subs),
             "semid" : self.semid,
-            "KL" : self.KL(),
-            "isnovel" : 1 -  self.self_rrep()
+            "KL" : self.KL()#,
+            #"isnovel" : 1 -  self.self_rrep()
         }
     #******************************* 
     #   evaluation methods           
@@ -427,12 +427,15 @@ class AdjSubstitute(MetaphorSubstitute):
                 return 0
         return rate
 
-    def adjabst(self,withnoun=False):
+    def adjabst(self,operation='mult',withnoun=False):
         def rate(cand):
             a = abst.get(cand) or 0.5
-            return a * self.simpleadj(withnoun)(cand)
+            if operation == 'mult':
+                return a * self.simpleadj(withnoun)(cand)
+            else:
+                return a + self.simpleadj(withnoun)(cand)
         return rate
-
+    
     def by_coca_synonyms_of_pred(self,num,withnoun=False):
         touchstone = clearvecs(self.coca_syns[:num])
         if withnoun and self.lnoun in vecs:
@@ -1034,9 +1037,9 @@ class Irst22(Irst2):
                     score = 0
                     grams = [g for g in tgrams if len(g) == i]
                     for gram in grams:
-                        r = ggrams2.get(cand,gram)
+                        r,m = ggrams2.get(cand,gram)
                         if type(r) == int and r  == 0:
-                            print(cand,"not found",gram) 
+                            #print(cand,"not found",gram) 
                             continue 
                         else:
                             s = r[self.measure].values[0]
@@ -1062,16 +1065,17 @@ class Irst22(Irst2):
             word = self.pred
         ans = 0
         for g in self.target_ngrams():
-            r = ggrams2.get(word,g)
+            r,m = ggrams2.get(word,g)
             if type(r) != int and r.values.any():
-                ans += r['t-score'].values[0]*len(g)
+                ans += r['frequency'].values[0]*len(g)/m
         return ans
+    
         
 
     def self_rrep(self):
         return self.replaceability()
 
-class Irst3(Irst2):
+class Irst3(Irst22):
     def find_substitutes(self):
         return super(Irst2,self).find_substitutes()
     
@@ -1095,6 +1099,11 @@ class Irst3(Irst2):
             return r
         return rate
     
+    def simplerep2(self):
+        def rate(cand):
+            return self.replaceability(cand)
+        return rate
+
     def simplerep(self):
         scores = self.get_scores()
         def rate(cand):
