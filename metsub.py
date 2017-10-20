@@ -1022,7 +1022,7 @@ class Irst22(Irst2):
         tgrams = self.target_ngrams()
         for place,cand in enumerate(cands):
             if cand in self.stash and self.semid in self.stash[cand]:
-                print(cand,"scores from stash")
+                #print(cand,"scores from stash")
                 for i in range(2,6):
                     if place == 0:
                         scores[i] = list()
@@ -1071,7 +1071,6 @@ class Irst22(Irst2):
                 p = percentileofscore(d['frequency'],f)/100
                 ans += len(g)*p
         return ans/(sum(range(2,6)))
-    
         
 
     def self_rrep(self):
@@ -1123,10 +1122,18 @@ class Irst3(Irst22):
         return percentileofscore(rs,r)/100
 
     def repsim(self):
-        r = self.rep()
-        sim = self.coca_sbstract(30,12)
+        #r = self.rep()
+        sim = self.coca_abstract(30,12)
         def rate(cand):
-            return r(cand) * sim(cand)
+            return self.replaceability(cand) * sim(cand)
+        return rate
+
+    def repplusim(self):
+        sim = self.coca_abstract(30,10)
+        selfrep = self.replaceability()
+        print(selfrep)
+        def rate(cand):
+            return max(0,1 - selfrep) * sim(cand) + self.replaceability(cand)
         return rate
     
     def origrepsim(self):
