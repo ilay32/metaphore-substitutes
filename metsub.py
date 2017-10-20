@@ -1037,13 +1037,14 @@ class Irst22(Irst2):
                     score = 0
                     grams = [g for g in tgrams if len(g) == i]
                     for gram in grams:
-                        r,m = ggrams2.get(cand,gram)
-                        if type(r) == int and r  == 0:
+                        d = ggrams2.get(gram)
+                        if d is not None:
+                            if cand not in d['N-gram'].values:
                             #print(cand,"not found",gram) 
-                            continue 
-                        else:
-                            s = r[self.measure].values[0]
-                            score += s
+                                continue 
+                            else:
+                                s = d[d['N-gram'] == cand]['frequency'].values[0]
+                                score += s
 
                     if score > 0:
                         candscores[i] = score 
@@ -1057,7 +1058,6 @@ class Irst22(Irst2):
         self.cand_scores = scores
         with open(Irst22.stashfile,'wb') as f:
             pickle.dump(self.stash,f)
-        print(scores)
         return scores
     
     def replaceability(self,word=None):
@@ -1065,10 +1065,12 @@ class Irst22(Irst2):
             word = self.pred
         ans = 0
         for g in self.target_ngrams():
-            r,m = ggrams2.get(word,g)
-            if type(r) != int and r.values.any():
-                ans += r['frequency'].values[0]*len(g)/m
-        return ans
+            d = ggrams2.get(g)
+            if d is not None and word in d['N-gram'].values:
+                f = d[d['N-gram'] ==  word]['frequency'].values[0]
+                p = percentileofscore(d['frequency'],f)/100
+                ans += len(g)*p
+        return ans/(sum(range(2,6)))
     
         
 
