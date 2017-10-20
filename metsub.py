@@ -1038,7 +1038,7 @@ class Irst22(Irst2):
                     grams = [g for g in tgrams if len(g) == i]
                     for gram in grams:
                         d = ggrams2.get(gram)
-                        if d is not None:
+                        if isinstance(d,pd.core.fram.DataFrame):
                             if cand not in d['N-gram'].values:
                             #print(cand,"not found",gram) 
                                 continue 
@@ -1066,7 +1066,7 @@ class Irst22(Irst2):
         ans = 0
         for g in self.target_ngrams():
             d = ggrams2.get(g)
-            if d is not None and word in d['N-gram'].values:
+            if isinstance(d,pd.core.frame.DataFrame) and  word in d['N-gram'].values:
                 f = d[d['N-gram'] ==  word]['frequency'].values[0]
                 p = percentileofscore(d['frequency'],f)/100
                 ans += len(g)*p
