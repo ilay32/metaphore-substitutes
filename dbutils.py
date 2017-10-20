@@ -796,31 +796,32 @@ class Erlangen2:
             return basename
         return os.path.join(Erlangen2.csvdir,basename+".csv")
      
-    def get(self,word,ngram,repeated=False):
+    def get(self,ngram,repeated=False):
         filename = Erlangen2.ngram2filename(ngram)
         ans = None
-        maxi = None
         if os.path.isfile(filename):
             try:
                 d = pd.read_csv(filename)
-                row  = d[d['N-gram']==word]
-                if row.values.any():
-                    ans = row
-                    maxi = d['frequency'].max()
-                else:
-                    ans = 0
+                ans = d
                 del(d)
-            except(pd.errors.ParserError):
+                #row  = d[d['N-gram']==word]
+                #if row.values.any():
+                #    ans = row
+                #    maxi = d['frequency'].max()
+                #    place = percentileofscore(r
+                #else:
+                #    ans = 0
+                #del(d)
+            except(Exception):
                 if bytearray("internal error, got 0 values","utf-8") in open(filename,'rb').read():
                     ans =  0
-                    maxi = 0
                 else:
                     print("check",filename)
                 
         elif not repeated:
             self.query(ngram)
-            return self.get(word,ngram,True)
-        return ans,maxi
+            return self.get(ngram,True)
+        return ans
             
     
 
